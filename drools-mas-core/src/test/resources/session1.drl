@@ -1,0 +1,19 @@
+package org.drools.test;
+
+
+import mock.MockFact;
+
+
+
+query ageOfPatient( MockFact $mock, String $patientName, int $age )
+    $mock := MockFact( $patientName := name, $age := age )
+end
+
+rule "Log"
+when
+    $o : Object()
+then
+    System.out.println("SESSION #1 >>> " + $o);
+end
+
+

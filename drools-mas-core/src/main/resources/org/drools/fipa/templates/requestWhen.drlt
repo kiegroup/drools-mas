@@ -1,0 +1,23 @@
+@declare{'requestWhenRule'}
+
+package org.drools.fipa;
+
+import org.drools.fipa.body.content.ActionHolder;
+import org.drools.fipa.body.content.Action;
+
+global org.drools.fipa.core.SessionManager manager;
+
+rule "Request_When_@{refId}"
+when
+    $holder : ActionHolder( $id : refId == "@{refId}", $act : action )
+    @{condition}
+then
+    @if{ ! continual } retract($holder); @end{}
+    insert($act);
+end
+
+
+@end{}
+
+
+@includeNamed{'requestWhenRule'}

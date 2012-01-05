@@ -1,0 +1,41 @@
+/**
+  Content Based routing general rules
+  When a message arrives, CBR rules determine its destination (the session(s) where it needs to be processed),
+  while processing rules determine the commands to be executed to deliver the contents to that session.
+  When the two steps have been completed, the commands are delivered.
+*/
+
+package org.drools.fipa;
+import org.drools.fipa.core.SessionManager;
+import org.drools.runtime.StatefulKnowledgeSession;
+import java.util.Map;
+
+
+
+query mapSession( String $key, String $sid )
+    SessionMapping( $key, $sid; )
+end
+
+
+
+rule "generateSession"
+salience 9999
+when
+    $qry : DroolsQuery(  name == "mapSession", $el : elements[0] )
+    $key : String( this != "" ) from $el
+    not SessionMapping( $key ;  )
+then
+//    System.out.println("****************************** I will create session for " + $qry + " with " + $el );
+    String sid = $key;
+
+    SessionManager sm = SessionManager.create( sid, defaultCS );
+    StatefulKnowledgeSession kSession = sm.getStatefulKnowledgeSession();
+    kSession.fireAllRules();
+        proxies.put(sid,kSession);
+    insert( new SessionMapping( $key, sid ) );
+end
+
+
+
+
+
