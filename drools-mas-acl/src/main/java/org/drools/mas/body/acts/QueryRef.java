@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.drools.mas.Act;
 import org.drools.mas.body.content.Query;
 
-@XmlType(name = "QueryRef", namespace = "http://acts.body.fipa.drools.org/")
+@XmlType(name = "QueryRef", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class QueryRef extends AbstractMessageBody {
 

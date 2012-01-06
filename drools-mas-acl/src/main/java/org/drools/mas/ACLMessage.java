@@ -42,7 +42,7 @@ import org.drools.mas.mappers.MyMapReferenceEntryType;
  * context and metadata information
  */
 
-@XmlType(name = "ACLMessage", namespace="http://fipa.drools.org/")
+@XmlType(name = "ACLMessage", namespace="http://mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlSeeAlso(value={ Inform.class, QueryIf.class, InformIf.class, 
                     Agree.class, Failure.class, Action.class, Rule.class, 

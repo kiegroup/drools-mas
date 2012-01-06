@@ -24,7 +24,7 @@ import org.drools.mas.Act;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.body.content.Info;
 
-@XmlType(name = "Reject", namespace = "http://acts.body.fipa.drools.org/")
+@XmlType(name = "Reject", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Reject extends AbstractMessageBody {
 

@@ -24,7 +24,7 @@ import org.drools.mas.Act;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.body.content.Rule;
 
-@XmlType(name = "RequestWhenever", namespace = "http://acts.body.fipa.drools.org/")
+@XmlType(name = "RequestWhenever", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RequestWhenever extends AbstractMessageBody {
     @XmlElement(required = true)

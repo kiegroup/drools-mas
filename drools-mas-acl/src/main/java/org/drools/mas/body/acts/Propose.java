@@ -25,7 +25,7 @@ import org.drools.mas.body.content.Action;
 import org.drools.mas.body.content.Rule;
 
 
-@XmlType(name = "Propose", namespace = "http://acts.body.fipa.drools.org/")
+@XmlType(name = "Propose", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Propose extends AbstractMessageBody {
 

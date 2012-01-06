@@ -25,7 +25,7 @@ import org.drools.mas.Encodings;
 /**
  * Actual mesasge content, i.e. the object of an ACL communicative act.
  */
-@XmlType(name = "AbstractMessageContent", namespace = "http://acts.body.fipa.drools.org/")
+@XmlType(name = "AbstractMessageContent", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class AbstractMessageContent implements Serializable {
 

@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.drools.mas.mappers.MyMapArgsEntryType;
 import org.drools.mas.mappers.MyMapReferenceEntryType;
 
-@XmlType(name = "Action", namespace="http://content.body.fipa.drools.org/")
+@XmlType(name = "Action", namespace="http://content.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Action extends AbstractMessageContent implements Map<String, Object> {
     

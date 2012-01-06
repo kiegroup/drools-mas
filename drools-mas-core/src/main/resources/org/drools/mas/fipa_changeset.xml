@@ -1,3 +1,4 @@
+
 <!--
   ~ Copyright 2011 JBoss Inc
   ~
@@ -16,7 +17,18 @@
 
 <change-set xmlns='http://drools.org/drools-5.0/change-set' xmlns:xs='http://www.w3.org/2001/XMLSchema-instance'
   xs:schemaLocation='http://drools.org/drools-5.0/change-set http://anonsvn.jboss.org/repos/labs/labs/jbossrules/trunk/drools-api/src/main/resources/change-set-1.0.0.xsd'>
+
+  <!-- Standard drools agent resources -->
+
     <add>
-        <resource type="DRL" source="classpath:org/drools/fipa/fipa_common.drl" />
+
+        <resource type="DRL" source="classpath:org/drools/mas/fipa_declares.drl" />
+        <resource type="DRL" source="classpath:org/drools/mas/fipa_common.drl" />
+        <resource type="DRL" source="classpath:org/drools/mas/fipa_content_based_routing.drl" />
+        <resource type="DRL" source="classpath:org/drools/mas/fipa_protocol.drl" />
+        <resource type="DRL" source="classpath:org/drools/mas/fipa_internal.drl" />
+
+    <!-- <resource type="DRL" source="classpath:org/drools/fipa/expect_declare.drl" /> -->
+    <!-- <resource type="DRL" source="classpath:org/drools/fipa/fipa_protocol_conformance.drl" /-->
     </add>
 </change-set>

@@ -25,7 +25,7 @@ import org.drools.mas.body.content.Action;
 import org.drools.mas.body.content.Rule;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Agree", namespace = "http://acts.body.fipa.drools.org/")
+@XmlType(name = "Agree", namespace = "http://acts.body.mas.drools.org/")
 public class Agree extends AbstractMessageBody {
 
     @XmlElement(required = true)

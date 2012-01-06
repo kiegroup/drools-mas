@@ -26,7 +26,7 @@ import org.drools.mas.mappers.MyMapArgsEntryType;
 import org.drools.mas.mappers.MyMapReferenceEntryType;
 import sun.security.x509.RFC822Name;
 
-@XmlType(name = "Ref", namespace="http://content.body.fipa.drools.org/")
+@XmlType(name = "Ref", namespace="http://content.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Ref extends AbstractMessageContent implements Map<String,Object> {
   

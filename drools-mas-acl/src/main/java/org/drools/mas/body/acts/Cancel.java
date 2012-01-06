@@ -24,7 +24,7 @@ import org.drools.mas.Act;
 import org.drools.mas.Encodings;
 import org.drools.mas.body.content.Action;
 
-@XmlType(name = "Cancel", namespace = "http://acts.body.fipa.drools.org/")
+@XmlType(name = "Cancel", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Cancel extends AbstractMessageBody {
 

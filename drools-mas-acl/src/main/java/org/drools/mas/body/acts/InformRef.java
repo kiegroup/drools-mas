@@ -24,7 +24,7 @@ import org.drools.mas.Act;
 import org.drools.mas.Encodings;
 import org.drools.mas.body.content.Ref;
 
-@XmlType(name = "InformRef", namespace = "http://acts.body.fipa.drools.org/")
+@XmlType(name = "InformRef", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class InformRef extends AbstractMessageBody {
 

@@ -24,7 +24,7 @@ import org.drools.mas.Act;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.body.content.Info;
 
-@XmlType(name = "Failure", namespace = "http://acts.body.fipa.drools.org/")
+@XmlType(name = "Failure", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Failure extends AbstractMessageBody {
 

@@ -29,7 +29,7 @@ import org.drools.mas.Act;
 import org.drools.mas.Encodings;
 
 
-@XmlType(name = "Proxy", namespace = "http://acts.body.fipa.drools.org/")
+@XmlType(name = "Proxy", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Proxy extends AbstractMessageBody {
 

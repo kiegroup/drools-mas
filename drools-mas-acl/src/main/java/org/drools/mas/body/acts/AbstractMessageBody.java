@@ -37,7 +37,7 @@ import org.drools.mas.mappers.MyMapReferenceEntryType;
                     Act.class, Encodings.class,
                     Ref.class, InformRef.class, Request.class, RequestWhen.class,
                     MyMapReferenceEntryType.class, MyMapArgsEntryType.class})
-@XmlType(name = "AbstractMessageBody", namespace = "http://acts.body.fipa.drools.org/")
+@XmlType(name = "AbstractMessageBody", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class AbstractMessageBody implements Serializable {
     @XmlElement(required = true)

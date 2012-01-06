@@ -20,7 +20,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Info", namespace="http://content.body.fipa.drools.org/")
+@XmlType(name = "Info", namespace="http://content.body.mas.drools.org/")
 public class Info extends AbstractMessageContent  {
     private Object data;
 

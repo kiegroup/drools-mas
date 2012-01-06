@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlType;
  *
  * @author salaboy
  */
-@XmlType(name = "Act", namespace="http://fipa.drools.org/")
+@XmlType(name = "Act", namespace="http://mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public enum Act {
     ACCEPT              ("accept-proposal"),

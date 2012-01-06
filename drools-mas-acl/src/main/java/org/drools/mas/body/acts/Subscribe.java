@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.drools.mas.Act;
 import org.drools.mas.body.content.Query;
 
-@XmlType(name = "Subscribe", namespace = "http://acts.body.fipa.drools.org/")
+@XmlType(name = "Subscribe", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Subscribe extends AbstractMessageBody {
 

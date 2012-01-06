@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * Simple agent identifier, according to FIPA standard
  */
-@XmlType(name = "AgentID", namespace="http://fipa.drools.org/")
+@XmlType(name = "AgentID", namespace="http://mas.drools.org/")
 public class AgentID implements Comparable, Serializable, Cloneable {
 
 

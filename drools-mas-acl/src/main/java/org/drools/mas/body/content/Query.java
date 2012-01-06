@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import org.drools.mas.mappers.MyMapReferenceEntryType;
 
-@XmlType(name = "Query", namespace="http://content.body.fipa.drools.org/")
+@XmlType(name = "Query", namespace="http://content.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Query extends AbstractMessageContent  {
     @XmlElement(required = true)

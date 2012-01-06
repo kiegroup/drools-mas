@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlValue;
  *
  * @author salaboy
  */
-@XmlType(name = "MyMapReferenceEntryType", namespace="http://mappers.fipa.drools.org/")
+@XmlType(name = "MyMapReferenceEntryType", namespace="http://mappers.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MyMapReferenceEntryType implements Serializable{
 

@@ -21,7 +21,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlType(name = "Rule", namespace="http://content.body.fipa.drools.org/")
+@XmlType(name = "Rule", namespace="http://content.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Rule extends AbstractMessageContent {
     @XmlElement(required = true)

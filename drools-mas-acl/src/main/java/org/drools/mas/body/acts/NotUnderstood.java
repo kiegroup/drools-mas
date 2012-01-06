@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.body.content.Info;
 
-@XmlType(name = "NotUnderstood", namespace = "http://acts.body.fipa.drools.org/")
+@XmlType(name = "NotUnderstood", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class NotUnderstood extends AbstractMessageBody {
 

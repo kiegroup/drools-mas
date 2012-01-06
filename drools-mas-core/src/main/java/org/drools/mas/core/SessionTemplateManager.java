@@ -31,7 +31,7 @@ public class SessionTemplateManager {
     public static final String[] NAMED_TEMPLATES = new String[] {
         "requestWhen.drlt"
     };
-    public static final String TEMPLATE_PATH = "org/drools/fipa/templates/";
+    public static final String TEMPLATE_PATH = "org/drools/mas/templates/";
 
 
 

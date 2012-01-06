@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import org.drools.mas.Act;
 
-@XmlType(name = "Propagate", namespace = "http://acts.body.fipa.drools.org/")
+@XmlType(name = "Propagate", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Propagate extends AbstractMessageBody {
 

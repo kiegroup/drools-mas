@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlType;
  *
  * @author salaboy
  */
-@XmlType(name = "Encodings", namespace="http://fipa.drools.org/")
+@XmlType(name = "Encodings", namespace="http://mas.drools.org/")
 public enum Encodings {
 
     XML("text/xml"),

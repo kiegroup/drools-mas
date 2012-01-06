@@ -25,7 +25,7 @@ import org.drools.mas.Encodings;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.body.content.Rule;
 
-@XmlType(name = "CallForProposal", namespace = "http://acts.body.fipa.drools.org/")
+@XmlType(name = "CallForProposal", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CallForProposal extends AbstractMessageBody {
 
