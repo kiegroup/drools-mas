@@ -15,15 +15,14 @@
  */
 
 import java.util.HashMap;
-import org.drools.fipa.body.acts.Inform;
+
 import mock.MockFact;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
-import org.drools.fipa.util.*;
-import org.drools.fipa.body.content.Action;
-import org.drools.fipa.body.content.Query;
-import org.drools.fipa.body.content.Ref;
-import org.drools.fipa.body.content.Rule;
+import org.drools.mas.util.*;
+import org.drools.mas.body.acts.*;
+import org.drools.mas.body.content.*;
+
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -32,10 +31,10 @@ import java.util.Collections;
 import java.util.Map;
 
 import static junit.framework.Assert.*;
-import org.drools.fipa.ACLMessage;
-import org.drools.fipa.Act;
-import org.drools.fipa.AgentID;
-import org.drools.fipa.Encodings;
+import org.drools.mas.ACLMessage;
+import org.drools.mas.Act;
+import org.drools.mas.AgentID;
+import org.drools.mas.Encodings;
 
 public class TestACLMessage {
 

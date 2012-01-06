@@ -4,17 +4,17 @@
     The actions will be executed on a target session, as decided by the routing rules
 */
 
-package org.drools.fipa;
-import org.drools.fipa.ACLMessage;
+package org.drools.mas;
+import org.drools.mas.ACLMessage;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.command.CommandFactory;
 import org.drools.command.BatchExecutionCommand;
 import org.drools.runtime.rule.QueryResults;
-import org.drools.fipa.Act;
-import org.drools.fipa.body.content.*;
-import org.drools.fipa.body.acts.*;
-import org.drools.fipa.util.MessageContentHelper;
-import org.drools.fipa.util.MessageContentFactory;
+import org.drools.mas.Act;
+import org.drools.mas.body.content.*;
+import org.drools.mas.body.acts.*;
+import org.drools.mas.util.MessageContentHelper;
+import org.drools.mas.util.MessageContentFactory;
 
 import java.util.List;
 import java.util.ArrayList;

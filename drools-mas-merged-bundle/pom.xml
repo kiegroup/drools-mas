@@ -21,8 +21,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.drools.fipa</groupId>
-        <artifactId>drools-fipa-agent</artifactId>
+        <groupId>org.drools.mas</groupId>
+        <artifactId>drools-mas</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>drools-mas-merged-bundle</artifactId>
@@ -32,18 +32,18 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.drools.fipa</groupId>
-            <artifactId>drools-fipa-agent-acl</artifactId>
+            <groupId>org.drools.mas</groupId>
+            <artifactId>drools-mas-acl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.drools.fipa</groupId>
-            <artifactId>drools-fipa-agent-util</artifactId>
+            <groupId>org.drools.mas</groupId>
+            <artifactId>drools-mas-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.drools.fipa</groupId>
-            <artifactId>drools-fipa-agent-core</artifactId>
+            <groupId>org.drools.mas</groupId>
+            <artifactId>drools-mas-core</artifactId>
             <version>${project.version}</version>
         </dependency>       
     </dependencies>
@@ -77,10 +77,10 @@
                         <Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${pom.artifactId}</Bundle-Name>
                         <Export-Package>
-				org.drools.fipa.*;-split-package:=merge-last
+				org.drools.mas.*;-split-package:=merge-last
                         </Export-Package>
                         <Import-Package>
-                            	!org.drools.fipa.*;
+                            	!org.drools.mas.*;
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>

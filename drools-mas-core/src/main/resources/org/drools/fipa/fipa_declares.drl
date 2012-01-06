@@ -2,20 +2,20 @@
     Common declarations for Drools Agents
 */
 
-package org.drools.fipa;
-import org.drools.fipa.ACLMessage;
+package org.drools.mas;
+import org.drools.mas.ACLMessage;
 import org.drools.command.Command;
 import org.drools.command.BatchExecutionCommand;
 import org.drools.runtime.StatefulKnowledgeSession;
 import java.util.Map;
 
 import org.drools.base.*;
-import org.drools.fipa.body.acts.*;
-import org.drools.fipa.body.content.Action;
-import org.drools.fipa.AgentID;
+import org.drools.mas.body.acts.*;
+import org.drools.mas.body.content.Action;
+import org.drools.mas.AgentID;
 
 // ACL message factory, to generate responses
-global org.drools.fipa.util.ACLMessageFactory aclFactory;
+global org.drools.mas.util.ACLMessageFactory aclFactory;
 
 // Agent name
 global AgentID agentName;

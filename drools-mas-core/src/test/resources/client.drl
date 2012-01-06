@@ -7,8 +7,8 @@
 package org.drools.test;
 
 import mock.MockFact;
-import org.drools.fipa.body.acts.*;
-import org.drools.fipa.content.*;
+import org.drools.mas.body.acts.*;
+import org.drools.mas.content.*;
 
 
 

@@ -1,9 +1,9 @@
-package org.drools.fipa;
+package org.drools.mas;
 
-import org.drools.fipa.body.content.*;
-import org.drools.fipa.action.message.*;
-import org.drools.fipa.action.message.types.*;
-import org.drools.fipa.action.message.invokers.*;
+import org.drools.mas.body.content.*;
+import org.drools.mas.action.message.*;
+import org.drools.mas.action.message.types.*;
+import org.drools.mas.action.message.invokers.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Date;
 
-import org.drools.fipa.action.helpers.*;
+import org.drools.mas.action.helpers.*;
 
 
 import javax.xml.ws.BindingProvider;

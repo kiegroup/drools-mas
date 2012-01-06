@@ -5,8 +5,8 @@
   When the two steps have been completed, the commands are delivered.
 */
 
-package org.drools.fipa;
-import org.drools.fipa.core.SessionManager;
+package org.drools.mas;
+import org.drools.mas.core.SessionManager;
 import org.drools.runtime.StatefulKnowledgeSession;
 import java.util.Map;
 

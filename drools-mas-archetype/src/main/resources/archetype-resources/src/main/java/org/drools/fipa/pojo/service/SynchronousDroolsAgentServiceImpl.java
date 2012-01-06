@@ -18,7 +18,7 @@
  * To change this template, choose Tools | Templates and open the template in
  * the editor.
  */
-package org.drools.fipa.pojo.service;
+package org.drools.mas.pojo.service;
 
 import java.util.List;
 import javax.jws.WebMethod;
@@ -29,15 +29,15 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 
 
 
-import org.drools.fipa.ACLMessage;
-import org.drools.fipa.body.acts.*;
-import org.drools.fipa.body.content.Action;
-import org.drools.fipa.body.content.Query;
-import org.drools.fipa.body.content.Ref;
-import org.drools.fipa.body.content.Rule;
-import org.drools.fipa.core.DroolsAgent;
-import org.drools.fipa.mappers.MyMapArgsEntryType;
-import org.drools.fipa.mappers.MyMapReferenceEntryType;
+import org.drools.mas.ACLMessage;
+import org.drools.mas.body.acts.*;
+import org.drools.mas.body.content.Action;
+import org.drools.mas.body.content.Query;
+import org.drools.mas.body.content.Ref;
+import org.drools.mas.body.content.Rule;
+import org.drools.mas.core.DroolsAgent;
+import org.drools.mas.mappers.MyMapArgsEntryType;
+import org.drools.mas.mappers.MyMapReferenceEntryType;
 
 
 import org.slf4j.Logger;

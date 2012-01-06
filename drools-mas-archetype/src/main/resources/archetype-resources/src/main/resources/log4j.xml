@@ -24,7 +24,7 @@
     </layout>
   </appender>
 
-  <logger name="org.drools.fipa">
+  <logger name="org.drools.mas">
     <level value="DEBUG"/>
   </logger>
   

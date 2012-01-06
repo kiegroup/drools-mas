@@ -1,8 +1,8 @@
 package org.drools.test;
 
 import mock.MockFact;
-import org.drools.fipa.body.content.Action;
-import org.drools.fipa.mappers.MyMapArgsEntryType;
+import org.drools.mas.body.content.Action;
+import org.drools.mas.mappers.MyMapArgsEntryType;
 
 
 rule "Call Interface"

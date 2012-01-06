@@ -17,12 +17,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.drools.fipa.impl</groupId>
-    <artifactId>drools-fipa-agent-custom-rename</artifactId>
+    <groupId>org.drools.mas.impl</groupId>
+    <artifactId>drools-mas-custom-rename</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Drools FIPA Agent :: (Custom Rename) Agent</name>
+    <name>Drools MAS :: (Custom Rename) Agent</name>
     
 
     <properties>
@@ -37,14 +37,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.drools.fipa</groupId>
-            <artifactId>drools-fipa-agent-core</artifactId>
+            <groupId>org.drools.mas</groupId>
+            <artifactId>drools-mas-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         
         <dependency>
-            <groupId>org.drools.fipa</groupId>
-            <artifactId>drools-fipa-agent-acl</artifactId>
+            <groupId>org.drools.mas</groupId>
+            <artifactId>drools-mas-acl</artifactId>
             <version>${project.version}</version>
            
         </dependency>

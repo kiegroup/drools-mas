@@ -16,16 +16,16 @@
  */
 
 import org.drools.RuntimeDroolsException;
-import org.drools.fipa.body.acts.Failure;
-import org.drools.fipa.body.content.Query;
-import org.drools.fipa.body.acts.InformIf;
+import org.drools.mas.body.acts.Failure;
+import org.drools.mas.body.content.Query;
+import org.drools.mas.body.acts.InformIf;
 import mock.MockFact;
-import org.drools.fipa.body.acts.Inform;
-import org.drools.fipa.util.*;
-import org.drools.fipa.body.acts.InformRef;
-import org.drools.fipa.body.content.Action;
-import org.drools.fipa.body.content.Ref;
-import org.drools.fipa.body.content.Rule;
+import org.drools.mas.body.acts.Inform;
+import org.drools.mas.util.*;
+import org.drools.mas.body.acts.InformRef;
+import org.drools.mas.body.content.Action;
+import org.drools.mas.body.content.Ref;
+import org.drools.mas.body.content.Rule;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.rule.QueryResults;
 import org.drools.runtime.rule.QueryResultsRow;
@@ -33,11 +33,11 @@ import org.drools.runtime.rule.Variable;
 import org.junit.*;
 
 import java.util.*;
-import org.drools.fipa.ACLMessage;
-import org.drools.fipa.Act;
-import org.drools.fipa.Encodings;
-import org.drools.fipa.core.*;
-import org.drools.fipa.mappers.MyMapArgsEntryType;
+import org.drools.mas.ACLMessage;
+import org.drools.mas.Act;
+import org.drools.mas.Encodings;
+import org.drools.mas.core.*;
+import org.drools.mas.mappers.MyMapArgsEntryType;
 
 import static org.junit.Assert.*;
 

@@ -1,13 +1,13 @@
 
 
-package org.drools.fipa;
-import org.drools.fipa.ACLMessage;
-import org.drools.fipa.util.ACLMessageFactory;
-import org.drools.fipa.AgentID;
-import org.drools.fipa.body.content.*;
-import org.drools.fipa.body.acts.*;
+package org.drools.mas;
+import org.drools.mas.ACLMessage;
+import org.drools.mas.util.ACLMessageFactory;
+import org.drools.mas.AgentID;
+import org.drools.mas.body.content.*;
+import org.drools.mas.body.acts.*;
 import org.drools.expectations.*;
-import org.drools.fipa.Act;
+import org.drools.mas.Act;
 
 
 rule "Request_Protocol_Initiator"
