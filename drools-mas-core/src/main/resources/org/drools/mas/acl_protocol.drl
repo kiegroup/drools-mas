@@ -1,7 +1,7 @@
 /*
     Protocol Management rules
     Uses expectations to verify that the sequences of messages exchanged during a conversation
-    between two agents are conformant to the FIPA standards
+    between two agents are conformant to the ACL standards
 */
 
 package org.drools.mas;
@@ -20,7 +20,7 @@ global DroolsAgentResponseInformer responseInformer;
 
 rule "Inform"
 when
-    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $inReplyTo : inReplyTo,
@@ -51,7 +51,7 @@ end
 rule "Query_Ref_Agree"
 salience 100
 when
-    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $inReplyTo : inReplyTo,
@@ -71,7 +71,7 @@ end
 rule "Query_Ref_Agree"
 salience 100
 when
-    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $inReplyTo : inReplyTo,
@@ -90,7 +90,7 @@ end
 
 rule "Query_If_Resp"
 when
-    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $inReplyTo : inReplyTo,
@@ -113,7 +113,7 @@ end
 
 rule "Query_Ref_Resp"
 when
-    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $inReplyTo : inReplyTo,
@@ -135,7 +135,7 @@ end
 
 rule "Query_Ref_Fail"
 when
-    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $inReplyTo : inReplyTo,
@@ -159,7 +159,7 @@ end
 
 rule "Query_If_Fail"
 when
-    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $inReplyTo : inReplyTo,
@@ -189,7 +189,7 @@ end
 rule "Request_Agree"
 salience 100
 when
-    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $inReplyTo : inReplyTo,
@@ -213,7 +213,7 @@ rule "Request_Success_simpleReturn"
 dialect "mvel"
 salience -100
 when
-    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $inReplyTo : inReplyTo,
@@ -238,7 +238,7 @@ rule "Request_Success_complexReturn"
 dialect "mvel"
 salience -100
 when
-    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $inReplyTo : inReplyTo,
@@ -299,7 +299,7 @@ end
 rule "Request Failure"
 salience -1000
 when
-    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $inReplyTo : inReplyTo,

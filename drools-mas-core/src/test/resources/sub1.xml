@@ -16,7 +16,7 @@
 
 <change-set xmlns='http://drools.org/drools-5.0/change-set'>
 	<add>
-    <resource type="DRL" source="classpath:org/drools/mas/fipa_common.drl" />
+    <resource type="DRL" source="classpath:org/drools/mas/acl_common.drl" />
     <resource type="DRL" source="classpath:session1.drl" />
 	</add>
 </change-set>

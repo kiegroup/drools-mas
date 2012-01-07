@@ -59,7 +59,7 @@ public class SessionManager extends SessionTemplateManager {
     private Map<String, Resource> resources;
     private static Grid grid;
     private static GridNode remoteNode;
-    private static final String DEFAULT_CHANGESET = "org/drools/mas/fipa_subsession_def_changeset.xml";
+    private static final String DEFAULT_CHANGESET = "org/drools/mas/acl_subsession_def_changeset.xml";
 
     public static void initGrid() {
         System.out.println("SM constructor");

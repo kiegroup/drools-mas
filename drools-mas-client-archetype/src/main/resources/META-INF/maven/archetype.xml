@@ -17,7 +17,7 @@
 
 <archetype xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype/1.0.0 http://maven.apache.org/xsd/archetype-1.0.0.xsd">
-    <id>drools-fipa-agent-client-archetype</id>
+    <id>drools-mas-client-archetype</id>
     <sources>
    
     </sources>
@@ -26,7 +26,7 @@
         <resource>src/wsdl/localhost_8080/drools-fipa-agent-custom-service/service/SynchronousDroolsAgentService.wsdl</resource>
     </resources>
     <testSources>
-        <source>src/test/java/org/drools/fipa/SynchronousDroolsAgentServiceServiceTest.java</source>
+        <source>src/test/java/org/drools/mas/SynchronousDroolsAgentServiceServiceTest.java</source>
     </testSources>
     <testResources>
         <resource>src/test/resources/jetty.xml</resource>

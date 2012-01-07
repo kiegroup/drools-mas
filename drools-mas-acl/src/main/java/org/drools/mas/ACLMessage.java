@@ -52,7 +52,7 @@ import org.drools.mas.mappers.MyMapReferenceEntryType;
                     MyMapReferenceEntryType.class, MyMapArgsEntryType.class})
 public class ACLMessage implements Serializable {
 
-    public static final String DEFAULT_FIPA_MESSAGE_TYPE = "DEFAULT_FIPA_MESSAGE_TYPE";
+    public static final String DEFAULT_ACL_MESSAGE_TYPE = "DEFAULT_ACL_MESSAGE_TYPE";
     public static final String DROOLS_DRL = "DROOLS_DRL";
     public static final String KMR2 = "KMR2";
 
@@ -61,7 +61,7 @@ public class ACLMessage implements Serializable {
     private String id;
     private String version;
 
-    private String messageType = DEFAULT_FIPA_MESSAGE_TYPE;
+    private String messageType = DEFAULT_ACL_MESSAGE_TYPE;
 
 
     @XmlElement(required = true) 

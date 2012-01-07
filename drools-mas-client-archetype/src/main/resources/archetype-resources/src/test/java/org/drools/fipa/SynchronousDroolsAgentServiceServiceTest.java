@@ -18,26 +18,26 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.drools.fipa;
+package org.drools.mas;
 
-import org.drools.fipa.body.content.Ref;
-import org.drools.fipa.body.acts.InformRef;
-import org.drools.fipa.body.content.Rule;
+import org.drools.mas.body.content.Ref;
+import org.drools.mas.body.acts.InformRef;
+import org.drools.mas.body.content.Rule;
 import java.util.Map;
-import org.drools.fipa.body.content.Action;
+import org.drools.mas.body.content.Action;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
-import org.drools.fipa.body.content.Query;
-import org.drools.fipa.body.acts.InformIf;
+import org.drools.mas.body.content.Query;
+import org.drools.mas.body.acts.InformIf;
 import mock.MockFact;
-import org.drools.fipa.reduced.client.SynchronousDroolsAgentServiceImpl;
-import org.drools.fipa.reduced.client.SynchronousDroolsAgentServiceImplService;
-import org.drools.fipa.util.*;
-import org.drools.fipa.body.acts.Inform;
-import org.drools.fipa.body.acts.QueryIf;
-import org.drools.fipa.body.content.Info;
+import org.drools.mas.SynchronousDroolsAgentServiceImpl;
+import org.drools.mas.SynchronousDroolsAgentServiceImplService;
+import org.drools.mas.util.*;
+import org.drools.mas.body.acts.Inform;
+import org.drools.mas.body.acts.QueryIf;
+import org.drools.mas.body.content.Info;
 import java.util.List;
-import org.drools.fipa.mappers.MyMapArgsEntryType;
+import org.drools.mas.mappers.MyMapArgsEntryType;
 import org.drools.runtime.rule.Variable;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -76,9 +76,9 @@ public class SynchronousDroolsAgentServiceServiceTest {
     //   <soapenv:Header/>
     //   <soapenv:Body>
     //      <message>
-    //	<org.drools.fipa.ACLMessage>
+    //	<org.drools.mas.ACLMessage>
     //  <id>0</id>
-    //  <messageType>DEFAULT_FIPA_MESSAGE_TYPE</messageType>
+    //  <messageType>DEFAULT_ACL_MESSAGE_TYPE</messageType>
     //  <conversationId>0</conversationId>
     //  <replyBy>0</replyBy>
     //  <ontology>KMR2</ontology>
@@ -88,18 +88,18 @@ public class SynchronousDroolsAgentServiceServiceTest {
     //    <name>me@org.DROOLS</name>
     //  </sender>
     //  <receiver>
-    //    <org.drools.fipa.AgentID>
+    //    <org.drools.mas.AgentID>
     //      <name>you@org.DROOLS</name>
-    //    </org.drools.fipa.AgentID>
+    //    </org.drools.mas.AgentID>
     //  </receiver>
     //  <performative>INFORM</performative>
-    //  <body class="org.drools.fipa.body.acts.Inform">
+    //  <body class="org.drools.mas.body.acts.Inform">
     //    <proposition>
     //      <encodedContent>{&quot;org.kmr2.mock.MockFact&quot;:{&quot;name&quot;:&quot;patient1&quot;,&quot;age&quot;:18}}</encodedContent>
     //      <encoded>true</encoded>
     //    </proposition>
     //  </body>
-    //</org.drools.fipa.ACLMessage>
+    //</org.drools.mas.ACLMessage>
     //      </message>
     //   </soapenv:Body>
     //</soapenv:Envelope>
@@ -110,7 +110,7 @@ public class SynchronousDroolsAgentServiceServiceTest {
         ACLMessage informMessage = new ACLMessage();
         informMessage.setId("0");
         informMessage.setPerformative(Act.INFORM);
-        informMessage.setMessageType("DEFAULT_FIPA_MESSAGE_TYPE");
+        informMessage.setMessageType("DEFAULT_ACL_MESSAGE_TYPE");
         informMessage.setConversationId("0");
         informMessage.setReplyBy(0);
         informMessage.setOntology("KMR2");
@@ -143,7 +143,7 @@ public class SynchronousDroolsAgentServiceServiceTest {
         ACLMessage queryIfMessage = new ACLMessage();
         queryIfMessage.setId("1");
         queryIfMessage.setPerformative(Act.QUERY_IF);
-        queryIfMessage.setMessageType("DEFAULT_FIPA_MESSAGE_TYPE");
+        queryIfMessage.setMessageType("DEFAULT_ACL_MESSAGE_TYPE");
         queryIfMessage.setConversationId("1");
         queryIfMessage.setReplyBy(0);
         queryIfMessage.setOntology("KMR2");

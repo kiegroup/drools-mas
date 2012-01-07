@@ -12,14 +12,14 @@ import org.drools.mas.Act;
 
 rule "Request_Protocol_Initiator"
 when
-    $trigger : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    $trigger : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $receiver : receiver,
                        performative == Act.REQUEST,                     // on a REQEUST
                        sender.name == agentName)
 then
-    expect $nak : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    expect $nak : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $ackId : id,
                        conversationId == $convoId,
                        inReplyTo == $msgId,
@@ -30,7 +30,7 @@ then
                        this after[0,10m] $trigger
                        ) ? {  System.err.println( ">>>>>>>>>>>>ASDASDSA>>>>>>:  // expect either a REFUSE or an AGREE->" + $body ); }
     or
-    expect $ack : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    expect $ack : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $ackId : id,
                        conversationId == $convoId,
                        inReplyTo == $msgId,
@@ -38,7 +38,7 @@ then
                        receiver == agentName,                           // but if they AGREE, expect a result
                        performative == Act.AGREE
                        ) ? {
-                                expect $fail : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+                                expect $fail : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                                                             $ackId : id,
                                                             conversationId == $convoId,
                                                             inReplyTo == $msgId,
@@ -49,7 +49,7 @@ then
                                                             this after[0,10m] $ack
                                                           ) ? {  System.err.println( ">>>>>>>>>>>>ASDASDSA>>>>>>: // which can be a FAILURE: " + $body ); }
                                 or
-                                expect $succ : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+                                expect $succ : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                                                             $ackId : id,
                                                             conversationId == $convoId,
                                                             inReplyTo == $msgId,
@@ -92,14 +92,14 @@ end
 
 rule "QueryIf_Protocol_Initiator"
 when
-    $trigger : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    $trigger : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $receiver : receiver,
                        performative == Act.QUERY_IF,
                        sender.name == agentName)
 then
-    expect $nak : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    expect $nak : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $ackId : id,
                        conversationId == $convoId,
                        inReplyTo == $msgId,
@@ -110,7 +110,7 @@ then
                        this after[0,10m] $trigger
                        ) ? {  System.err.println( $body ); }
     or
-    expect $ack : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    expect $ack : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $ackId : id,
                        conversationId == $convoId,
                        inReplyTo == $msgId,
@@ -118,7 +118,7 @@ then
                        receiver == agentName,
                        performative == Act.AGREE
                        ) ? {
-                                expect $fail : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+                                expect $fail : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                                                             $ackId : id,
                                                             conversationId == $convoId,
                                                             inReplyTo == $msgId,
@@ -129,7 +129,7 @@ then
                                                             this after[0,10m] $ack
                                                           ) ? {  System.err.println( $body ); }
                                 or
-                                expect $succ : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+                                expect $succ : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                                                             $ackId : id,
                                                             conversationId == $convoId,
                                                             inReplyTo == $msgId,
@@ -160,14 +160,14 @@ end
 
 rule "QueryRef_Protocol_Initiator"
 when
-    $trigger : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    $trigger : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $receiver : receiver,
                        performative == Act.QUERY_REF,
                        sender.name == agentName)
 then
-    expect $nak : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    expect $nak : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $ackId : id,
                        conversationId == $convoId,
                        inReplyTo == $msgId,
@@ -178,7 +178,7 @@ then
                        this after[0,10m] $trigger
                        ) ? {  System.err.println( $body ); }
     or
-    expect $ack : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+    expect $ack : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $ackId : id,
                        conversationId == $convoId,
                        inReplyTo == $msgId,
@@ -186,7 +186,7 @@ then
                        receiver == agentName,
                        performative == Act.AGREE
                        ) ? {
-                                expect $fail : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+                                expect $fail : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                                                             $ackId : id,
                                                             conversationId == $convoId,
                                                             inReplyTo == $msgId,
@@ -197,7 +197,7 @@ then
                                                             this after[0,10m] $ack
                                                           ) ? {  System.err.println( $body ); }
                                 or
-                                expect $succ : ACLMessage( messageType == ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE,
+                                expect $succ : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                                                             $ackId : id,
                                                             conversationId == $convoId,
                                                             inReplyTo == $msgId,

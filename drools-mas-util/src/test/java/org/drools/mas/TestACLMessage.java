@@ -237,7 +237,7 @@ public class TestACLMessage {
     private static boolean checkMessageIntegrity(ACLMessage msg) {
         return msg.getId() != null &&
                 msg.getId().length() > 0 &&
-                ACLMessage.DEFAULT_FIPA_MESSAGE_TYPE.equals(msg.getMessageType()) &&
+                ACLMessage.DEFAULT_ACL_MESSAGE_TYPE.equals(msg.getMessageType()) &&
                 msg.getConversationId() != null &&
                 msg.getConversationId().length() > 0 &&
                 msg.getSender() != null &&

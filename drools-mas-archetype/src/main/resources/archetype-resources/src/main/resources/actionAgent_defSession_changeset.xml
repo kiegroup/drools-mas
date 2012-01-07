@@ -18,7 +18,7 @@
 <change-set xmlns='http://drools.org/drools-5.0/change-set' xmlns:xs='http://www.w3.org/2001/XMLSchema-instance'
   xs:schemaLocation='http://drools.org/drools-5.0/change-set http://anonsvn.jboss.org/repos/labs/labs/jbossrules/trunk/drools-api/src/main/resources/change-set-1.0.0.xsd'>
     <add>
-        <resource type="DRL" source="classpath:org/drools/fipa/fipa_common.drl" />
+        <resource type="DRL" source="classpath:org/drools/mas/acl_common.drl" />
         <resource type="DRL" source="classpath:knowledge/agent-brain_hello-module.drl" />
     </add>
 </change-set>

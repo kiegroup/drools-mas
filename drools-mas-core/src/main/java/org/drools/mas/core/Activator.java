@@ -30,14 +30,14 @@ public class Activator implements
     BundleActivator {
 
     public void start(BundleContext bc) throws Exception {
-        System.out.println( "registering fipa core  services" );
+        System.out.println( "registering agent core  services" );
        
         
-        System.out.println( "fipa core services registered" );
+        System.out.println( "aget core services registered" );
     }
 
     public void stop(BundleContext bc) throws Exception {
-        System.out.println( "stoping fipa core  services" );
+        System.out.println( "stoping agent core  services" );
     }
     
 }

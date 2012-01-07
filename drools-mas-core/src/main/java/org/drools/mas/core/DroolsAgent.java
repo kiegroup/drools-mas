@@ -27,7 +27,7 @@ import org.drools.mas.AgentID;
  * First implementation of a drools-based intelligent, communicative agent. The
  * agent is capable of receiving messages and reacting adequately
  *
- * Messages are based on the FIPA agent intercommunication standard
+ * Messages are based on the agent intercommunication standard
  *
  * TODO: agent needs to be interfaced with more standard communication channels
  */
