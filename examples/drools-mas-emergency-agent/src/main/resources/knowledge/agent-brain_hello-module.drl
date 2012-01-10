@@ -1,0 +1,59 @@
+package org.drools.mas;
+
+import org.drools.mas.body.content.*;
+import org.drools.mas.action.message.*;
+import org.drools.mas.action.message.types.*;
+import org.drools.mas.action.message.invokers.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Date;
+
+import org.drools.mas.examples.emergency.*;
+
+
+global java.util.Map channels;
+
+
+rule "Generic Knowledge"
+    when
+        $o: Object()
+    then
+        System.out.println("Now I know about this: >>> " + $o );
+        
+end
+
+rule "Coordinate Emergency Action Processing"
+when
+    $action: Action( actionName == "coordinateEmergency")
+then
+    System.out.println("Coordinating Emergency ->"+$action);
+    insert(new Actions("Sending Ambulances", "Sending Firefigthers"));
+end
+
+
+query coordinateEmergency( Actions $return )
+      $return:= Actions()
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -18,6 +18,7 @@ package org.drools.mas.body.acts;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.body.content.Info;
@@ -25,8 +26,9 @@ import org.drools.mas.body.content.Info;
 @XmlType(name = "NotUnderstood", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class NotUnderstood extends AbstractMessageBody {
-
+    @XmlElement
     private Action action;
+    @XmlElement
     private Info cause;
 
     public NotUnderstood() {

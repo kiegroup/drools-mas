@@ -1,26 +1,27 @@
 /*
  * Copyright 2011 JBoss Inc
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * To change this template, choose Tools | Templates and open the template in
+ * the editor.
  */
 package org.drools.mas.util;
 
 import com.google.gson.Gson;
+
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import java.io.ByteArrayInputStream;
@@ -31,15 +32,7 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 import org.drools.mas.Act;
 import org.drools.mas.Encodings;
-import org.drools.mas.body.acts.AbstractMessageBody;
-import org.drools.mas.body.acts.Agree;
-import org.drools.mas.body.acts.Inform;
-import org.drools.mas.body.acts.InformIf;
-import org.drools.mas.body.acts.InformRef;
-import org.drools.mas.body.acts.QueryIf;
-import org.drools.mas.body.acts.QueryRef;
-import org.drools.mas.body.acts.Request;
-import org.drools.mas.body.acts.RequestWhen;
+import org.drools.mas.body.acts.*;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.body.content.Query;
 import org.drools.mas.body.content.Ref;
@@ -73,7 +66,7 @@ public class MessageContentEncoder {
                 break;
             case INFORM_REF:
                 decoded = MessageContentEncoder.decode(((InformRef) body).getReferences().getEncodedContent(), encoding);
-                ((InformRef) body).setReferences((Ref)decoded);
+                ((InformRef) body).setReferences((Ref) decoded);
                 ((InformRef) body).getReferences().setEncoded(false);
                 break;
             case QUERY_IF:
@@ -86,7 +79,7 @@ public class MessageContentEncoder {
                 Object decodedAction = MessageContentEncoder.decode(((Agree) body).getAction().getEncodedContent(), encoding);
                 Object decodedCondition = MessageContentEncoder.decode(((Agree) body).getCondition().getEncodedContent(), encoding);
                 ((Agree) body).setAction((Action) decodedAction);
-                
+
                 ((Agree) body).setCondition((Rule) decodedCondition);
                 ((Agree) body).getCondition().setEncoded(false);
                 ((Agree) body).getAction().setEncoded(false);
@@ -121,7 +114,7 @@ public class MessageContentEncoder {
                 String oldEncodedAction = ((Request) body).getAction().getEncodedContent();
                 decoded = MessageContentEncoder.decode(((Request) body).getAction().getEncodedContent(), encoding);
                 ((Request) body).setAction((Action) decoded);
-                System.err.println( decoded );
+                System.err.println(decoded);
                 ((Request) body).getAction().setEncodedContent(oldEncodedAction);
                 ((Request) body).getAction().setEncoded(false);
                 break;
@@ -133,11 +126,29 @@ public class MessageContentEncoder {
                 ((RequestWhen) body).setAction((Action) decodedActionRequestWhen);
                 ((RequestWhen) body).getAction().setEncodedContent(oldEncodedActionWhen);
                 ((RequestWhen) body).getAction().setEncoded(false);
-                
+
                 ((RequestWhen) body).setCondition((Rule) decodedConditionRequestWhen);
                 ((RequestWhen) body).getCondition().setEncodedContent(oldEncodedConditionWhen);
                 ((RequestWhen) body).getCondition().setEncoded(false);
-                break;    
+                break;
+
+            case FAILURE:
+                String oldEncodedActionFailure = ((Failure) body).getAction().getEncodedContent();
+                Object decodedActionFailure = MessageContentEncoder.decode(((Failure) body).getAction().getEncodedContent(), encoding);
+                ((Failure) body).setAction((Action) decodedActionFailure);
+                ((Failure) body).getAction().setEncodedContent(oldEncodedActionFailure);
+                ((Failure) body).getAction().setEncoded(false);
+                break;
+            case NOT_UNDERSTOOD:
+                if(((NotUnderstood) body).getAction() != null ){
+                    String oldEncodedActionNotUnderstood = ((NotUnderstood) body).getAction().getEncodedContent();
+                    Object decodedActionNotUnderstood = MessageContentEncoder.decode(((NotUnderstood) body).getAction().getEncodedContent(), encoding);
+                    ((NotUnderstood) body).setAction((Action) decodedActionNotUnderstood);
+                    ((NotUnderstood) body).getAction().setEncodedContent(oldEncodedActionNotUnderstood);
+                    ((NotUnderstood) body).getAction().setEncoded(false); 
+                }
+                break;
+
         }
     }
 
@@ -197,7 +208,7 @@ public class MessageContentEncoder {
 
                 break;
             case REQUEST:
-                
+
                 encoded = MessageContentEncoder.encode(((Request) body).getAction(), encoding);
                 ((Request) body).getAction().setEncoded(true);
                 ((Request) body).getAction().setEncodedContent(encoded);
@@ -206,8 +217,8 @@ public class MessageContentEncoder {
                 ((Request) body).getAction().getReferences().clear();
 
 
-                break;    
-           case REQUEST_WHEN:
+                break;
+            case REQUEST_WHEN:
                 String encodedConditionRequestWhen = MessageContentEncoder.encode(((RequestWhen) body).getCondition(), encoding);
                 String encodedActionRequestWhen = MessageContentEncoder.encode(((RequestWhen) body).getAction(), encoding);
                 ((RequestWhen) body).getAction().setEncoded(true);
@@ -218,7 +229,25 @@ public class MessageContentEncoder {
                 ((RequestWhen) body).getCondition().setEncoded(true);
                 ((RequestWhen) body).getCondition().setEncodedContent(encodedConditionRequestWhen);
 
-                break;   
+                break;
+            case FAILURE:
+                String encodedActionFailure = MessageContentEncoder.encode(((Failure) body).getAction(), encoding);
+                ((Failure) body).getAction().setEncoded(true);
+                ((Failure) body).getAction().setEncodedContent(encodedActionFailure);
+                ((Failure) body).getAction().setEncoding(encoding);
+                ((Failure) body).getAction().getArgs().clear();
+                ((Failure) body).getAction().getArgs().clear();
+                break;
+            case NOT_UNDERSTOOD:
+                if(((NotUnderstood) body).getAction() != null ){
+                    String encodedActionNotUnderstood = MessageContentEncoder.encode(((NotUnderstood) body).getAction(), encoding);
+                    ((NotUnderstood) body).getAction().setEncoded(true);
+                    ((NotUnderstood) body).getAction().setEncodedContent(encodedActionNotUnderstood);
+                    ((NotUnderstood) body).getAction().setEncoding(encoding);
+                    ((NotUnderstood) body).getAction().getArgs().clear();
+                    ((NotUnderstood) body).getAction().getArgs().clear();
+                }
+                break;
         }
     }
 

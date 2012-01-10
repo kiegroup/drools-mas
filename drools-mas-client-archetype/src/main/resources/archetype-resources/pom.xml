@@ -16,105 +16,19 @@
   -->
 
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
    
     <groupId>${groupId}</groupId>
     <artifactId>${artifactId}</artifactId>
     <version>${version}</version>
     
-    <name>Drools :: FIPA Agent (Custom) Client</name>
+    <name>Drools :: MAS Agent (Custom) Client</name>
     <url>http://maven.apache.org</url>
     <build>
-        <resources>
-            <resource>
-                <targetPath>META-INF</targetPath>
-                <directory>src</directory>
-                <includes/>
-            </resource>
-        </resources>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxws-maven-plugin</artifactId>
-                <version>1.10</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                        <configuration>
-                            <wsdlFiles>
-                                <wsdlFile>localhost_8080/drools-fipa-agent-custom-service/service/SynchronousDroolsAgentService.wsdl</wsdlFile>
-                                <!--wsdlFile>../../../drools-fipa-agent-service/target/jaxws/wsgen/wsdl/SynchronousDroolsAgentServiceImplService.wsdl</wsdlFile-->
-                            </wsdlFiles>
-                            <wsdlLocation>http://0.0.0.0:9944/drools-fipa-agent-custom-service/service/SynchronousDroolsAgentService?wsdl</wsdlLocation>
-                            <staleFile>${project.build.directory}/jaxws/stale/SynchronousDroolsAgentService.stale</staleFile>
-                        </configuration>
-                        <id>wsimport-generate-SynchronousDroolsAgentService</id>
-                        <phase>generate-sources</phase>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>javax.xml</groupId>
-                        <artifactId>webservices-api</artifactId>
-                        <version>1.4</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <sourceDestDir>${project.build.directory}/generated-sources/jaxws-wsimport</sourceDestDir>
-                    <xnocompile>true</xnocompile>
-                    <verbose>true</verbose>
-                    <extension>true</extension>
-                    <catalog>${basedir}/src/jax-ws-catalog.xml</catalog>
-                </configuration>
-            </plugin>
+            
            
-            <plugin>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <configuration>
-                    <!-- ADD YOUR DROOLS FIPA AGENT LOCATION HERE. TEST WILL RUN AGAINST THIS AGENT -->
-                    <webApp>../test-agent/target/drools-fipa-agent-custom-service.war</webApp>
-                    <jettyConfig>src/test/resources/jetty.xml</jettyConfig>
-                    <stopKey>foo</stopKey>
-                    <stopPort>9999</stopPort>
-                    <webAppConfig>
-                        <!-- ADD YOUR DROOLS FIPA AGENT LOCATION HERE. TEST WILL RUN AGAINST THIS AGENT -->
-                        <contextPath>/drools-fipa-agent-custom-service</contextPath>
-                    </webAppConfig>
-                </configuration>
-                <dependencies>
-                    <!-- ADD YOUR DROOLS FIPA AGENT DOMAIN DEPENDENCIES HERE -->
-                    <dependency>
-                        <groupId>org.drools.fipa</groupId>
-                        <artifactId>drools-fipa-domain-client-example</artifactId>
-                        <version>1.0-SNAPSHOT</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <id>start-jetty</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>deploy-war</goal>
-                        </goals>
-                        <configuration>
-                            <daemon>true</daemon>
-                            <reload>manual</reload>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>stop-jetty</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                  
-                </executions>
-            </plugin>
             
         </plugins>
     </build>
@@ -137,36 +51,25 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
-        <!-- ADD YOUR DROOLS FIPA AGENT LOCATION HERE. TEST WILL RUN AGAINST THIS AGENT -->
-        <dependency>
-            <groupId>org.drools.fipa</groupId>
-            <artifactId>drools-fipa-domain-client-example</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        
-        <dependency>
-            <groupId>org.drools.fipa</groupId>
-            <artifactId>drools-fipa-agent-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+       
         
         <dependency>
             <groupId>javax.xml</groupId>
             <artifactId>webservices-api</artifactId>
             <version>1.4</version>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.1</version>
-            <scope>test</scope>
-        </dependency>
+       
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>webservices-rt</artifactId>
             <version>1.4</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

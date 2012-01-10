@@ -34,11 +34,14 @@
         <module>drools-mas-core</module>
         <module>drools-mas-acl</module>
         <module>drools-mas-util</module>
-        <module>drools-mas-archetype</module>
+        <module>drools-mas-web-archetype</module>
         <module>drools-mas-client-archetype</module>
         <module>drools-mas-doc</module>    
         <module>drools-mas-merged-bundle</module>
         <module>drools-5-merged-bundle</module>
+        <module>examples/drools-mas-emergency-agent-model</module>
+        <module>examples/drools-mas-emergency-agent</module>
+        <module>examples/drools-mas-emergency-agent-client</module>
     </modules>
   
     <repositories>

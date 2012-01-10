@@ -81,7 +81,7 @@ end
 
 declare PerformativeFail
     messageId : String
-    cause     : Exception
+    cause     : String
 end
 
 

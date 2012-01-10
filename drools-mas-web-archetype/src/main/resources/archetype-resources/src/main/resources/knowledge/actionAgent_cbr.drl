@@ -1,0 +1,55 @@
+
+/*
+    Domain-Specific, concrete routing rules.
+    Can exploit JsonPath / XPath queries on a message's
+    encoded form for type-unsafe checks, in addition to
+    standard pattern matching on a message content
+    represented in object form
+
+*/
+
+
+package org.drools.mas;
+
+import org.drools.mas.Destination;
+import org.drools.mas.SessionMapping;
+import org.drools.mas.ACLMessage;
+import org.drools.mas.util.ACLMessageFactory;
+import org.drools.mas.body.acts.Inform;
+import org.drools.mas.body.content.*;
+import org.drools.mas.util.InspectMessageHelper;
+
+// ACL message factory, to generate responses
+global ACLMessageFactory aclFactory;
+
+
+rule "Mapping"
+when
+then
+    insert( new SessionMapping("agent-brain_hello-module","session1") );
+    
+end
+
+
+rule "Route_Encoded_JSON"
+when
+    $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.JSON  )
+    ?mapSession( "agent-brain_hello-module" , $sessionId ; )
+then
+    System.err.println("Routing message " + $msgId + " (JSON)" );
+    insert( new Destination($msgId, $sessionId) );
+end
+
+rule "Route_Encoded_XML"
+
+when
+    $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.XML )
+    ?mapSession( "agent-brain_hello-module" , $sessionId ; )
+then
+    System.err.println("Routing message " + $msgId + " (XML)"  );
+    insert( new Destination($msgId, $sessionId) );
+end
+
+
+
+

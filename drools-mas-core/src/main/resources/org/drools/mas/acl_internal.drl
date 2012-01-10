@@ -71,7 +71,7 @@ then
         org.drools.runtime.impl.ExecutionResultImpl result = (org.drools.runtime.impl.ExecutionResultImpl) kSession.execute($batch);
         retVal = result.getValue("$out_"+$msgId);
     } catch ( Exception e ) {
-        insert( new PerformativeFail( $msgId, e ) );
+        insert( new PerformativeFail( $msgId, e.getMessage() ) );
     }
 
     ResponseContent response = new ResponseContent($msgId, retVal );
@@ -140,7 +140,7 @@ when
     $msg : ACLMessage( $msgId : id, performative == Act.QUERY_IF )
     $cont : ResponseContent( messageId == $msgId, $data : data != null )
 then
-    
+
     $cont.setData(((QueryResults) $data).iterator().next().get("$queryIf"));
     update($cont);
 end
@@ -278,7 +278,7 @@ when
     $req : Request( $act : action, $actName : action.actionName ) from $msg.body
     $cnt : ResponseContent( messageId == $msgId, $data : data != null )
 then
-    PerformativeFail fail = new PerformativeFail( $msgId, new RuntimeException( $actName + " : No result is returned" ) );
+    PerformativeFail fail = new PerformativeFail( $msgId,  $actName + " : No result is returned" );
     insert( fail );
 end
 

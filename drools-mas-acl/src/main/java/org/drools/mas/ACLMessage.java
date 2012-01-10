@@ -31,7 +31,6 @@ import org.drools.mas.mappers.MyMapArgsEntryType;
 import org.drools.mas.mappers.MyMapReferenceEntryType;
 
 
-
 /**
  * Agent Communication Language Message, as defined by the FIPA standard
  *
@@ -48,7 +47,7 @@ import org.drools.mas.mappers.MyMapReferenceEntryType;
                     Agree.class, Failure.class, Action.class, Rule.class, 
                     QueryRef.class, Query.class, Info.class, Act.class,
                     Ref.class, InformRef.class, Request.class, RequestWhen.class, Ref.class,
-                    Encodings.class,
+                    Encodings.class, 
                     MyMapReferenceEntryType.class, MyMapArgsEntryType.class})
 public class ACLMessage implements Serializable {
 

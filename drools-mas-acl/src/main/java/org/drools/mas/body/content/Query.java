@@ -39,7 +39,7 @@ public class Query extends AbstractMessageContent  {
     @XmlElement(required = true)
     public List<MyMapReferenceEntryType> references = new ArrayList<MyMapReferenceEntryType>(); 
     
-    @XmlAnyElement()
+    @XmlElement()
     private List<Object> args = new ArrayList<Object>();
 
     public Query() {

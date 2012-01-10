@@ -37,3 +37,10 @@ catalog.xml
 /drools-mas-client-archetype/target/
 /drools-mas-archetype/target/
 /drools-mas-acl/target/
+/drools-mas-web-archetype/target/
+/examples/new-action-agent-web-from-arch/target/
+/examples/drools-mas-emergency-agent/target/
+/examples/new-action-agent-simple-client-arch/target/
+/examples/emergency-agent-client/target/
+/examples/drools-mas-emergency-agent-client/target/
+/examples/drools-mas-emergency-agent-model/target/
