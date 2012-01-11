@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
   ~ Copyright 2011 JBoss Inc
   ~
@@ -14,19 +15,17 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-
-    <parent>
+  <parent>
     <artifactId>drools-mas</artifactId>
     <groupId>org.drools.mas</groupId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-
-  <artifactId>drools-mas-client-archetype</artifactId>
-  <packaging>jar</packaging>
-  <name>Drools :: MAS Client Archetype</name>
+  <artifactId>drools-mas-agent-web-archetype</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>Drools :: MAS Archetype (Web)</name>
   <url>http://maven.apache.org</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
