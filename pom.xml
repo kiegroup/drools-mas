@@ -34,8 +34,8 @@
         <module>drools-mas-core</module>
         <module>drools-mas-acl</module>
         <module>drools-mas-util</module>
-        <module>drools-mas-web-archetype</module>
-        <module>drools-mas-client-archetype</module>
+        <module>drools-mas-agent-web-archetype</module>
+        <module>drools-mas-client-side-app-archetype</module>
         <module>drools-mas-doc</module>    
         <module>drools-mas-merged-bundle</module>
         <module>drools-5-merged-bundle</module>
