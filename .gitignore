@@ -46,3 +46,5 @@ catalog.xml
 /examples/drools-mas-emergency-agent-model/target/
 /drools-mas-client-side-app-archetype/target/
 /drools-mas-agent-web-archetype/target/
+/drools-mas-emergency-agent-client/target/
+/drools-mas-generic-client/target/
