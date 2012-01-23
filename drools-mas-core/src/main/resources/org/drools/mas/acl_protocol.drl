@@ -161,15 +161,17 @@ when
                        performative == Act.QUERY_REF )
     $resp : ResponseContent( messageId == $msgId, $data : data == null )
 then
-    retract($resp);
+
+
     Action action = MessageContentFactory.newActionContent(((QueryRef)$content).getQuery().getQueryName(),null);
     ACLMessage ans = aclFactory.newReplyWithFailureMessage($msg, agentName,
                                                            action,
                                                            "Query Error - TODO improve diagnostics");
-//    System.out.println("PROTOCOL RULES : " + agentName + " >>>> " + ans);
+    System.out.println("PROTOCOL RULES : " + agentName + " >>>> " + ans);
     responseInformer.informResponse($msg,ans);
-
+    
     retract($msg);
+    System.out.println("PROTOCOL RULES : Retracting Response ");
     retract($resp);
 end
 
@@ -290,7 +292,7 @@ then
     ACLMessage ans = aclFactory.newReplyWithNotUnderstoodMessage( $msg,
                                             $sender,
                                             ((Request) $body).getAction(),
-                                            new UnsupportedOperationException( "Routing error : No dedicated session" ) );
+                                            "Routing error : No dedicated session"  );
     responseInformer.informResponse($msg,ans);
     retract( $msg );
 end
@@ -305,7 +307,7 @@ then
     ACLMessage ans = aclFactory.newReplyWithNotUnderstoodMessage( $msg,
                                             $sender,
                                             null,
-                                            new UnsupportedOperationException( "Routing error : No dedicated session" ) );
+                                            "Routing error : No dedicated session" );
     responseInformer.informResponse($msg,ans);
     retract( $msg );
 end
