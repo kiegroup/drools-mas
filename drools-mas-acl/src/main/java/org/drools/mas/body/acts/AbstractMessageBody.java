@@ -16,18 +16,11 @@
 
 package org.drools.mas.body.acts;
 
-
-
 import java.io.Serializable;
 import javax.xml.bind.annotation.*;
-
 import org.drools.mas.Act;
 import org.drools.mas.Encodings;
-import org.drools.mas.body.content.Action;
-import org.drools.mas.body.content.Info;
-import org.drools.mas.body.content.Query;
-import org.drools.mas.body.content.Ref;
-import org.drools.mas.body.content.Rule;
+import org.drools.mas.body.content.*;
 import org.drools.mas.mappers.MyMapArgsEntryType;
 import org.drools.mas.mappers.MyMapReferenceEntryType;
 
@@ -42,7 +35,6 @@ import org.drools.mas.mappers.MyMapReferenceEntryType;
 public abstract class AbstractMessageBody implements Serializable {
     @XmlElement(required = true)
     public Act performative;
-    
     
     public AbstractMessageBody() {
     }

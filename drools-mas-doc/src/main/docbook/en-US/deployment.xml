@@ -20,12 +20,12 @@
          xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
-    <title>Drools FIPA Deployment </title>
+    <title>Drools MAS - Deployment </title>
     
     <section>
         <title>Deployment</title>
         <para>
-            This section covers the common configurations required to deploy a Drools FIPA agent. 		
+            This section covers the common configurations required to deploy a Drools MAS agent. 		
         </para>
     </section>    
 </chapter>

@@ -20,30 +20,42 @@
          xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
-    <title>Emergency Service Installation &amp; Setup</title>
-    <section>
-        <title>Downloading the source code</title>
-        
-        <para>
-           
-        </para>
-        <para>Try Drools FIPA Agents and get involved with the code</para>
-        <itemizedlist>
-            <listitem>          
-                <ulink url="https://github.com/Salaboy/drools-fipa-agent"/>
-            </listitem>
-        </itemizedlist>
-        
-    </section>
+    <title>Drools MAS Installation &amp; Setup</title>
+    
     <section>
         <title>Compiling the source code</title>
         <para>
-            git clone https://github.com/Salaboy/drools-fipa-agent
+            Github.com project repository: 
+            <ulink url="https://github.com/droolsjbpm/drools-mas">https://github.com/droolsjbpm/drools-mas</ulink>
+                
+        </para>
+        <para>
+            Get the source code (you need to have git installed in your computer):
+        </para>
+        <code>
+            git clone https://github.com/droolsjbpm/drools-mas
+        </code>
+        <para>    
+            In order to compile, test and install the project you should run:
+        </para>
+        <code>
             mvn clean install
-            
+        </code>
+        <para>    
             Look at the archetype section to see some examples about how to create your own agents.
         </para>
     </section>
+    <section>
+        <para>
+            Take a look at the examples directory to find out a very simple agent and a client that test
+            the agent functionality. This example was created using the archetypes projects:
+            <itemizedlist>
+                <listitem>drools-mas-agent-web-archetype</listitem>
+                <listitem>drools-mas-client-side-archetype</listitem>
+            </itemizedlist>
+        </para>
+    </section>
+        
     
     
 

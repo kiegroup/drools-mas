@@ -30,6 +30,18 @@
     </properties>
 
     <dependencies>
+        <!-- Drools MAS Dependencies --> 
+         <dependency>
+            <groupId>org.drools.mas</groupId>
+            <artifactId>drools-mas-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.drools.mas</groupId>
+            <artifactId>drools-mas-acl</artifactId>
+            <version>${project.version}</version>   
+        </dependency>
+        
         <!-- My Example Dependency -->
         <dependency>
             <groupId>org.drools.mas.examples</groupId>
@@ -49,17 +61,7 @@
             <version>2.1</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.drools.mas</groupId>
-            <artifactId>drools-mas-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.drools.mas</groupId>
-            <artifactId>drools-mas-acl</artifactId>
-            <version>${project.version}</version>   
-        </dependency>
-        
+       
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>

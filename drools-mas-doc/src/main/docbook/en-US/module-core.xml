@@ -20,12 +20,12 @@
          xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
-    <title>Drools FIPA Agents Core</title>
+    <title>Drools MAS - Core</title>
     <figure>
         <title>Core Module</title>
         <mediaobject>
             <imageobject>
-                <imagedata fileref="images/module-core.png" format="PNG"/>
+                <imagedata fileref="images/02-module-core.png" format="PNG"/>
             </imageobject>
         </mediaobject>
     </figure>   
@@ -38,13 +38,24 @@
         <itemizedlist>
             <listitem>Structure</listitem>
             <listitem>Configuration</listitem>
-            
         </itemizedlist>	
         <para>
-        ACL and the Core module are required to build our agents, so you will find dependencies to these modules,
-        in almost all the implementations.
+            The ACL module and the Core module are required to build our agents, so you will find dependencies to these modules,
+            in almost all the implementations.
         </para>
+        
+        
+        
     </section>
+    <figure>
+        <title>Mind Session and Domain Specific Sessions</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="images/03-module-core-mind-and-sessions.png" format="PNG"/>
+            </imageobject>
+        </mediaobject>
+    </figure>  
+    
     
 
 </chapter>

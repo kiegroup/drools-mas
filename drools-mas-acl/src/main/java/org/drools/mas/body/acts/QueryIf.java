@@ -20,8 +20,14 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import org.drools.mas.Act;
 import org.drools.mas.body.content.Info;
+
+/*
+ * The action of asking another agent whether or not a given proposition is true.
+ * The agent performing the query-if act:
+ * · has no knowledge of the truth value of the proposition, and,
+ * · believes that the other agent can inform the querying agent if it knows the truth of the proposition.
+ */
 
 @XmlType(name = "QueryIf", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)

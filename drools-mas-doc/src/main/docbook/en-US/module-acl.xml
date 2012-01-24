@@ -20,22 +20,56 @@
          xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
-    <title>Drools FIPA Agents - ACL </title>
-    <mediaobject>
-        <imageobject>
-            <imagedata fileref="images/module-dashboard.png" format="PNG"/>
-        </imageobject>
-    </mediaobject>
+    <title>Drools MAS - ACL </title>
+    
        
     <section>
         <title>Introduction</title>
         <para>
-            This module covers the FIPA - ACL languange and the current implementation supported by the Drools FIPA agents.
-            This language defines the messages that will be understood by each agent, but it will be up to the implementation
-            to define the actions that will be executed when one of this messages its received.
+            This module covers the implementation of the ACL languange and the current implementation inside  the Drools MAS project. 
+            This language defines the messages (performatives) that will be interchanged by the agents. 
+            
+            These performatives represent communication acts and the FIPA-ACL standard defines the semantic for each of these acts. The Drools MAS ACL
+            Module is incrementally supporting all these performtives. For more information about the formal definition of the semantic proposed by the
+            FIPA-ACL standard you can take a look at the following link: 
+            <ulink href="http://www.fipa.org/specs/fipa00037/SC00037J.html#_Toc26729686">http://www.fipa.org/specs/fipa00037/SC00037J.html#_Toc26729686</ulink>
         </para>
+        
+        <para>
+            The Drools MAS project started defining the implementation details for the following performatives:
+            
+            <itemizedlist>
+                <listitem>Inform</listitem>
+                <listitem>Inform-if</listitem>
+                <listitem>Inform-ref</listitem>
+                <listitem>Query-if</listitem>
+                <listitem>Query-ref</listitem>
+                <listitem>Request</listitem>
+                <listitem>Request-if</listitem>
+                <listitem>Request-ref</listitem>
+                <listitem>Request-when</listitem>
+            </itemizedlist>
+            All the performative structures are available inside the ACL module, but the core is not supporting them all at the moment.
+            We will be updating this list as long as we support more performatives. The following section describe each performative semantic
+            according to the FIPA-ACL standard specification. A test (called SemanticACLTest) inside the core module checks that this semantic is respected by the implementation.
+            
+            The following section analyze quickly the semantic for the Inform, Rquest and Query-if and Query-ref performatives to give you
+            an idea about how they are intended to work.
+        </para>    
+        
+        
     </section>
    
-   
+    <section>
+        <title>ACL Performatives</title>
+        
+        <para>
+            The <code>Inform</code> performative is used to notify the receiver that a given proposition is true. We will use 
+            this performative to send new information to the agent. It's to the specific agent implementation to decide what
+            to do with the information provided as a proposition inside the ACL Inform Message. This message is represented by 
+            the Inform class, located inside the drools-mas-acl module. This <code>Inform</code> class contains a <code>proposition</code> attribute of type <code>Info</code>
+            that will be the one in charge of hosting the information about the propositon.
+        </para>
+   </section>
 
 </chapter>

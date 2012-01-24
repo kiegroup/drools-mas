@@ -21,12 +21,18 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
+/*
+ * The Info class is in charge of hosting a piece of data that. Here we are using info as a synonim of Proposition.
+ * @TODO: we should rename this class to Proposition and add the truth attr (boolean)
+ */
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Info", namespace="http://content.body.mas.drools.org/")
 public class Info extends AbstractMessageContent  {
     @XmlElement()
     private Object data;
-
+    //@TODO: we should add here a truth value.. like a negation boolean to 
+    // explicitely say if the data is a true or false propositon
     public Info() {
     }
 
@@ -44,10 +50,6 @@ public class Info extends AbstractMessageContent  {
 
     public void setData(Object data) {
         this.data = data;
-    }
-
-   
-
-    
+    } 
 
 }

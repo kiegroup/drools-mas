@@ -20,15 +20,17 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import org.drools.mas.Act;
-import org.drools.mas.Encodings;
 import org.drools.mas.body.content.Info;
+
+/*
+ * A macro action for the agent of the action to inform the recipient whether or not a proposition is true.
+ * (macro acts can be planned and requested, but not directly performed)
+ */
 
 @XmlType(name = "InformIf", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class InformIf extends AbstractMessageBody {
 
-    
     @XmlElement(required = true)
     private Info proposition;
     

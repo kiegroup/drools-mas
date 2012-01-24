@@ -13,23 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.drools.mas.body.acts;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import org.drools.mas.Act;
 import org.drools.mas.body.content.Info;
 
+/*
+ * The sender informs the receiver that a given proposition is true. inform
+ * indicates that the sending agent:
+ *
+ * · holds that some proposition is true,
+ *
+ * · intends that the receiving agent also comes to believe that the proposition is true, and,
+ *
+ * · does not already believe that the receiver has any knowledge of the truth of the proposition.
+ */
 @XmlType(name = "Inform", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Inform extends AbstractMessageBody {
 
     @XmlElement(required = true)
     private Info proposition;
-    
 
     public Inform() {
     }
@@ -71,5 +78,4 @@ public class Inform extends AbstractMessageBody {
     public void setProposition(Info proposition) {
         this.proposition = proposition;
     }
-
 }

@@ -20,21 +20,42 @@
          xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
-    <title>Drools FIPA Agents Introduction</title>
+    <title>Drools MAS Introduction</title>
     <section>
         <title>What is an Intelligent Agent?</title>
         
         <para>
+                There is no standarized defintion for what an Intelligent Agent is, so for the sake of this document an agent
+                is a piece of software that is designed to act and communicate with other entities based on its internal goals, state and 
+                knowledge.
+                
+                These intelligent agents by design will keep an internal state that will be used by the agent to decide what to do next 
+                or how to answer request from other agents. 
+                
+                
             
-            <emphasis>Agent Concept Introduction</emphasis>
         </para>
-        <mediaobject>
-            <imageobject>
-                <imagedata fileref="images/city.png" format="PNG"/>
-            </imageobject>
-        </mediaobject>
+        
        
     </section>
-    
-    
+    <section>
+        <title>Multi-Agent Systems</title>
+        <para>
+            When we have multiple agents interacting in the same ecosystem we need an infrastructure to enable all the interactions.
+            For this reason a set of global components will be provided to build this ecosystem that will enable rich interactions.
+            
+        </para>
+        
+    </section>    
+     <section>
+        <title>Drools MAS</title>
+        <para>
+            Drools MAS aims to provide the common infrastructure and set of tools to create the individual agents and 
+            the ecosystem required for their interactions. The first half of this document is focused on how to design, build and
+            use individual agents. The second half will be focused on how to use the different components provided to build an
+            scalable infrastructure to host these agents (work in progress).
+        </para>
+     </section>
+     
+     
 </chapter>

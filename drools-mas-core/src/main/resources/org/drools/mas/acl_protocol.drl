@@ -116,6 +116,7 @@ when
                        performative == Act.QUERY_IF )
     $resp : ResponseContent( messageId == $msgId, $data : data != null)
 then
+    //@TODO: This should be an Inform not an InformIf
     ACLMessage ans = aclFactory.newReplyWithInformIfMessage($msg, agentName, $data);
 //    System.out.println("PROTOCOL RULES : " + agentName + " >>>> " + ans);
 //    System.out.println("\t"+$msg.hashCode()+", "+ $msg);

@@ -20,25 +20,25 @@
          xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
-    <title>Drools FIPA Agents Components</title>
+    <title>Drools MAS - Components</title>
     
     <section>
         <title>Components</title>
         
         <para>
-            In order to understand the agent internal structure we need to understand each of the components
+            In order to understand the Agent Internal Structure we need to understand each of the components
             currently availble:
         </para>
         <itemizedlist>        
             <listitem>ACL</listitem>
             <listitem>Core</listitem>
             <listitem>Utils</listitem>
-            <listitem>OSGI Merged Bundle</listitem>
+            
         </itemizedlist>  
    
     </section>
     <xi:include href="module-acl.xml"/>
     <xi:include href="module-core.xml"/>
     <xi:include href="module-utils.xml"/>
-    <xi:include href="module-osgi-merged-bundle.xml"/>
+    
 </chapter>

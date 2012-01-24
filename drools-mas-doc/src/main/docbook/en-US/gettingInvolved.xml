@@ -20,27 +20,23 @@
          xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
-    <title>Drools FIPA Agents Introduction</title>
+    <title>Drools MAS - Community</title>
     <section>
         <title>Getting Involved</title>
         
         <para>
             As in every community effort we need your feedback about the features that we are providing in the project. 
-            We are open to suggestions and we are willing to help people that is interested in using and testing the Emergency Service 
-            Application. We are also available to train people that wants to get involved with the project and contribute with 
+            We are open to suggestions and we are willing to help people that is interested in using and testing the Drools MAS 
+            platform. We are also available to train people that wants to get involved with the project and contribute with 
             patches, tests, documentation, new modules and utilities.  
             
         </para>
         <para>
-            We are working to provide as much material as we can to encourage people to learn &amp; teach about the 
-            concepts implemented inside this application. 
+            We are working to provide as much material and examples that we can to encourage you to get involved. Feel free to 
+            contact us if you are interested in these topics and you want to contribute with the project. As usual, if you 
+            can provide more examples and improve the documentation the overall project quality will be improved.
         </para>
-        <para>Try Drools FIPA Agents and get involved with the code</para>
-        <itemizedlist>
-            <listitem>          
-                <ulink url="https://github.com/Salaboy/drools-fipa-agent"/>
-            </listitem>
-        </itemizedlist>
+        
         <para>Right now we are only three community developers working on the project:</para>
         <itemizedlist>
             <listitem>Davide &quot;

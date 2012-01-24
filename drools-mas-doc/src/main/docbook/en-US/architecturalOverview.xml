@@ -20,21 +20,63 @@
          xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
-    <title>Architectural Overview </title>
+    <title>Drools MAS - Architectural Overview </title>
     <section>
         <title>Architecture Introduction</title>
     
-        <para> The agents are composed by a set of componets that will be described in the following sections.
-        
+        <para> Each individual agent is composed by a set of components that provides different set of functionalities.
+            The following section describe these internal components and their main responsabilities.
+
         </para>
         <mediaobject>
             <imageobject>
-                <imagedata fileref="images/HighLevelArchitectureEmergencyService.png" format="PNG"/>
+                <imagedata fileref="images/01-agent-high-level-arch.png" format="PNG"/>
             </imageobject>
         </mediaobject>
-       <para>
-           
-       </para>
+        <para>
+            As you can see an individual agent is composed by three main components. The Core module, the Agent Communication Language module and 
+            an Utility module. Domain specific artifacts will usually be attached to the agent structure to solve domain specific problems and 
+            situations.
+        </para>
+       
+        <para>
+            The Core module is reposible to host the internal mechanisms that the agent will use to react and expose an endpoint that will enable us to 
+            interact with it. How the agent internal structure will look like will be defined based on the configurations that we 
+        </para>    
+       
+        <para>
+            The ACL module provides the Agent Communication Language Structures. This language is composed by 22 performatives that will 
+            enable the interactions between different agents. This ACL is based on FIPA-ACL, and right now there is a one to one mapping with the 
+            FIPA-ACL standard. 
+        </para>
+       
+        <para>
+            The Util module contains a set of helper classes that will be used to speed up and simplify the development process. Message Factories, 
+            Decoders/Encoders and general tools will be provided by this module.
+        </para>
+       
+        <para>
+            Each of these three modules are represented by JAR packages in Java. That can be added as dependencies to your project using the following 
+            Maven artifacts:
+            <itemizedlist>
+                <listitem>groupId - org.drools.mas</listitem>
+                <listitem>artifactId - drools-mas-core</listitem>
+            </itemizedlist>
+            
+            <itemizedlist>
+                <listitem>groupId - org.drools.mas</listitem>
+                <listitem>artifactId - drools-mas-acl</listitem>
+            </itemizedlist>   
+            <itemizedlist>
+                <listitem>groupId - org.drools.mas</listitem>
+                <listitem>artifactId - drools-mas-util</listitem>
+            </itemizedlist>       
+
+        </para>
+       
+        <para>
+            The following section goes deep in each of these components and analyze the simple Emergency Agent example.
+        </para>
     </section>
     
     
