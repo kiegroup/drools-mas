@@ -32,3 +32,8 @@ then
 end
 
 
+query exceptional( )
+end
+
+
+
