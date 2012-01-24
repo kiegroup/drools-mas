@@ -128,7 +128,17 @@ then
 end
 
 
-
+rule "Another Query is known to be in session #1_X"
+dialect "mvel"
+salience -1
+when
+    //$msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.XML, body.encodedContent != null /* , $patientId : this.inspect("$..name[0]") */ )
+    $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.XML )
+    String( this == "queryExceptional" ) from InspectMessageHelper.inspect($msg,"//queryName")
+then
+    System.err.println("Routing message " + $msgId + " to session1 ");
+    insert( new Destination($msgId, "session1") );
+end
 
 
 

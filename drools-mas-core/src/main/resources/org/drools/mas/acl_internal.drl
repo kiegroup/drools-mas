@@ -125,7 +125,7 @@ when
     QueryIf( $info : proposition ) from $msg.body
     $dst : Destination( $msgId ; )
 then
-    System.out.println(" INTERNAL PROCESSING : GENERATING COMMANDS FOR QUERYIF " + $msgId );
+    //System.out.println(" INTERNAL PROCESSING : GENERATING COMMANDS FOR QUERYIF " + $msgId );
 
     List list = new ArrayList(1);
             list.add(CommandFactory.newQuery( "$out_"+$msgId, "queryIf", new Object[] {$info.getData()} ));
@@ -134,20 +134,16 @@ then
 end
 
 
-
-
 rule "Fix_QueryIf_Results"
 salience 9999
 no-loop
 when
-    $msg : ACLMessage( $msgId : id, performative == Act.QUERY_IF )
+    $msg :  ACLMessage( $msgId : id, performative == Act.QUERY_IF )
     $cont : ResponseContent( messageId == $msgId, $data : data != null )
+            QueryResults( size > 0 ) from $data
 then
-    if(((QueryResults) $data).size() > 0){
-        $cont.setData(((QueryResults) $data).iterator().next().get("$queryIf"));
-        update($cont);
-    }   
-    
+	$cont.setData(((QueryResults) $data).iterator().next().get("$queryIf"));
+    update($cont);
 end
 
 
@@ -275,11 +271,11 @@ rule "Failed_Results"
 salience 9999
 no-loop
 when
-   $msg : ACLMessage( $msgId : id, performative == Act.REQUEST || == Act.REQUEST_WHEN || == Act.REQUEST_WHENEVER )
-   $req : Request( $act : action, $actName : action.actionName ) from $msg.body
-   $cnt : ResponseContent( messageId == $msgId, $data : data == null )
-   not    PerformativeFail( messageId == $msgId )
-   // no exception thrown (so no failure is already in), but still the request did not return anything
+    $msg : ACLMessage( $msgId : id, performative == Act.REQUEST || == Act.REQUEST_WHEN || == Act.REQUEST_WHENEVER )
+    $req : Request( $act : action, $actName : action.actionName ) from $msg.body
+    $cnt : ResponseContent( messageId == $msgId, $data : data == null )
+    not    PerformativeFail( messageId == $msgId )
+    // no exception thrown (so no failure is already in), but still the request did not return anything
 then
    PerformativeFail fail = new PerformativeFail( $msgId,  $actName + " : No result is returned" );
    insert( fail );

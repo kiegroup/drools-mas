@@ -1,4 +1,4 @@
-
+package org.drools.mas.core.tests;
 /*
  * Copyright 2011 JBoss Inc
  *
@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import org.drools.RuntimeDroolsException;
 import org.drools.mas.body.acts.Failure;
 import org.drools.mas.body.content.Query;
 import org.drools.mas.body.acts.InformIf;
@@ -372,6 +371,7 @@ public class TestAgent {
         ACLMessage req = factory.newRequestMessage("me", "you", action);
         mainAgent.tell(req);
 
+        assertEquals( 2, mainResponseInformer.getResponses( req ).size() );
         assertEquals( Act.AGREE, mainResponseInformer.getResponses( req ).get( 0 ).getPerformative() );
         assertEquals( Act.FAILURE, mainResponseInformer.getResponses( req ).get( 1 ).getPerformative() );
 
@@ -425,6 +425,24 @@ public class TestAgent {
 
         assertEquals( 1, mainResponseInformer.getResponses( qryref ).size() );
         assertEquals( Act.NOT_UNDERSTOOD, mainResponseInformer.getResponses( qryref ).get( 0 ).getPerformative() );
+
+    }
+
+
+
+
+    @Test
+    public void testQueryRefFailure() {
+
+        ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
+
+        Query query = MessageContentFactory.newQueryContent("queryExceptional", new Object[] { "?x" } );
+        ACLMessage qryref = factory.newQueryRefMessage("me", "you", query);
+        mainAgent.tell( qryref );
+
+        assertEquals( 2, mainResponseInformer.getResponses( qryref ).size( ) );
+        assertEquals( Act.AGREE, mainResponseInformer.getResponses( qryref ).get( 0 ).getPerformative() );
+        assertEquals( Act.FAILURE, mainResponseInformer.getResponses( qryref ).get( 1 ).getPerformative() );
 
     }
 

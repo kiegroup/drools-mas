@@ -69,6 +69,7 @@
                     </dependency>
                 </dependencies>
                 <configuration>
+                    <sei/>
                     <sourceDestDir>${project.build.directory}/generated-sources/jaxws-wsimport</sourceDestDir>
                     <xnocompile>true</xnocompile>
                     <verbose>true</verbose>
