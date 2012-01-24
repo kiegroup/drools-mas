@@ -13,26 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.drools.mas.body.content;
 
 import java.io.*;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import org.drools.mas.Encodings;
+import org.drools.mas.mappers.MyMapArgsEntryType;
+import org.drools.mas.mappers.MyMapReferenceEntryType;
 
 /**
  * Actual mesasge content, i.e. the object of an ACL communicative act.
  */
-@XmlType(name = "AbstractMessageContent", namespace = "http://acts.body.mas.drools.org/")
+@XmlType(name = "AbstractMessageContent", namespace = "http://content.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlSeeAlso({
+    Ref.class,
+    Action.class,
+    Query.class,
+    Rule.class,
+    Info.class,
+    MyMapReferenceEntryType.class,
+    MyMapArgsEntryType.class
+})
 public abstract class AbstractMessageContent implements Serializable {
 
     private String encodedContent;
     private boolean encoded;
     private Encodings encoding;
-    
+
     public String getEncodedContent() {
         return encodedContent;
     }
@@ -56,6 +67,4 @@ public abstract class AbstractMessageContent implements Serializable {
     public void setEncoded(boolean encoded) {
         this.encoded = encoded;
     }
-    
-   
 }

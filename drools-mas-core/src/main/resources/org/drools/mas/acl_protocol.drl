@@ -331,6 +331,7 @@ when
 then
    ACLMessage ans = aclFactory.newReplyWithFailureMessage( $msg, $sender, ((Request) $content).getAction(), $cause );
    responseInformer.informResponse($msg,ans);
+   retract($msg);
    retract($resp);
    retract($fail);
 end

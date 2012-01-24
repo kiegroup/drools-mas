@@ -16,7 +16,6 @@
 
 package org.drools.mas.core;
 
-import org.drools.*;
 import org.drools.agent.KnowledgeAgent;
 import org.drools.agent.KnowledgeAgentConfiguration;
 import org.drools.agent.KnowledgeAgentFactory;
@@ -43,14 +42,12 @@ import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.conf.ClockTypeOption;
 import org.drools.builder.*;
-import org.drools.io.impl.*;
 import org.drools.*;
-import org.drools.runtime.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
+import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 
 public class SessionManager extends SessionTemplateManager {
 
@@ -148,7 +145,6 @@ public class SessionManager extends SessionTemplateManager {
         conf.setProperty(ClockTypeOption.PROPERTY_NAME, ClockType.REALTIME_CLOCK.toExternalForm());
         this.kSession = kAgent.getKnowledgeBase().newStatefulKnowledgeSession(conf, null);
         this.kSession.setGlobal("manager", this);
-
         this.resources = new HashMap<String, Resource>();
     }
 

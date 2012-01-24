@@ -48,3 +48,5 @@ catalog.xml
 /drools-mas-agent-web-archetype/target/
 /drools-mas-emergency-agent-client/target/
 /drools-mas-generic-client/target/
+/drools-mas-agent-web-archetype copy/target/
+/drools-mas-agent-jar-archetype/target/

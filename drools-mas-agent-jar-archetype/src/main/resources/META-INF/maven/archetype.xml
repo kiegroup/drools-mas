@@ -25,16 +25,13 @@
         <source>src/main/java/mock/MockFact.java</source>
     </sources>
     <resources>
-        <resource>src/main/resources/agent_changeset.xml</resource>
-        <resource>src/main/resources/agent_defSession_changeset.xml</resource>
+        <resource>src/main/resources/actionAgent_changeset.xml</resource>
+        <resource>src/main/resources/actionAgent_defSession_changeset.xml</resource>
         <resource>src/main/resources/knowledge/agent_cbr.drl</resource>
         <resource>src/main/resources/knowledge/agent-brain_hello-module.drl</resource>
         <resource>src/main/resources/log4j.xml</resource>
         <resource>src/main/resources/META-INF/drools.packagebuilder.conf</resource>
         <resource>src/main/resources/META-INF/applicationContext.xml</resource>
-        <resource>src/main/webapp/META-INF/context.xml</resource>
-        <resource>src/main/webapp/WEB-INF/web.xml</resource>
-        <resource>src/main/webapp/index.jsp</resource>
     </resources>
     <testSources>
     </testSources>

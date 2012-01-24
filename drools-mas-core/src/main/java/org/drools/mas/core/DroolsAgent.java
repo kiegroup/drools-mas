@@ -20,6 +20,7 @@ import org.drools.mas.util.MessageContentEncoder;
 import org.drools.runtime.StatefulKnowledgeSession;
 
 import java.util.Map;
+import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 import org.drools.mas.ACLMessage;
 import org.drools.mas.AgentID;
 
@@ -72,6 +73,7 @@ public class DroolsAgent {
     public void tell(ACLMessage msg) {
 
         MessageContentEncoder.decodeBody(msg.getBody(), msg.getEncoding());
+        
         this.mind.insert(msg);
         this.mind.fireAllRules();
     }
