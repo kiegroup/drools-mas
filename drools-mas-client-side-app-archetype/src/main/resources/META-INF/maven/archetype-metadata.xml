@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor name="basic">
+   <requiredProperties>
+    <requiredProperty key="agent-name">
+      <defaultValue>custom-agent</defaultValue>
+    </requiredProperty>
+    <requiredProperty key="service-endpoint">
+      <defaultValue>http://localhost:8080/custom-agent/services/?WSDL</defaultValue>
+    </requiredProperty>
+    <requiredProperty key="service-project-war-location">
+      <defaultValue>../custom-agent-web/target/custom-agent-web-1.0-SNAPSHOT.war</defaultValue>
+    </requiredProperty>
+     <requiredProperty key="package">
+      <defaultValue>org.drools.mas</defaultValue>
+    </requiredProperty>
+  </requiredProperties>  
+  <fileSets>
+    <fileSet filtered="true" packaged="true">
+      <directory>src/main/java</directory>
+      <includes>
+        <include>**/*.java</include>
+      </includes>
+    </fileSet>
+    <fileSet filtered="false" packaged="false">
+      <directory>src/main/resources</directory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+    </fileSet>
+    
+  </fileSets>
+</archetype-descriptor>

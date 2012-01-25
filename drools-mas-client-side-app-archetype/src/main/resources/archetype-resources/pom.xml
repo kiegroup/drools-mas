@@ -23,12 +23,92 @@
     <artifactId>${artifactId}</artifactId>
     <version>${version}</version>
     
-    <name>Drools :: MAS Agent (Custom) Client</name>
+    <name>Drools MAS :: ${agent-name} Client</name>
     <url>http://maven.apache.org</url>
     <build>
+        <resources>
+            <resource>
+                <targetPath>META-INF</targetPath>
+                <directory>src</directory>
+                <includes>
+                    <include>jax-ws-catalog.xml</include>
+                    <include>wsdl/**</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
+            <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>7.6.0.RC2</version>
+                <configuration>
+                    <war>${service-project-war-location}</war>
+                    
+                    <stopKey>foo</stopKey>
+                    <stopPort>9999</stopPort>
+                    <webAppConfig>
+                        <contextPath>/${agent-name}</contextPath>
+                    </webAppConfig>
+                </configuration>
+               
+                <executions>
+                    <execution>
+                        <id>start-jetty</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>deploy-war</goal>
+                        </goals>
+                        <configuration>
+                            <daemon>true</daemon>
+                            <reload>manual</reload>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop-jetty</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                  
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <version>1.10</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlUrls>
+                                <wsdlUrl>http://localhost:8080/${agent-name}/services/?WSDL</wsdlUrl>
+                            </wsdlUrls>
+                            <staleFile>${project.build.directory}/jaxws/stale/.wsdl.stale</staleFile>
+                        </configuration>
+                        <id>wsimport-generate-.wsdl</id>
+                        <phase>process-resources</phase>
+                    </execution>
+                  
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>javax.xml</groupId>
+                        <artifactId>webservices-api</artifactId>
+                        <version>1.4</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <sourceDestDir>${project.build.directory}/generated-sources/jaxws-wsimport</sourceDestDir>
+                    <xnocompile>true</xnocompile>
+                    <verbose>true</verbose>
+                    <extension>true</extension>
+                    <catalog>${basedir}/src/jax-ws-catalog.xml</catalog>
+                </configuration>
+            </plugin>
             
-           
             
         </plugins>
     </build>
@@ -70,6 +150,11 @@
             <artifactId>junit</artifactId>
             <version>4.8.1</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.drools.mas</groupId>
+            <artifactId>drools-mas-util</artifactId>
+            <version>${version}</version>
         </dependency>
     </dependencies>
 </project>
