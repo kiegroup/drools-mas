@@ -172,7 +172,6 @@ then
     responseInformer.informResponse($msg,ans);
     
     retract($msg);
-    System.out.println("PROTOCOL RULES : Retracting Response ");
     retract($resp);
 end
 
@@ -330,7 +329,7 @@ when
     $fail : PerformativeFail( messageId == $msgId, $cause : cause )
 then
    ACLMessage ans = aclFactory.newReplyWithFailureMessage( $msg, $sender, ((Request) $content).getAction(), $cause );
-   responseInformer.informResponse($msg,ans);
+   responseInformer.informResponse( $msg, ans );
    retract($msg);
    retract($resp);
    retract($fail);
