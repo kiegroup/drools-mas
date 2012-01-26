@@ -19,11 +19,11 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
    
-    <groupId>org.drools.mas</groupId>
-    <artifactId>drools-mas-emergency-agent-client</artifactId>
+    <groupId>org.drools.mas.example</groupId>
+    <artifactId>new-emergency-agent-client</artifactId>
     <version>1.0-SNAPSHOT</version>
     
-    <name>Drools MAS :: Emergency Agent Client (Example)</name>
+    <name>Drools MAS :: emergency-agent Client</name>
     <url>http://maven.apache.org</url>
     <build>
         <resources>
@@ -38,62 +38,23 @@
         </resources>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxws-maven-plugin</artifactId>
-                <version>1.10</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                        <configuration>
-                            <wsdlFiles>
-                                <wsdlFile>localhost_8080/new-action-agent/services/.wsdl</wsdlFile>
-                            </wsdlFiles>
-                            <wsdlLocation>http://localhost:8080/new-action-agent/services/?WSDL</wsdlLocation>
-                            <staleFile>${project.build.directory}/jaxws/stale/.wsdl.stale</staleFile>
-                        </configuration>
-                        <id>wsimport-generate-.wsdl</id>
-                        <phase>generate-sources</phase>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>javax.xml</groupId>
-                        <artifactId>webservices-api</artifactId>
-                        <version>1.4</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <sourceDestDir>${project.build.directory}/generated-sources/jaxws-wsimport</sourceDestDir>
-                    <xnocompile>true</xnocompile>
-                    <verbose>true</verbose>
-                    <extension>true</extension>
-                    <catalog>${basedir}/src/jax-ws-catalog.xml</catalog>
-                </configuration>
-            </plugin>
-            
-            <plugin>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>7.6.0.RC2</version>
                 <configuration>
-                    <war>../drools-mas-emergency-agent/target/drools-mas-emergency-agent-1.0-SNAPSHOT.war</war>
-                    
-                   
-                    
+                    <war>../drools-mas-emergency-agent/target/emergency-agent.war</war>
                     
                     <stopKey>foo</stopKey>
                     <stopPort>9999</stopPort>
                     <webAppConfig>
-                        <contextPath>/new-action-agent</contextPath>
+                        <contextPath>/emergency-agent</contextPath>
                     </webAppConfig>
                 </configuration>
                
                 <executions>
                     <execution>
                         <id>start-jetty</id>
-                        <phase>test-compile</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>deploy-war</goal>
                         </goals>
@@ -112,6 +73,43 @@
                   
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <version>1.10</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlUrls>
+                                <wsdlUrl>http://localhost:8080/emergency-agent/services/?WSDL</wsdlUrl>
+                            </wsdlUrls>
+                            <staleFile>${project.build.directory}/jaxws/stale/.wsdl.stale</staleFile>
+                        </configuration>
+                        <id>wsimport-generate-.wsdl</id>
+                        <phase>process-resources</phase>
+                    </execution>
+                  
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>javax.xml</groupId>
+                        <artifactId>webservices-api</artifactId>
+                        <version>1.4</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <sourceDestDir>${project.build.directory}/generated-sources/jaxws-wsimport</sourceDestDir>
+                    <xnocompile>true</xnocompile>
+                    <verbose>true</verbose>
+                    <extension>true</extension>
+                    <catalog>${basedir}/src/jax-ws-catalog.xml</catalog>
+                </configuration>
+            </plugin>
+            
+            
         </plugins>
     </build>
     <repositories>
@@ -133,18 +131,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
-       <!-- My Example Dependency -->
-        <dependency>
-            <groupId>org.drools.mas.examples</groupId>
-            <artifactId>emergency-agent-model</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
+       
         
-        <dependency>
-            <groupId>org.drools.mas</groupId>
-            <artifactId>drools-mas-util</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
         <dependency>
             <groupId>javax.xml</groupId>
             <artifactId>webservices-api</artifactId>
@@ -162,6 +150,16 @@
             <artifactId>junit</artifactId>
             <version>4.8.1</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.drools.mas</groupId>
+            <artifactId>drools-mas-util</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+          <dependency>
+            <groupId>org.drools.mas.examples</groupId>
+            <artifactId>emergency-agent-model</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

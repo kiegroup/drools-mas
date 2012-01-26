@@ -64,6 +64,7 @@ public class SynchronousRequestHelper {
         }
         SynchronousDroolsAgentService synchronousDroolsAgentServicePort = null;
         if (this.endpointURL == null || this.qname == null) {
+            //synchronousDroolsAgentServicePort = new SynchronousDroolsAgentServiceImplService().getSynchronousDroolsAgentServiceImplPort();
             throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
         } else {
             synchronousDroolsAgentServicePort = new SynchronousDroolsAgentServiceImplService(this.endpointURL, this.qname).getSynchronousDroolsAgentServiceImplPort();

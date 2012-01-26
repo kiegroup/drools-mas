@@ -7,7 +7,6 @@ package org.drools.mas;
 import java.util.List;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
-import org.drools.mas.ACLMessage;
 
 /**
  *

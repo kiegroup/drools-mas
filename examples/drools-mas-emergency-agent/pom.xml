@@ -15,14 +15,14 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.drools.mas.impl</groupId>
     <artifactId>drools-mas-emergency-agent</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>Drools MAS :: Emergency Agent (Example)</name>
+    <name>Drools MAS :: emergency-agent Agent Web</name>
     
 
     <properties>
@@ -30,8 +30,14 @@
     </properties>
 
     <dependencies>
-        <!-- Drools MAS Dependencies --> 
+        <!-- Domain Specific Classes/Models -->
          <dependency>
+            <groupId>org.drools.mas.examples</groupId>
+            <artifactId>emergency-agent-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- Drools MAS Dependencies --> 
+        <dependency>
             <groupId>org.drools.mas</groupId>
             <artifactId>drools-mas-core</artifactId>
             <version>${project.version}</version>
@@ -40,13 +46,6 @@
             <groupId>org.drools.mas</groupId>
             <artifactId>drools-mas-acl</artifactId>
             <version>${project.version}</version>   
-        </dependency>
-        
-        <!-- My Example Dependency -->
-        <dependency>
-            <groupId>org.drools.mas.examples</groupId>
-            <artifactId>emergency-agent-model</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
         
         <dependency>
@@ -91,6 +90,7 @@
         </dependency>
     </dependencies>
     <build>
+        <finalName>emergency-agent</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

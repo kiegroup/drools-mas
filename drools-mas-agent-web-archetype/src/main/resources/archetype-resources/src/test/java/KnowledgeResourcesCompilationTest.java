@@ -14,29 +14,21 @@
  * limitations under the License.
  */
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.drools.mas;
 
-import org.drools.mas.mock.MockFact;
-import org.drools.mas.helpers.SynchronousRequestHelper;
-import org.drools.mas.util.*;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.drools.mas.core.DroolsAgent;
+import org.junit.*;
 import static org.junit.Assert.*;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  *
  * @author salaboy
  */
-public class SynchronousDroolsAgentServiceServiceTest {
+public class KnowledgeResourcesCompilationTest {
 
-    public SynchronousDroolsAgentServiceServiceTest() {
+    public KnowledgeResourcesCompilationTest() {
     }
 
     @BeforeClass
@@ -54,21 +46,20 @@ public class SynchronousDroolsAgentServiceServiceTest {
     @After
     public void tearDown() {
     }
-
-   
-   @Test
-    public void testSimpleInformWithHelper() {
-        SynchronousRequestHelper agentHelper = new SynchronousRequestHelper("http://localhost:8080/${agent-name}/services/?WSDL");
+    /*
+     * Test for check that the resources provided inside this agent 
+     * at least compile without errors. To ensure that the agent can be 
+     * initialized correctly
+     */
+    @Test
+    public void compilationTest() {
         
-        MockFact fact = new MockFact("patient1", 18);
+        ApplicationContext context = new ClassPathXmlApplicationContext("META-INF/applicationContext.xml");
+        DroolsAgent agent = (DroolsAgent) context.getBean("agent");
         
-
-        agentHelper.invokeInform("me", "you", fact);
+        assertNotNull(agent);
         
-        Object result = agentHelper.getReturn(true);
-        assertNull(result);
-       
-
-
+        agent.dispose();
+        
     }
 }

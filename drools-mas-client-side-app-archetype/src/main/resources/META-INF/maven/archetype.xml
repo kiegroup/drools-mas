@@ -22,7 +22,6 @@
         <source>src/main/java/helpers/SynchronousRequestHelper.java</source>
     </sources>
     <resources>
-       
     </resources>
     <testSources>
         <source>src/test/java/SynchronousDroolsAgentServiceServiceTest.java</source>

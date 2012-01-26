@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.drools.mas;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
 import org.drools.mas.examples.emergency.Emergency;
 import org.drools.mas.helpers.SynchronousRequestHelper;
+import org.drools.mas.mock.MockFact;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -36,7 +33,7 @@ import static org.junit.Assert.*;
  * @author salaboy
  */
 public class SynchronousDroolsAgentServiceServiceTest {
-    private final String endpoint = "http://localhost:8080/new-action-agent/services/?WSDL";
+    private String endpoint = "http://localhost:8080/emergency-agent/services/?WSDL";
     public SynchronousDroolsAgentServiceServiceTest() {
     }
 
@@ -57,7 +54,22 @@ public class SynchronousDroolsAgentServiceServiceTest {
     }
 
    
-    
+   @Test
+    public void testSimpleInformWithHelper() {
+        SynchronousRequestHelper agentHelper = new SynchronousRequestHelper(endpoint);
+        
+        MockFact fact = new MockFact("patient1", 18);
+        
+
+        agentHelper.invokeInform("me", "you", fact);
+        
+        Object result = agentHelper.getReturn(true);
+        assertNull(result);
+       
+
+
+    }
+   
     @Test
     public void informAgentAboutEmergency() {
         
@@ -101,5 +113,4 @@ public class SynchronousDroolsAgentServiceServiceTest {
         helper.getReturn(true);
         
     }
-   
 }

@@ -27,5 +27,11 @@
         <include>**/*</include>
       </includes>
     </fileSet>
+    <fileSet filtered="true" packaged="true">
+      <directory>src/test/java</directory>
+      <includes>
+        <include>**/*.java</include>
+      </includes>
+    </fileSet>
   </fileSets>
 </archetype-descriptor>

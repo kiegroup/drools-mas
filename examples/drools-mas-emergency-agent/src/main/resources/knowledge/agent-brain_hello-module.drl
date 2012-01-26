@@ -14,10 +14,7 @@ import java.util.Date;
 import org.drools.mas.examples.emergency.*;
 
 
-global java.util.Map channels;
-
-
-rule "Generic Knowledge"
+rule "Generic Knowledge Adquisition"
     when
         $o: Object()
     then
