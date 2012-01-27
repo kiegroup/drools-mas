@@ -296,6 +296,7 @@ public class MessageContentEncoder {
     protected static XStream getXmlConverter() {
         if (xmlConverter == null) {
             xmlConverter = new XStream();
+            xmlConverter.setClassLoader(MessageContentEncoder.class.getClassLoader());
         }
         return xmlConverter;
     }

@@ -36,9 +36,14 @@ import org.drools.mas.Act;
 import org.drools.mas.Destination;
 import org.drools.mas.SessionMapping;
 import org.drools.mas.Encodings;
+import org.slf4j.Logger;
+
+//Global Logger
+global Logger logger;
 
 // ACL message factory, to generate responses
 global org.drools.mas.util.ACLMessageFactory aclFactory;
+
 
 
 rule "Mapping"
@@ -53,26 +58,22 @@ end
 rule "Route_Encoded"
 salience -1
 when
-  //  $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.JSON, body.encodedContent != null /* , $patientId : this.inspect("$..name[0]") */ )
-    //$msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.JSON, body.encodedContent != null  )
     $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.JSON  )
     $patientId : String( this != null ) from InspectMessageHelper.inspect($msg,"$..name[0]")
     mapSession( $patientId , $sessionId ; )
 then
-    System.err.println("Routing message " + $msgId + " to session " + $sessionId );
+    logger.debug("Routing message " + $msgId + " to session " + $sessionId );
     insert( new Destination($msgId, $sessionId) );
 end
 
 rule "Route_Encoded_X"
 salience -1
 when
-    //$msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.XML, body.encodedContent != null /* , $patientId : this.inspect("$..name[0]") */ )
-    //$msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.XML, body.encodedContent != null )
     $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.XML )
     $patientId : String( this != null ) from InspectMessageHelper.inspect($msg,"//name") 
     mapSession( $patientId , $sessionId ; )
 then
-    System.err.println("Routing message " + $msgId + " to session " + $sessionId );
+    logger.debug("Routing message " + $msgId + " to session " + $sessionId );
     insert( new Destination($msgId, $sessionId) );
 end
 

@@ -17,7 +17,10 @@ package org.drools.test;
 
 
 import mock.MockFact;
+import org.slf4j.Logger;
 
+//Global Logger
+global Logger logger;
 
 
 query ageOfPatient( MockFact $mock, String $patientName, int $age )
@@ -28,7 +31,7 @@ rule "Log"
 when
     $o : Object()
 then
-    System.out.println("SESSION #1 >>> " + $o);
+    logger.debug(" >>> SESSION #1 >>> " + $o);
 end
 
 

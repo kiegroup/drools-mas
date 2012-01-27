@@ -25,6 +25,10 @@ package org.drools.mas;
 import org.drools.mas.core.SessionManager;
 import org.drools.mas.body.content.ActionHolder;
 import org.drools.mas.body.content.Action;
+import org.slf4j.Logger;
+
+//Global Logger
+global Logger logger;
 
 // KnowledgeAgent wrapper used to modify the KB on the fly
 global SessionManager manager;

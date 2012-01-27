@@ -20,9 +20,10 @@ import org.drools.mas.util.MessageContentEncoder;
 import org.drools.runtime.StatefulKnowledgeSession;
 
 import java.util.Map;
-import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 import org.drools.mas.ACLMessage;
 import org.drools.mas.AgentID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * First implementation of a drools-based intelligent, communicative agent. The
@@ -48,6 +49,8 @@ public class DroolsAgent {
      */
     private DroolsAgentResponseInformer responseInformer;
 
+    private static Logger logger = LoggerFactory.getLogger(DroolsAgent.class);
+    
     public DroolsAgent() {
     }
 
@@ -71,9 +74,10 @@ public class DroolsAgent {
      * @param msg
      */
     public void tell(ACLMessage msg) {
-
+        if(logger.isTraceEnabled()){
+            logger.trace(" +++ Message Inside Tell -> "+msg);
+        }
         MessageContentEncoder.decodeBody(msg.getBody(), msg.getEncoding());
-        
         this.mind.insert(msg);
         this.mind.fireAllRules();
     }
@@ -82,6 +86,9 @@ public class DroolsAgent {
      * Destructor
      */
     public void dispose() {
+        if(logger.isInfoEnabled()){
+            logger.info(" >>> Disposing Agent "+agentId.getName());
+        }
         Map<String, StatefulKnowledgeSession> proxies = (Map<String, StatefulKnowledgeSession>) mind.getGlobal("proxies");
         if (proxies != null) {
             for (String sid : proxies.keySet()) {

@@ -48,6 +48,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.drools.logger.KnowledgeRuntimeLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SessionManager extends SessionTemplateManager {
 
@@ -57,9 +59,9 @@ public class SessionManager extends SessionTemplateManager {
     private static Grid grid;
     private static GridNode remoteNode;
     private static final String DEFAULT_CHANGESET = "org/drools/mas/acl_subsession_def_changeset.xml";
+    private static Logger logger = LoggerFactory.getLogger(SessionManager.class);
 
     public static void initGrid() {
-        System.out.println("SM constructor");
         grid = new GridImpl(new HashMap<String, Object>());
         remoteNode = createRemoteNode(grid);
     }
@@ -86,38 +88,23 @@ public class SessionManager extends SessionTemplateManager {
         }
     }
 
-//     private static KnowledgeBase buildKnowledgeBase(String changeset, GridNode remoteNode) throws IOException {
-//        KnowledgeBuilder kbuilder = remoteNode.get(KnowledgeBuilderFactoryService.class).newKnowledgeBuilder();
-//
-//        kbuilder.add(new ByteArrayResource(IOUtils.toByteArray(new ClassPathResource(changeset).getInputStream())), ResourceType.CHANGE_SET);
-//
-//        RuleBaseConfiguration rbconf = new RuleBaseConfiguration();
-//        rbconf.setEventProcessingMode(EventProcessingOption.STREAM);
-//        rbconf.setAssertBehaviour(RuleBaseConfiguration.AssertBehaviour.EQUALITY);
-//
-//        KnowledgeBase kbase = remoteNode.get(KnowledgeBaseFactoryService.class).newKnowledgeBase(rbconf);
-//
-//        kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
-//
-//        return kbase;
-//     }
     private static KnowledgeBase buildKnowledgeBase(String changeset, GridNode remoteNode) throws IOException {
-        System.out.println("Building the Knowledge Base");
+        if(logger.isInfoEnabled()){
+            logger.info(" >>> Building the Knowledge Base");
+        }
        
         KnowledgeBuilderConfiguration conf = KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration(null, SessionManager.class.getClassLoader());
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder(conf);
         kbuilder.add(new ClassPathResource(changeset, SessionManager.class.getClassLoader()), ResourceType.CHANGE_SET);
         if (kbuilder.hasErrors()) {
-            System.err.println(kbuilder.getErrors());
+            logger.error(" xxx Error ->"+kbuilder.getErrors());
             System.exit(-1);
         }
-//        kbuilder.add(new ByteArrayResource(IOUtils.toByteArray(new ClassPathResource(changeset).getInputStream())), ResourceType.CHANGE_SET);
 
         RuleBaseConfiguration rbconf = new RuleBaseConfiguration(SessionManager.class.getClassLoader());
         rbconf.setEventProcessingMode(EventProcessingOption.STREAM);
         rbconf.setAssertBehaviour(RuleBaseConfiguration.AssertBehaviour.EQUALITY);
 
-//        KnowledgeBase kbase = remoteNode.get(KnowledgeBaseFactoryService.class).newKnowledgeBase(rbconf);
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase(rbconf);
 
         kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
@@ -127,36 +114,21 @@ public class SessionManager extends SessionTemplateManager {
 
     protected SessionManager(String id, KnowledgeBase kbase) {
         super();
-        System.out.println("SessionManager : CREATING session " + id);
-
+        if(logger.isInfoEnabled()){
+            logger.info("SessionManager : CREATING session " + id);
+        }    
         KnowledgeAgentConfiguration kaConfig = KnowledgeAgentFactory.newKnowledgeAgentConfiguration();
         kaConfig.setProperty("drools.agent.newInstance", "false");
-       // kaConfig.setProperty("drools.agent.useKBaseClassLoaderForCompiling", "true");
         this.kAgent = KnowledgeAgentFactory.newKnowledgeAgent(id, kbase, kaConfig);
-
-//        ChangeSetImpl changeSet = new ChangeSetImpl();
-//        ClassPathResource res1 = new ClassPathResource(changeset);
-//        res1.setResourceType(ResourceType.CHANGE_SET);
-//        changeSet.setResourcesAdded(Arrays.asList((Resource) res1));
-//
-//        kAgent.applyChangeSet(changeSet);
 
         KnowledgeSessionConfiguration conf = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
         conf.setProperty(ClockTypeOption.PROPERTY_NAME, ClockType.REALTIME_CLOCK.toExternalForm());
         this.kSession = kAgent.getKnowledgeBase().newStatefulKnowledgeSession(conf, null);
         this.kSession.setGlobal("manager", this);
+        this.kSession.setGlobal("logger", logger);
         this.resources = new HashMap<String, Resource>();
     }
 
-//    protected StatefulKnowledgeSession newKnowledgeSession() {
-//        KnowledgeSessionConfiguration conf = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
-//        conf.setProperty(ClockTypeOption.PROPERTY_NAME, ClockType.REALTIME_CLOCK.toExternalForm());
-//        StatefulKnowledgeSession kSession = kAgent.getKnowledgeBase().newStatefulKnowledgeSession(conf, null);
-//        kSession.setGlobal("manager",this);
-//
-//
-//        return kSession;
-//    }
     public StatefulKnowledgeSession getStatefulKnowledgeSession() {
         return kSession;
     }
@@ -168,7 +140,6 @@ public class SessionManager extends SessionTemplateManager {
         resources.put(id, res);
 
         kAgent.applyChangeSet(changeSet);
-        System.out.println("xx");
     }
 
     public void addRule(String id, String drl) {
@@ -187,11 +158,16 @@ public class SessionManager extends SessionTemplateManager {
 
     public void addRuleByTemplate(String id, String templateName, Object context) {
         String drl = this.applyTemplate(templateName, context, null);
-        System.err.println("Adding rule \n" + drl);
+        
+        if(logger.isDebugEnabled()){
+            logger.debug("Adding rule \n" + drl);
+        }    
+        
+        
         addRule(id, drl);
-
-        System.err.println("RULE ADDED ____________ \n");
-
+        if(logger.isDebugEnabled()){
+            logger.debug("RULE ADDED ____________ \n");
+        }    
     }
 
     public KnowledgeAgent getkAgent() {

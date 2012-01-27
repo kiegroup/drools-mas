@@ -29,6 +29,10 @@ import org.drools.base.*;
 import org.drools.mas.body.acts.*;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.AgentID;
+import org.slf4j.Logger;
+
+//Global Logger
+global Logger logger;
 
 // ACL message factory, to generate responses
 global org.drools.mas.util.ACLMessageFactory aclFactory;

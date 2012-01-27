@@ -21,14 +21,10 @@
   <!-- Standard drools agent resources -->
 
     <add>
-
         <resource type="DRL" source="classpath:org/drools/mas/acl_declares.drl" />
         <resource type="DRL" source="classpath:org/drools/mas/acl_common.drl" />
         <resource type="DRL" source="classpath:org/drools/mas/acl_content_based_routing.drl" />
         <resource type="DRL" source="classpath:org/drools/mas/acl_protocol.drl" />
         <resource type="DRL" source="classpath:org/drools/mas/acl_internal.drl" />
-
-    <!-- <resource type="DRL" source="classpath:org/drools/mas/expect_declare.drl" /> -->
-    <!-- <resource type="DRL" source="classpath:org/drools/mas/acl_protocol_conformance.drl" /-->
     </add>
 </change-set>

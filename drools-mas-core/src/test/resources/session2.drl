@@ -18,7 +18,20 @@ package org.drools.test;
 import mock.MockFact;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.mappers.MyMapArgsEntryType;
+import org.slf4j.Logger;
 
+//Global Logger
+global Logger logger;
+
+declare MathResponse
+    x : Double
+    y : Double
+    z : Double
+end
+
+declare LocalTrigger
+    x : int
+end
 
 rule "Call Interface"
 when
@@ -26,13 +39,6 @@ when
 then
     double $x = Math.sqrt($a);
     insert( new Double($x*$x) );
-end
-
-
-
-
-declare LocalTrigger
-    x : int
 end
 
 rule "Call rules"
@@ -49,19 +55,6 @@ when
 then
     retract($lt);
     insert( new Integer($x*$x) );
-end
-
-
-
-
-
-
-
-
-declare MathResponse
-    x : Double
-    y : Double
-    z : Double
 end
 
 rule "Action_Request : squareRoot"
@@ -125,6 +118,6 @@ rule "Log"
 when
     $o : Object()
 then
-    System.out.println("SESSION #2 >>> " + $o);
+    logger.debug(" >>> SESSION #2 >>> " + $o);
 end
 

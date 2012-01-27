@@ -35,6 +35,10 @@ import org.drools.mas.util.MessageContentFactory;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+
+//Global Logger
+global Logger logger;
 
 
 

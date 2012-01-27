@@ -25,8 +25,10 @@ package org.drools.mas;
 import org.drools.mas.core.SessionManager;
 import org.drools.runtime.StatefulKnowledgeSession;
 import java.util.Map;
+import org.slf4j.Logger;
 
-
+//Global Logger
+global Logger logger;
 
 query mapSession( String $key, String $sid )
     SessionMapping( $key, $sid; )

@@ -15,7 +15,7 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.drools.mas.impl</groupId>
     <artifactId>drools-mas-emergency-agent</artifactId>
@@ -31,7 +31,7 @@
 
     <dependencies>
         <!-- Domain Specific Classes/Models -->
-         <dependency>
+        <dependency>
             <groupId>org.drools.mas.examples</groupId>
             <artifactId>emergency-agent-model</artifactId>
             <version>${project.version}</version>
@@ -81,7 +81,19 @@
             <artifactId>cxf-rt-transports-http</artifactId>
             <version>2.5.1</version>
         </dependency>
-        
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.6.4</version>
+        </dependency>
+     
+     
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
