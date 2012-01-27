@@ -28,6 +28,8 @@ public class SynchronousRequestHelper {
     private URL endpointURL;
     private QName qname;
 
+    private boolean initialized = false;
+
     public SynchronousRequestHelper(String url, Encodings enc) {
         try {
             this.endpointURL = new URL(SynchronousDroolsAgentServiceImplService.class.getResource("."), url);
@@ -53,19 +55,18 @@ public class SynchronousRequestHelper {
     }
 
     public void invokeRequest(String sender, String receiver, String methodName, LinkedHashMap<String, Object> args) throws UnsupportedOperationException {
+
+
+        SynchronousDroolsAgentService synchronousDroolsAgentServicePort = init();
+
         multiReturnValue = false;
-        for (Object o : args.values()) {
-            if (o == Variable.v) {
-                multiReturnValue = true;
-                break;
-            }
-        }
-        SynchronousDroolsAgentService synchronousDroolsAgentServicePort = null;
-        if (this.endpointURL == null || this.qname == null) {
-            throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
-        } else {
-            synchronousDroolsAgentServicePort = new SynchronousDroolsAgentServiceImplService(this.endpointURL, this.qname).getSynchronousDroolsAgentServiceImplPort();
-        }
+                for (Object o : args.values()) {
+                    if (o == Variable.v) {
+                        multiReturnValue = true;
+                        break;
+                    }
+                }
+
         ACLMessageFactory factory = new ACLMessageFactory(encode);
 
         Action action = MessageContentFactory.newActionContent(methodName, args);
@@ -87,12 +88,8 @@ public class SynchronousRequestHelper {
     }
 
     public void invokeQueryIf(String sender, String receiver, Object proposition) {
-        SynchronousDroolsAgentService synchronousDroolsAgentServicePort = null;
-        if (this.endpointURL == null || this.qname == null) {
-            throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
-        } else {
-            synchronousDroolsAgentServicePort = new SynchronousDroolsAgentServiceImplService(this.endpointURL, this.qname).getSynchronousDroolsAgentServiceImplPort();
-        }
+        SynchronousDroolsAgentService synchronousDroolsAgentServicePort = init();
+
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
 
         ACLMessage qryif = factory.newQueryIfMessage(sender, receiver, proposition);
@@ -103,12 +100,8 @@ public class SynchronousRequestHelper {
     }
 
     public void invokeInform(String sender, String receiver, Object proposition) {
-        SynchronousDroolsAgentService synchronousDroolsAgentServicePort = null;
-        if (this.endpointURL == null || this.qname == null) {
-            throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
-        } else {
-            synchronousDroolsAgentServicePort = new SynchronousDroolsAgentServiceImplService(this.endpointURL, this.qname).getSynchronousDroolsAgentServiceImplPort();
-        }
+        SynchronousDroolsAgentService synchronousDroolsAgentServicePort = init();
+
         ACLMessageFactory factory = new ACLMessageFactory(encode);
         ACLMessage newInformMessage = factory.newInformMessage(sender, receiver, proposition);
         System.out.println("ENDPOINT URL = " + this.endpointURL);
@@ -119,6 +112,20 @@ public class SynchronousRequestHelper {
         // No Answer needed
 
 
+    }
+
+    private SynchronousDroolsAgentService init() {
+        if (this.endpointURL == null || this.qname == null) {
+            throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
+        } else {
+            try {
+                initialized = true;
+                return new SynchronousDroolsAgentServiceImplService(this.endpointURL, this.qname).getSynchronousDroolsAgentServiceImplPort();
+            } catch ( Exception e ) {
+                initialized = false;
+            }
+        }
+        return null;
     }
 
     public Object getReturn(boolean decode) throws UnsupportedOperationException {
@@ -142,5 +149,9 @@ public class SynchronousRequestHelper {
             }
         }
         return null;
+    }
+
+    public boolean isInitialized() {
+        return initialized;
     }
 }
