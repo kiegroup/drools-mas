@@ -47,18 +47,14 @@
                             <goal>wsimport</goal>
                         </goals>
                         <configuration>
-                            <wsdlFiles>
-                                <!-- there is a sample wsdl provided to generate the local stub of the helper -->
-                                <!-- the ACL Messages classes will go inside target/generated-sources that will be added
-                                to the application class path -->
-                                <wsdlFile>localhost_8080/new-action-agent/services/.wsdl</wsdlFile>
-                            </wsdlFiles>
-                            <!-- Configure where the WSDL is located -->
-                            <wsdlLocation>http://localhost:8080/new-action-agent/services/?WSDL</wsdlLocation>
+                            <wsdlUrls>
+                                <!-- Change the URL to your Agent Implementation WSDL -->
+                                <!--wsdlUrl>http://localhost:8080/your-agent-agent/services/?WSDL</wsdlUrl-->
+                            </wsdlUrls>
                             <staleFile>${project.build.directory}/jaxws/stale/.wsdl.stale</staleFile>
                         </configuration>
                         <id>wsimport-generate-.wsdl</id>
-                        <phase>generate-sources</phase>
+                        <phase>process-resources</phase>
                     </execution>
                 </executions>
                 <dependencies>
