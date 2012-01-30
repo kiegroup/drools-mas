@@ -31,7 +31,7 @@ rule "Log"
 when
     $o : Object()
 then
-    logger.debug(" >>> SESSION #1 >>> " + $o);
+    logger.info(" >>> SESSION #1 >>> " + $o);
 end
 
 

@@ -41,30 +41,16 @@ import org.slf4j.Logger;
 global Logger logger;
 
 
-
-/*
-rule "Decode"
-salience 9999
-no-loop
-when
-    $msg : ACLMessage( $msgId : id, $body : body  )
-then
-    System.err.println("Decoding " + $msgId);
-    $body.decode($msg.getEncoding());
-    update($msg);
-end
-*/
-
-
 rule "Invoke"
 when
     $msg : ACLMessage( $msgId : id )
     $dst : Destination( $msgId , $sessionId ; )
     $cmd : MessageCommands( $msgId, $batch ; )
 then
-//    System.err.println("EXECUTING msg commands for "+ $msgId + " in " + $sessionId);
-//    System.err.println("\t commands " + $cmd);
-
+    if (logger.isTraceEnabled()) {
+        logger.trace(" ### INTERNAL: EXECUTING msg commands for "+ $msgId + " in " + $sessionId);
+        logger.trace(" ### INTERNAL: \t commands " + $cmd);
+    }
     retract($dst);
     retract($cmd);
 
@@ -92,7 +78,10 @@ when
     $dst : Destination( $msgId , $sessionId ; )
     $cmd : OneShotMessageCommand( $msgId, $act ; )
 then
-//    System.err.println("EXECUTING msg command ONE for "+ $msgId + " in " + $sessionId);
+    if (logger.isTraceEnabled()) {
+        logger.trace(" ### INTERNAL: EXECUTING msg command ONE for "+ $msgId + " in " + $sessionId);
+        logger.trace(" ### INTERNAL: \t commands " + $cmd);
+    }
     retract($cmd);
     StatefulKnowledgeSession kSession = (StatefulKnowledgeSession) proxies.get($sessionId);
 
@@ -110,8 +99,9 @@ when
     Inform( $info : proposition ) from $msg.body
     $dst : Destination( $msgId ; )
 then
-//    System.err.println(" INTERNAL PROCESSING : GENERATING COMMANDS FOR INFORM " + $msgId );
-
+    if (logger.isTraceEnabled()) {
+        logger.trace(" ### INTERNAL: GENERATING COMMANDS FOR INFORM " + $msgId );
+    }
     List list = new ArrayList(2);
             list.add(CommandFactory.newInsert( $info.getData(), "$out_"+$msgId ));
             list.add(CommandFactory.newFireAllRules());
@@ -129,8 +119,9 @@ when
     QueryIf( $info : proposition ) from $msg.body
     $dst : Destination( $msgId ; )
 then
-    //System.out.println(" INTERNAL PROCESSING : GENERATING COMMANDS FOR QUERYIF " + $msgId );
-
+    if (logger.isTraceEnabled()) {
+        logger.trace(" ### INTERNAL: GENERATING COMMANDS FOR QUERYIF " + $msgId );
+    }
     List list = new ArrayList(1);
             list.add(CommandFactory.newQuery( "$out_"+$msgId, "queryIf", new Object[] {$info.getData()} ));
     BatchExecutionCommand batch = CommandFactory.newBatchExecution(list);
@@ -146,7 +137,10 @@ when
     $cont : ResponseContent( messageId == $msgId, $data : data != null )
             QueryResults( size > 0 ) from $data
 then
-	$cont.setData(((QueryResults) $data).iterator().next().get("$queryIf"));
+    if (logger.isTraceEnabled()) {
+        logger.trace(" ### INTERNAL: FIXING QUERYIF RESULTS " + $msgId );
+    }
+    $cont.setData(((QueryResults) $data).iterator().next().get("$queryIf"));
     update($cont);
 end
 
@@ -161,8 +155,9 @@ when
     QueryRef( $query : query ) from $msg.body
     $dst : Destination( $msgId ; )
 then
-//    System.err.println(" INTERNAL PROCESSING : GENERATING COMMANDS FOR QUERYREF " + $msgId );
-
+    if (logger.isTraceEnabled()) {
+        logger.trace(" ### INTERNAL: GENERATING COMMANDS FOR QUERYREF " + $msgId);
+    }
     List list = new ArrayList(2);
             list.add(CommandFactory.newQuery( "$out_"+$msgId, $query.getQueryName() , $query.getArgs().toArray() ));
     BatchExecutionCommand batch = CommandFactory.newBatchExecution(list);
@@ -178,19 +173,12 @@ when
     QueryRef( $query : query ) from $msg.body
     $cont : ResponseContent( messageId == $msgId, $data : data != null )
 then
-    
+    if (logger.isTraceEnabled()) {
+        logger.trace(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $msgId);
+    }
     $cont.setData(MessageContentHelper.getQueryReferences($query, (QueryResults) $data));
     update($cont);
 end
-
-
-
-
-
-
-
-
-
 
 
 
@@ -200,8 +188,9 @@ when
     $req : Request( $act : action, $actName : action.actionName ) from $msg.body
     $dst : Destination( $msgId ; )
 then
-//    System.err.println(" INTERNAL PROCESSING : GENERATING COMMANDS FOR REQUEST " + $act );
-
+    if (logger.isTraceEnabled()) {
+        logger.trace(" ### INTERNAL: GENERATING COMMANDS FOR REQUEST " + $msgId);
+    }
     List list = new ArrayList(3);
             list.add(CommandFactory.newInsert( $req.getAction() ));
             list.add(CommandFactory.newFireAllRules());
@@ -220,13 +209,12 @@ when
     $req : Request( $act : action, $actName : action.actionName ) from $msg.body
     $cont : ResponseContent( messageId == $msgId, $data : data != null )
 then
+    if (logger.isTraceEnabled()) {
+        logger.trace(" ### INTERNAL: FIXING RESULTS FOR REQUEST " + $msgId);
+    }
     $cont.setData( MessageContentHelper.getActionReferences($act, (QueryResults) $data));
     update($cont);
 end
-
-
-
-
 
 
 rule "Process_Request_When"
@@ -235,7 +223,9 @@ when
     $req : RequestWhen( $act : action, $actName : action.actionName, $condition : condition.drl ) from $msg.body
     $dst : Destination( $msgId ; )
 then
-//    System.err.println(" INTERNAL PROCESSING : GENERATING COMMANDS FOR REQUEST WHEN " + $msgId + " " + $condition);
+    if (logger.isTraceEnabled()) {
+        logger.trace(" ### INTERNAL: GENERATING COMMANDS FOR REQUEST WHEN " + $msgId + " " + $condition);
+    }
     ActionHolder holder = new ActionHolder($msgId, $act, $condition, false);
 
     insert( new OneShotMessageCommand( $msgId,  CommandFactory.newInsert( holder ) ) );
@@ -256,7 +246,9 @@ when
     $req : RequestWhenever( $act : action, $actName : action.actionName, $condition : condition.drl ) from $msg.body
     $dst : Destination( $msgId ; )
 then
-//    System.err.println(" INTERNAL PROCESSING : GENERATING COMMANDS FOR REQUEST WHEN " + $msgId + " " + $condition);
+    if (logger.isTraceEnabled()) {
+        logger.trace(" ### INTERNAL: GENERATING COMMANDS FOR REQUEST WHENEVER " + $msgId + " " + $condition);
+    }
     ActionHolder holder = new ActionHolder($msgId, $act, $condition, true);
 
     insert( new OneShotMessageCommand( $msgId,  CommandFactory.newInsert( holder ) ) );
@@ -266,8 +258,6 @@ then
 //            list.add(CommandFactory.newQuery( "$out_"+$msgId, $act.getActionName() , $act.getArgsArray()) );
     BatchExecutionCommand batch = CommandFactory.newBatchExecution(list);
     insert( new MessageCommands( $msgId, batch ) );
-
-
 end
 
 
@@ -282,6 +272,9 @@ when
     // no exception thrown (so no failure is already in), but still the request did not return anything
 then
    PerformativeFail fail = new PerformativeFail( $msgId,  $actName + " : No result is returned" );
+   if (logger.isTraceEnabled()) {
+       logger.trace(" ### INTERNAL: FAILURE -> "+ fail);
+   }
    insert( fail );
 end
 
