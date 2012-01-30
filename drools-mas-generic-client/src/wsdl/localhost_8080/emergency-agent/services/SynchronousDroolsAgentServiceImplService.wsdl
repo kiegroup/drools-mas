@@ -77,6 +77,12 @@
   </xs:simpleType>
 </xs:schema>
 <xs:schema targetNamespace="http://mappers.mas.drools.org/" version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:complexType name="MyMapArgsEntryType">
+    <xs:sequence>
+      <xs:element name="key" type="xs:string"/>
+      <xs:element name="value" type="xs:anyType"/>
+    </xs:sequence>
+  </xs:complexType>
 <xs:complexType name="MyMapReferenceEntryType">
     <xs:simpleContent>
       <xs:extension base="xs:string">
@@ -84,28 +90,38 @@
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
-<xs:complexType name="MyMapArgsEntryType">
-    <xs:sequence>
-      <xs:element name="key" type="xs:string"/>
-      <xs:element name="value" type="xs:anyType"/>
-    </xs:sequence>
-  </xs:complexType>
 </xs:schema>
-<xs:schema targetNamespace="http://content.body.mas.drools.org/" version="1.0" xmlns:ns1="http://acts.body.mas.drools.org/" xmlns:ns2="http://mappers.mas.drools.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-<xs:import namespace="http://acts.body.mas.drools.org/"/>
+<xs:schema targetNamespace="http://content.body.mas.drools.org/" version="1.0" xmlns:ns1="http://mas.drools.org/" xmlns:ns2="http://mappers.mas.drools.org/" xmlns:tns="http://content.body.mas.drools.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:import namespace="http://mas.drools.org/"/>
 <xs:import namespace="http://mappers.mas.drools.org/"/>
 <xs:complexType name="Info">
     <xs:complexContent>
-      <xs:extension base="ns1:AbstractMessageContent">
+      <xs:extension base="tns:AbstractMessageContent">
         <xs:sequence>
           <xs:element minOccurs="0" name="data" type="xs:anyType"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+<xs:complexType abstract="true" name="AbstractMessageContent">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="encodedContent" type="xs:string"/>
+      <xs:element name="encoded" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="encoding" type="ns1:Encodings"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="Ref">
+    <xs:complexContent>
+      <xs:extension base="tns:AbstractMessageContent">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" name="references" type="ns2:MyMapArgsEntryType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 <xs:complexType name="Action">
     <xs:complexContent>
-      <xs:extension base="ns1:AbstractMessageContent">
+      <xs:extension base="tns:AbstractMessageContent">
         <xs:sequence>
           <xs:element name="returnVariable" type="xs:string"/>
           <xs:element name="actionName" type="xs:string"/>
@@ -115,18 +131,9 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-<xs:complexType name="Rule">
-    <xs:complexContent>
-      <xs:extension base="ns1:AbstractMessageContent">
-        <xs:sequence>
-          <xs:element name="drl" type="xs:string"/>
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
 <xs:complexType name="Query">
     <xs:complexContent>
-      <xs:extension base="ns1:AbstractMessageContent">
+      <xs:extension base="tns:AbstractMessageContent">
         <xs:sequence>
           <xs:element name="queryName" type="xs:string"/>
           <xs:element maxOccurs="unbounded" name="references" type="ns2:MyMapReferenceEntryType"/>
@@ -135,11 +142,11 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-<xs:complexType name="Ref">
+<xs:complexType name="Rule">
     <xs:complexContent>
-      <xs:extension base="ns1:AbstractMessageContent">
+      <xs:extension base="tns:AbstractMessageContent">
         <xs:sequence>
-          <xs:element maxOccurs="unbounded" name="references" type="ns2:MyMapArgsEntryType"/>
+          <xs:element name="drl" type="xs:string"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -161,13 +168,6 @@
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
-  </xs:complexType>
-<xs:complexType abstract="true" name="AbstractMessageContent">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="encodedContent" type="xs:string"/>
-      <xs:element name="encoded" type="xs:boolean"/>
-      <xs:element minOccurs="0" name="encoding" type="ns1:Encodings"/>
-    </xs:sequence>
   </xs:complexType>
 <xs:complexType name="QueryIf">
     <xs:complexContent>
@@ -276,7 +276,7 @@
   </wsdl:binding>
   <wsdl:service name="SynchronousDroolsAgentServiceImplService">
     <wsdl:port binding="tns:SynchronousDroolsAgentServiceImplServiceSoapBinding" name="SynchronousDroolsAgentServiceImplPort">
-      <soap:address location="http://localhost:8080/new-action-agent/services/"/>
+      <soap:address location="http://localhost:8080/emergency-agent/services/SynchronousDroolsAgentServiceImplService"/>
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

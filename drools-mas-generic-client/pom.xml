@@ -47,14 +47,14 @@
                             <goal>wsimport</goal>
                         </goals>
                         <configuration>
-                            <wsdlUrls>
-                                <!-- Change the URL to your Agent Implementation WSDL -->
-                                <!--wsdlUrl>http://localhost:8080/your-agent-agent/services/?WSDL</wsdlUrl-->
-                            </wsdlUrls>
-                            <staleFile>${project.build.directory}/jaxws/stale/.wsdl.stale</staleFile>
+                            <wsdlFiles>
+                                <wsdlFile>localhost_8080/emergency-agent/services/SynchronousDroolsAgentServiceImplService.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>http://localhost:8080/emergency-agent/services/SynchronousDroolsAgentServiceImplService?WSDL</wsdlLocation>
+                            <staleFile>${project.build.directory}/jaxws/stale/SynchronousDroolsAgentServiceImplService.stale</staleFile>
                         </configuration>
-                        <id>wsimport-generate-.wsdl</id>
-                        <phase>process-resources</phase>
+                        <id>wsimport-generate-SynchronousDroolsAgentServiceImplService</id>
+                        <phase>generate-sources</phase>
                     </execution>
                 </executions>
                 <dependencies>
