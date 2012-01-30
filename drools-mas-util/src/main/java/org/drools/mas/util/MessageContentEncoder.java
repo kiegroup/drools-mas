@@ -22,6 +22,7 @@ package org.drools.mas.util;
 
 import com.google.gson.Gson;
 
+
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import java.io.ByteArrayInputStream;
@@ -38,6 +39,8 @@ import org.drools.mas.body.content.Query;
 import org.drools.mas.body.content.Ref;
 import org.drools.mas.body.content.Rule;
 import org.drools.runtime.rule.Variable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -45,6 +48,7 @@ import org.drools.runtime.rule.Variable;
  */
 public class MessageContentEncoder {
 
+    private static Logger logger = LoggerFactory.getLogger(MessageContentEncoder.class);
     //TODO: Use provider interfaces to decouple
     private static XStream xmlConverter;
     private static XStream jsonConverter;
@@ -55,27 +59,42 @@ public class MessageContentEncoder {
         Object decoded = null;
         switch (act) {
             case INFORM:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  DECODING INFORM: " + body);
+                }
                 decoded = MessageContentEncoder.decode(((Inform) body).getProposition().getEncodedContent(), encoding);
                 ((Inform) body).getProposition().setData(decoded);
                 ((Inform) body).getProposition().setEncoded(false);
                 break;
             case INFORM_IF:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  DECODING INFORM_IF: " + body);
+                }
                 decoded = MessageContentEncoder.decode(((InformIf) body).getProposition().getEncodedContent(), encoding);
                 ((InformIf) body).getProposition().setData(decoded);
                 ((InformIf) body).getProposition().setEncoded(false);
                 break;
             case INFORM_REF:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  DECODING INFORM_REF: " + body);
+                }
                 decoded = MessageContentEncoder.decode(((InformRef) body).getReferences().getEncodedContent(), encoding);
                 ((InformRef) body).setReferences((Ref) decoded);
                 ((InformRef) body).getReferences().setEncoded(false);
                 break;
             case QUERY_IF:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  DECODING QUERY_IF: " + body);
+                }
                 decoded = MessageContentEncoder.decode(((QueryIf) body).getProposition().getEncodedContent(), encoding);
                 ((QueryIf) body).getProposition().setData(decoded);
                 ((QueryIf) body).getProposition().setEncoded(false);
                 break;
 
             case AGREE:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  DECODING AGREE: " + body);
+                }
                 Object decodedAction = MessageContentEncoder.decode(((Agree) body).getAction().getEncodedContent(), encoding);
                 Object decodedCondition = MessageContentEncoder.decode(((Agree) body).getCondition().getEncodedContent(), encoding);
                 ((Agree) body).setAction((Action) decodedAction);
@@ -87,6 +106,9 @@ public class MessageContentEncoder {
 
 
             case QUERY_REF:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  DECODING QUERY_REF: " + body);
+                }
                 String oldEncoded = ((QueryRef) body).getQuery().getEncodedContent();
                 decoded = MessageContentEncoder.decode(((QueryRef) body).getQuery().getEncodedContent(), encoding);
                 ((QueryRef) body).setQuery((Query) decoded);
@@ -111,6 +133,9 @@ public class MessageContentEncoder {
 
                 break;
             case REQUEST:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  DECODING REQUEST: " + body);
+                }
                 String oldEncodedAction = ((Request) body).getAction().getEncodedContent();
                 decoded = MessageContentEncoder.decode(((Request) body).getAction().getEncodedContent(), encoding);
                 ((Request) body).setAction((Action) decoded);
@@ -119,6 +144,9 @@ public class MessageContentEncoder {
                 ((Request) body).getAction().setEncoded(false);
                 break;
             case REQUEST_WHEN:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  DECODING REQUEST_WHEN: " + body);
+                }
                 String oldEncodedActionWhen = ((RequestWhen) body).getAction().getEncodedContent();
                 String oldEncodedConditionWhen = ((RequestWhen) body).getCondition().getEncodedContent();
                 Object decodedActionRequestWhen = MessageContentEncoder.decode(((RequestWhen) body).getAction().getEncodedContent(), encoding);
@@ -133,6 +161,9 @@ public class MessageContentEncoder {
                 break;
 
             case FAILURE:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  DECODING REQUEST_WHEN: " + body);
+                }
                 String oldEncodedActionFailure = ((Failure) body).getAction().getEncodedContent();
                 Object decodedActionFailure = MessageContentEncoder.decode(((Failure) body).getAction().getEncodedContent(), encoding);
                 ((Failure) body).setAction((Action) decodedActionFailure);
@@ -140,12 +171,15 @@ public class MessageContentEncoder {
                 ((Failure) body).getAction().setEncoded(false);
                 break;
             case NOT_UNDERSTOOD:
-                if(((NotUnderstood) body).getAction() != null ){
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  DECODING NOT_UNDERSTOOD: " + body);
+                }
+                if (((NotUnderstood) body).getAction() != null) {
                     String oldEncodedActionNotUnderstood = ((NotUnderstood) body).getAction().getEncodedContent();
                     Object decodedActionNotUnderstood = MessageContentEncoder.decode(((NotUnderstood) body).getAction().getEncodedContent(), encoding);
                     ((NotUnderstood) body).setAction((Action) decodedActionNotUnderstood);
                     ((NotUnderstood) body).getAction().setEncodedContent(oldEncodedActionNotUnderstood);
-                    ((NotUnderstood) body).getAction().setEncoded(false); 
+                    ((NotUnderstood) body).getAction().setEncoded(false);
                 }
                 break;
 
@@ -157,6 +191,9 @@ public class MessageContentEncoder {
         String encoded = "";
         switch (act) {
             case INFORM:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  ENCODING INFORM: " + body);
+                }
                 encoded = MessageContentEncoder.encode(((Inform) body).getProposition().getData(), encoding);
                 ((Inform) body).getProposition().setEncodedContent(encoded);
                 ((Inform) body).getProposition().setEncoded(true);
@@ -164,6 +201,9 @@ public class MessageContentEncoder {
                 ((Inform) body).getProposition().setData(null);
                 break;
             case INFORM_IF:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  ENCODING INFORM_IF: " + body);
+                }
                 encoded = MessageContentEncoder.encode(((InformIf) body).getProposition().getData(), encoding);
                 ((InformIf) body).getProposition().setEncodedContent(encoded);
                 ((InformIf) body).getProposition().setEncoded(true);
@@ -171,6 +211,9 @@ public class MessageContentEncoder {
                 ((InformIf) body).getProposition().setData(null);
                 break;
             case INFORM_REF:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  ENCODING INFORM_REF: " + body);
+                }
                 encoded = MessageContentEncoder.encode(((InformRef) body).getReferences(), encoding);
                 ((InformRef) body).getReferences().setEncodedContent(encoded);
                 ((InformRef) body).getReferences().setEncoded(true);
@@ -178,6 +221,9 @@ public class MessageContentEncoder {
                 ((InformRef) body).getReferences().setReferences(null);
                 break;
             case QUERY_IF:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  ENCODING QUERY_IF: " + body);
+                }
                 encoded = MessageContentEncoder.encode(((QueryIf) body).getProposition().getData(), encoding);
                 ((QueryIf) body).getProposition().setEncodedContent(encoded);
                 ((QueryIf) body).getProposition().setEncoded(true);
@@ -185,6 +231,9 @@ public class MessageContentEncoder {
                 ((QueryIf) body).getProposition().setData(null);
                 break;
             case QUERY_REF:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  ENCODING QUERY_REF: " + body);
+                }
                 encoded = MessageContentEncoder.encode(((QueryRef) body).getQuery(), encoding);
                 ((QueryRef) body).getQuery().setEncodedContent(encoded);
                 ((QueryRef) body).getQuery().setEncoded(true);
@@ -194,6 +243,9 @@ public class MessageContentEncoder {
                 ((QueryRef) body).getQuery().setQueryName("");
                 break;
             case AGREE:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  ENCODING AGREE: " + body);
+                }
                 String encodedAction = MessageContentEncoder.encode(((Agree) body).getAction(), encoding);
                 String encodedCondition = MessageContentEncoder.encode(((Agree) body).getCondition(), encoding);
                 ((Agree) body).getAction().setEncoded(true);
@@ -208,7 +260,9 @@ public class MessageContentEncoder {
 
                 break;
             case REQUEST:
-
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  ENCODING REQUEST: " + body);
+                }
                 encoded = MessageContentEncoder.encode(((Request) body).getAction(), encoding);
                 ((Request) body).getAction().setEncoded(true);
                 ((Request) body).getAction().setEncodedContent(encoded);
@@ -219,6 +273,9 @@ public class MessageContentEncoder {
 
                 break;
             case REQUEST_WHEN:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  ENCODING REQUEST_WHEN: " + body);
+                }
                 String encodedConditionRequestWhen = MessageContentEncoder.encode(((RequestWhen) body).getCondition(), encoding);
                 String encodedActionRequestWhen = MessageContentEncoder.encode(((RequestWhen) body).getAction(), encoding);
                 ((RequestWhen) body).getAction().setEncoded(true);
@@ -231,6 +288,9 @@ public class MessageContentEncoder {
 
                 break;
             case FAILURE:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  ENCODING FAILURE: " + body);
+                }
                 String encodedActionFailure = MessageContentEncoder.encode(((Failure) body).getAction(), encoding);
                 ((Failure) body).getAction().setEncoded(true);
                 ((Failure) body).getAction().setEncodedContent(encodedActionFailure);
@@ -239,7 +299,10 @@ public class MessageContentEncoder {
                 ((Failure) body).getAction().getArgs().clear();
                 break;
             case NOT_UNDERSTOOD:
-                if(((NotUnderstood) body).getAction() != null ){
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  ENCODING NOT_UNDERSTOOD: " + body);
+                }
+                if (((NotUnderstood) body).getAction() != null) {
                     String encodedActionNotUnderstood = MessageContentEncoder.encode(((NotUnderstood) body).getAction(), encoding);
                     ((NotUnderstood) body).getAction().setEncoded(true);
                     ((NotUnderstood) body).getAction().setEncodedContent(encodedActionNotUnderstood);
