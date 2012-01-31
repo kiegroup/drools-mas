@@ -14,8 +14,6 @@ import org.drools.mas.body.acts.AbstractMessageBody;
 import org.drools.mas.body.acts.Inform;
 import org.drools.mas.body.acts.InformRef;
 import org.drools.mas.body.content.Action;
-import org.drools.mas.SynchronousDroolsAgentService;
-import org.drools.mas.SynchronousDroolsAgentServiceImplService;
 import org.drools.mas.body.acts.InformIf;
 import org.drools.mas.util.ACLMessageFactory;
 import org.drools.mas.util.MessageContentEncoder;
