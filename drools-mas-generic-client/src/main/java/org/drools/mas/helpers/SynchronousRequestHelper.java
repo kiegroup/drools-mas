@@ -10,11 +10,9 @@ import javax.xml.namespace.QName;
 import org.drools.mas.ACLMessage;
 import org.drools.mas.Act;
 import org.drools.mas.Encodings;
-import org.drools.mas.body.acts.AbstractMessageBody;
-import org.drools.mas.body.acts.Inform;
-import org.drools.mas.body.acts.InformRef;
+import org.drools.mas.body.acts.*;
 import org.drools.mas.body.content.Action;
-import org.drools.mas.body.acts.InformIf;
+import org.drools.mas.body.content.Info;
 import org.drools.mas.util.ACLMessageFactory;
 import org.drools.mas.util.MessageContentEncoder;
 import org.drools.mas.util.MessageContentFactory;
@@ -50,11 +48,11 @@ public class SynchronousRequestHelper {
 
     }
 
-    public void invokeRequest(String methodName, LinkedHashMap<String, Object> args) throws UnsupportedOperationException {
+    public void invokeRequest(String methodName, LinkedHashMap<String, Object> args) throws AgentInteractionException {
         invokeRequest("", "", methodName, args);
     }
 
-    public void invokeRequest(String sender, String receiver, String methodName, LinkedHashMap<String, Object> args) throws UnsupportedOperationException {
+    public void invokeRequest(String sender, String receiver, String methodName, LinkedHashMap<String, Object> args) throws AgentInteractionException {
 
 
         SynchronousDroolsAgentService synchronousDroolsAgentServicePort = init();
@@ -74,29 +72,79 @@ public class SynchronousRequestHelper {
 
         List<ACLMessage> answers = synchronousDroolsAgentServicePort.tell(req);
 
-        ACLMessage answer = answers.get(0);
-        if (!Act.AGREE.equals(answer.getPerformative())) {
-            throw new UnsupportedOperationException(" Request " + methodName + " was not agreed with args " + args);
-        }
-
-        if (!multiReturnValue) {
-            returnBody = answers.size() == 2 ? ((Inform) answers.get(1).getBody()) : null;
+        if ( answers.size() == 0 ) {
+            throw new AgentInteractionException( null, null, 
+                    "CRITICAL Error - no response received for Request : " + methodName +
+                    "(" + args + ") from " + req.getReceiver() );
         } else {
-            returnBody = answers.size() == 2 ? ((InformRef) answers.get(1).getBody()) : null;
+            ACLMessage answer = answers.get( 0 );
+            
+                                    
+            if (!Act.AGREE.equals(answer.getPerformative())) {
+                Info failCause = null;
+                if ( Act.FAILURE.equals( answer.getPerformative() ) ) {
+                    failCause = ((Failure)answer.getBody()).getCause();
+                } else if ( Act.NOT_UNDERSTOOD.equals( answer.getPerformative() ) ) {
+                    failCause = ((NotUnderstood)answer.getBody()).getCause();
+                } else {
+                    failCause = new Info( );
+                        failCause.setData( "Cause Unknown" );
+                }
+                throw new AgentInteractionException( answer.getPerformative(), 
+                                                    failCause,
+                                                    " Request " + methodName + "(" + args + ") from + " +
+                                                        req.getReceiver() + " was not agreed back " );    
+            }
+            
+            answer = answers.get( 1 );
+            if ( answers.size() < 2 || !Act.INFORM.equals(answers.get(1).getPerformative())) {
+                Info failCause = new Info( );                    
+                if ( Act.FAILURE.equals( answer.getPerformative() ) ) {
+                    failCause = ((Failure)answer.getBody()).getCause();
+                } else if ( Act.NOT_UNDERSTOOD.equals( answer.getPerformative() ) ) {
+                    failCause = ((NotUnderstood)answer.getBody()).getCause();
+                } else {
+                    failCause = new Info( );
+                        failCause.setData( "Cause Unknown" );
+                }
+                throw new AgentInteractionException( answer.getPerformative(),
+                                                     failCause,
+                                                     " Request " + methodName + "(" + args + ") from + " +
+                                                        req.getReceiver() + " did not receive an INFORM response : " + failCause );
+            }
+
+//            if ( ! multiReturnValue ) {
+            returnBody = answer.getBody();
+//            } else {
+//                returnBody = answers.size() == 2 ? ((InformRef) answers.get(1).getBody()) : null;
+//            }
         }
 
     }
 
-    public void invokeQueryIf(String sender, String receiver, Object proposition) {
+    public void invokeQueryIf(String sender, String receiver, Object proposition) throws AgentInteractionException {
         SynchronousDroolsAgentService synchronousDroolsAgentServicePort = init();
 
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
 
         ACLMessage qryif = factory.newQueryIfMessage(sender, receiver, proposition);
         List<ACLMessage> answers = synchronousDroolsAgentServicePort.tell(qryif);
-        System.out.println("AFTER CALLING TELL = " + answers);
 
-        returnBody = ((InformIf) answers.get(0).getBody());
+        if ( answers.size() == 0 ) {
+            Info failCause = new Info( );
+                 failCause.setData( "Cause Unknown" );
+            throw new AgentInteractionException( null, failCause, "CRITICAL Error - no response received for QueryIf" );
+        } else {
+            ACLMessage answer = answers.get( 0 );
+            if ( !Act.INFORM_IF.equals(answers.get(1).getPerformative())) {
+                Info failCause = new Info( );
+                    failCause.setData( "Cause Unknown" );
+                throw new AgentInteractionException( answer.getPerformative(), failCause, " Query IF" + proposition + " was not answered back " );
+            }
+
+            returnBody = answer.getBody();
+        }
+
     }
 
     public void invokeInform(String sender, String receiver, Object proposition) {
