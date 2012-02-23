@@ -63,6 +63,15 @@ public class ACLMessageFactory implements Serializable {
     private static long idCounter = 0;
     private static long convoCounter = 0;
 
+    private static ACLMessageFactory instance;
+    
+    public static ACLMessageFactory getInstance(){
+        if(instance == null){
+            instance = new ACLMessageFactory(Encodings.XML);
+        }
+        return instance;
+    }
+    
     private String newId() {
         return "" + (idCounter++);
     }

@@ -13,27 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.drools.mas.core;
 
 import org.drools.agent.KnowledgeAgent;
-import org.drools.agent.KnowledgeAgentConfiguration;
-import org.drools.agent.KnowledgeAgentFactory;
 import org.drools.builder.KnowledgeBuilder;
-import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
 import org.drools.conf.EventProcessingOption;
 import org.drools.grid.*;
-import org.drools.grid.conf.GridPeerServiceConfiguration;
-import org.drools.grid.conf.impl.GridPeerConfiguration;
-import org.drools.grid.impl.GridImpl;
-import org.drools.grid.impl.MultiplexSocketServerImpl;
-import org.drools.grid.io.impl.MultiplexSocketServiceCongifuration;
-import org.drools.grid.remote.mina.MinaAcceptorFactoryService;
-import org.drools.grid.service.directory.WhitePages;
-import org.drools.grid.service.directory.impl.CoreServicesLookupConfiguration;
-import org.drools.grid.service.directory.impl.WhitePagesLocalConfiguration;
-import org.drools.grid.timer.impl.CoreServicesSchedulerConfiguration;
 import org.drools.io.Resource;
 import org.drools.io.impl.ByteArrayResource;
 import org.drools.io.impl.ChangeSetImpl;
@@ -44,10 +30,14 @@ import org.drools.runtime.conf.ClockTypeOption;
 import org.drools.builder.*;
 import org.drools.*;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import org.drools.logger.KnowledgeRuntimeLoggerFactory;
+import org.apache.commons.io.IOUtils;
+import org.drools.RuleBaseConfiguration.AssertBehaviour;
+import org.drools.conf.AssertBehaviorOption;
+import org.drools.grid.service.directory.WhitePages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,77 +46,117 @@ public class SessionManager extends SessionTemplateManager {
     private KnowledgeAgent kAgent;
     private StatefulKnowledgeSession kSession;
     private Map<String, Resource> resources;
-    private static Grid grid;
-    private static GridNode remoteNode;
     private static final String DEFAULT_CHANGESET = "org/drools/mas/acl_subsession_def_changeset.xml";
     private static Logger logger = LoggerFactory.getLogger(SessionManager.class);
 
-    public static void initGrid() {
-        grid = new GridImpl(new HashMap<String, Object>());
-        remoteNode = createRemoteNode(grid);
+    public static SessionManager create( DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor subDescr, Grid grid) {
+        
+        return create(null, conf, subDescr,  grid);
     }
+    
+    public static SessionManager create(String sessionId, DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor subDescr, Grid grid) {
+        String id;
+        String changeset;
+        String nodeId;
+        
+        if (subDescr == null) {
+            id = conf.getAgentId();
+            changeset = conf.getChangeset();
+            nodeId = conf.getMindNodeLocation();
 
-    public static SessionManager create(String id, String changeset) {
+        } else {
+            id = subDescr.getSessionId();
+            changeset = subDescr.getChangeset();
+            nodeId = subDescr.getNodeId();
+        }
+        if(sessionId != null){
+            id = sessionId;
+        }
+        int port = conf.getPort();
         try {
+
+            GridNode node = grid.getGridNode(nodeId);
+            if (node == null) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("  ### Looking for Remote Node: " + nodeId);
+                }
+                GridServiceDescription<GridNode> n1Gsd = grid.get(WhitePages.class).lookup(nodeId);
+                if (n1Gsd != null) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("  ### Remote Node Descriptor Found: " + n1Gsd);
+                    }
+                    GridConnection<GridNode> conn = grid.get(ConnectionFactoryService.class).createConnection(n1Gsd);
+                    node = conn.connect();
+                } else {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("  ### Creating a new Local Node");
+                    }
+                    node = createLocalNode(grid, nodeId);
+
+                    grid.get(SocketService.class).addService(nodeId, port, node);
+
+                }
+
+            }
 
             return new SessionManager(id, buildKnowledgeBase(
                     changeset != null ? changeset : DEFAULT_CHANGESET,
-                    remoteNode));
+                    node), node);
         } catch (IOException ioe) {
             ioe.printStackTrace();
             return null;
         }
     }
 
-    public static SessionManager create(String id) {
-        try {
-
-            return new SessionManager(id, buildKnowledgeBase(DEFAULT_CHANGESET, remoteNode));
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            return null;
+    protected SessionManager(String id, KnowledgeBase kbase, GridNode node) {
+        super();
+        if (logger.isInfoEnabled()) {
+            logger.info("SessionManager : CREATING session " + id);
         }
+//        KnowledgeAgentConfiguration kaConfig = KnowledgeAgentFactory.newKnowledgeAgentConfiguration();
+//        kaConfig.setProperty("drools.agent.newInstance", "false");
+//        this.kAgent = KnowledgeAgentFactory.newKnowledgeAgent(id, kbase, kaConfig);
+
+        KnowledgeSessionConfiguration conf = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
+        conf.setProperty(ClockTypeOption.PROPERTY_NAME, ClockType.REALTIME_CLOCK.toExternalForm());
+
+//        this.kSession = kAgent.getKnowledgeBase().newStatefulKnowledgeSession(conf, null);
+        this.kSession = kbase.newStatefulKnowledgeSession(conf, null);
+
+        if (logger.isInfoEnabled()) {
+            logger.info(" ### SessionManager : Registering session " + id + " in node: " + node.getId());
+        }
+        node.set(id, this.kSession);
+        this.resources = new HashMap<String, Resource>();
     }
 
-    private static KnowledgeBase buildKnowledgeBase(String changeset, GridNode remoteNode) throws IOException {
-        if(logger.isInfoEnabled()){
-            logger.info(" >>> Building the Knowledge Base");
+    private static KnowledgeBase buildKnowledgeBase(String changeset, GridNode node) throws IOException {
+        if (logger.isDebugEnabled()) {
+            logger.debug(" ### SessionManager : CREATING kbase with CS: " + changeset);
         }
-       
-        KnowledgeBuilderConfiguration conf = KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration(null, SessionManager.class.getClassLoader());
-        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder(conf);
-        kbuilder.add(new ClassPathResource(changeset, SessionManager.class.getClassLoader()), ResourceType.CHANGE_SET);
-        if (kbuilder.hasErrors()) {
-            logger.error(" xxx Error ->"+kbuilder.getErrors());
-            System.exit(-1);
+        KnowledgeBuilder kbuilder = node.get(KnowledgeBuilderFactoryService.class).newKnowledgeBuilder();
+        InputStream inputStream = new ClassPathResource(changeset, SessionManager.class.getClassLoader()).getInputStream();
+        byte[] bytes = IOUtils.toByteArray(inputStream);
+        kbuilder.add(new ByteArrayResource(bytes), ResourceType.CHANGE_SET);
+
+        KnowledgeBuilderErrors errors = kbuilder.getErrors();
+        if (errors != null && errors.size() > 0) {
+            for (KnowledgeBuilderError error : errors) {
+                logger.error("Error: " + error.getMessage());
+
+            }
+
         }
-
-        RuleBaseConfiguration rbconf = new RuleBaseConfiguration(SessionManager.class.getClassLoader());
-        rbconf.setEventProcessingMode(EventProcessingOption.STREAM);
-        rbconf.setAssertBehaviour(RuleBaseConfiguration.AssertBehaviour.EQUALITY);
-
-        KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase(rbconf);
+        KnowledgeBaseConfiguration rbconf = node.get(KnowledgeBaseFactoryService.class).newKnowledgeBaseConfiguration();
+        rbconf.setOption(EventProcessingOption.STREAM);
+        rbconf.setOption(AssertBehaviorOption.EQUALITY);
+        KnowledgeBase kbase = node.get(KnowledgeBaseFactoryService.class).newKnowledgeBase(rbconf);
 
         kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
 
         return kbase;
-    }
 
-    protected SessionManager(String id, KnowledgeBase kbase) {
-        super();
-        if(logger.isInfoEnabled()){
-            logger.info("SessionManager : CREATING session " + id);
-        }    
-        KnowledgeAgentConfiguration kaConfig = KnowledgeAgentFactory.newKnowledgeAgentConfiguration();
-        kaConfig.setProperty("drools.agent.newInstance", "false");
-        this.kAgent = KnowledgeAgentFactory.newKnowledgeAgent(id, kbase, kaConfig);
 
-        KnowledgeSessionConfiguration conf = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
-        conf.setProperty(ClockTypeOption.PROPERTY_NAME, ClockType.REALTIME_CLOCK.toExternalForm());
-        this.kSession = kAgent.getKnowledgeBase().newStatefulKnowledgeSession(conf, null);
-        this.kSession.setGlobal("manager", this);
-        this.kSession.setGlobal("logger", logger);
-        this.resources = new HashMap<String, Resource>();
     }
 
     public StatefulKnowledgeSession getStatefulKnowledgeSession() {
@@ -157,17 +187,17 @@ public class SessionManager extends SessionTemplateManager {
     }
 
     public void addRuleByTemplate(String id, String templateName, Object context) {
-        String drl = this.applyTemplate(templateName, context, null);
-        
-        if(logger.isDebugEnabled()){
+        String drl = applyTemplate(templateName, context, null);
+
+        if (logger.isDebugEnabled()) {
             logger.debug("Adding rule \n" + drl);
-        }    
-        
-        
+        }
+
         addRule(id, drl);
-        if(logger.isDebugEnabled()){
+
+        if (logger.isDebugEnabled()) {
             logger.debug("RULE ADDED ____________ \n");
-        }    
+        }
     }
 
     public KnowledgeAgent getkAgent() {
@@ -178,56 +208,11 @@ public class SessionManager extends SessionTemplateManager {
         this.kAgent = kAgent;
     }
 
-    protected static GridNode createRemoteNode(Grid grid1) {
-        configureGrid(grid1,
-                8000,
-                null);
-
-        Grid grid2 = new GridImpl(new HashMap<String, Object>());
-        configureGrid(grid2,
-                -1,
-                grid1.get(WhitePages.class));
-
-        GridNode n1 = grid1.createGridNode("n1");
-        grid1.get(SocketService.class).addService("n1", 8000, n1);
-
-        GridServiceDescription<GridNode> n1Gsd = grid2.get(WhitePages.class).lookup("n1");
-        GridConnection<GridNode> conn = grid2.get(ConnectionFactoryService.class).createConnection(n1Gsd);
-        return conn.connect();
-
-    }
-
-    private static void configureGrid(Grid grid,
-            int port,
-            WhitePages wp) {
-
-        //Local Grid Configuration, for our client
-        GridPeerConfiguration conf = new GridPeerConfiguration();
-
-        //Configuring the Core Services White Pages
-        GridPeerServiceConfiguration coreSeviceWPConf = new CoreServicesLookupConfiguration(new HashMap<String, GridServiceDescription>());
-        conf.addConfiguration(coreSeviceWPConf);
-
-        //Configuring the Core Services Scheduler
-        GridPeerServiceConfiguration coreSeviceSchedulerConf = new CoreServicesSchedulerConfiguration();
-        conf.addConfiguration(coreSeviceSchedulerConf);
-
-        //Configuring the WhitePages
-        WhitePagesLocalConfiguration wplConf = new WhitePagesLocalConfiguration();
-        wplConf.setWhitePages(wp);
-        conf.addConfiguration(wplConf);
-
-        if (port >= 0) {
-            //Configuring the SocketService
-            MultiplexSocketServiceCongifuration socketConf = new MultiplexSocketServiceCongifuration(new MultiplexSocketServerImpl("127.0.0.1",
-                    new MinaAcceptorFactoryService(),
-                    SystemEventListenerFactory.getSystemEventListener(),
-                    grid));
-            socketConf.addService(WhitePages.class.getName(), wplConf.getWhitePages(), port);
-
-            conf.addConfiguration(socketConf);
+    private static GridNode createLocalNode(Grid grid, String nodeName) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Creating Local Node called: " + nodeName);
         }
-        conf.configure(grid);
-
+        GridNode localNode = grid.createGridNode(nodeName);
+        return localNode;
     }
 }

@@ -34,8 +34,8 @@ public interface SynchronousDroolsAgentService {
      */
     @WebMethod
     @WebResult(targetNamespace = "")
-    @RequestWrapper(localName = "tell", targetNamespace = "http://mas.drools.org/", className = "org.drools.mas.Tell")
-    @ResponseWrapper(localName = "tellResponse", targetNamespace = "http://mas.drools.org/", className = "org.drools.mas.TellResponse")
+    @RequestWrapper(localName = "tell", targetNamespace = "http://mas.drools.org/", className = "org.drools.mas.helper.Tell")
+    @ResponseWrapper(localName = "tellResponse", targetNamespace = "http://mas.drools.org/", className = "org.drools.mas.helper.TellResponse")
     public List<ACLMessage> tell(
         @WebParam(name = "arg0", targetNamespace = "")
         ACLMessage arg0);

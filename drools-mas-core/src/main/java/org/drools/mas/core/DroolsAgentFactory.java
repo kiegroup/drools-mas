@@ -22,8 +22,27 @@ import org.drools.runtime.StatefulKnowledgeSession;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import javax.persistence.Persistence;
+import org.drools.SystemEventListenerFactory;
+import org.drools.grid.Grid;
+import org.drools.grid.GridServiceDescription;
+import org.drools.grid.SocketService;
+import org.drools.grid.conf.GridPeerServiceConfiguration;
+import org.drools.grid.conf.impl.GridPeerConfiguration;
+import org.drools.grid.impl.GridImpl;
+import org.drools.grid.impl.MultiplexSocketServerImpl;
+import org.drools.grid.io.impl.MultiplexSocketServiceCongifuration;
+import org.drools.grid.remote.mina.MinaAcceptorFactoryService;
+import org.drools.grid.service.directory.WhitePages;
+import org.drools.grid.service.directory.impl.CoreServicesLookupConfiguration;
+import org.drools.grid.service.directory.impl.JpaWhitePages;
+import org.drools.grid.service.directory.impl.WhitePagesLocalConfiguration;
+import org.drools.impl.StatefulKnowledgeSessionImpl;
+import org.drools.management.DroolsManagementAgent;
 import org.drools.mas.AgentID;
 import org.drools.mas.Encodings;
+import org.drools.mas.util.helper.SessionLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,14 +55,14 @@ import org.slf4j.LoggerFactory;
  *
  * TODO at the moment, a single default grid node is created locally. TODO the
  * topology is static, i.e. one master session with unidrectional links to
- * "slave" sessions TODO --> full GRID capabilities must be exploited to manage
+ * "slave" sessions  --> full GRID capabilities are being used to manage
  * sessions dynamically
  */
 public class DroolsAgentFactory {
 
     private static Logger logger = LoggerFactory.getLogger(DroolsAgentFactory.class);
     private static DroolsAgentFactory singleton;
-
+    
     public static DroolsAgentFactory getInstance() {
         if (singleton == null) {
             singleton = new DroolsAgentFactory();
@@ -55,40 +74,86 @@ public class DroolsAgentFactory {
     }
 
     public DroolsAgent spawn(DroolsAgentConfiguration config) {
-
+        Grid grid = new GridImpl("peer-"+config.getAgentId(),new HashMap<String, Object>());
+        configureGrid(grid, config.getPort());
+        
         AgentID aid = new AgentID();
         aid.setName(config.getAgentId());
         aid.setLocalName(config.getAgentId());
         if (logger.isInfoEnabled()) {
-            logger.info(" >>> Spawning Agent => Name: "+aid.getName());
+            logger.info(" >>> Spawning Agent => Name: " + aid.getName());
         }
         try {
-            ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
-            StatefulKnowledgeSession mind = SessionManager.create(config.getAgentId(), config.getChangeset()).getStatefulKnowledgeSession();
-
-            Map<String, StatefulKnowledgeSession> proxies = new HashMap<String, StatefulKnowledgeSession>();
-            mind.setGlobal("logger", logger);
-            mind.setGlobal("aclFactory", factory);
-            mind.setGlobal("agentName", aid);
-            mind.setGlobal("proxies", proxies);
-            mind.setGlobal("defaultCS", config.getDefaultSubsessionChangeSet());
-            mind.setGlobal("responseInformer", config.getResponseInformer());
-
-            for (DroolsAgentConfiguration.SubSessionDescriptor descr : config.getSubSessions()) {
-                SessionManager sm = SessionManager.create(descr.getSessionId(), descr.getChangeset());
-                StatefulKnowledgeSession mindSet = sm.getStatefulKnowledgeSession();
-                mindSet.fireAllRules();
-                proxies.put(descr.getSessionId(), mindSet);
+            if (logger.isDebugEnabled()) {
+                logger.debug("  ### Creating Agent Mind: " + config.getAgentId() + "- CS: " + config.getChangeset() +" - mind location: " +config.getMindNodeLocation());
             }
+            StatefulKnowledgeSession mind = SessionManager.create(config, null, grid).getStatefulKnowledgeSession();
+            
+            DroolsManagementAgent kmanagement = DroolsManagementAgent.getInstance();
 
+            //kmanagement.registerKnowledgeBase((ReteooRuleBase) ((KnowledgeBaseImpl) mind.get).getRuleBase());
+
+            kmanagement.registerKnowledgeSession(((StatefulKnowledgeSessionImpl) mind).getInternalWorkingMemory());
+            
+            if (logger.isDebugEnabled()) {
+                logger.debug("  ### Mind Created: " + config.getAgentId() + "- CS: " + config.getChangeset() + " in "+ config.getMindNodeLocation());
+                logger.debug("  ### Creating Agent Sub-Sessions ");
+            }
+          
+            
+            for (DroolsAgentConfiguration.SubSessionDescriptor descr : config.getSubSessions()) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("  ### Creating Agent Sub-Session: " + descr.getSessionId() + "- CS: " + descr.getChangeset() + " - on node: " + descr.getNodeId());
+                }
+                SessionManager sm = SessionManager.create(config, descr, grid);
+                StatefulKnowledgeSession mindSet = sm.getStatefulKnowledgeSession();
+                
+                mindSet.fireAllRules();
+                
+                mind.insert(new SessionLocator(descr.getNodeId(),descr.getSessionId()));
+            }
+            mind.insert(aid);
+            //Insert configuration as a fact inside the mind session
+            mind.insert(config);
+            
             mind.fireAllRules();
 
-            DroolsAgent agent = new DroolsAgent(aid, mind, config.getResponseInformer());
-            return agent;
+            return new DroolsAgent(grid, aid, mind);
         } catch (Exception ioe) {
             ioe.printStackTrace();
         }
         return null;
 
+    }
+    
+     private void configureGrid(Grid grid, int port) {
+        //Local Grid Configuration, for our client
+        GridPeerConfiguration conf = new GridPeerConfiguration();
+
+        //Configuring the Core Services White Pages
+        GridPeerServiceConfiguration coreSeviceWPConf = new CoreServicesLookupConfiguration(new HashMap<String, GridServiceDescription>());
+        conf.addConfiguration(coreSeviceWPConf);
+
+        //Configuring the a local WhitePages service that is being shared with all the grid peers
+        WhitePagesLocalConfiguration wplConf = new WhitePagesLocalConfiguration();
+        //wplConf.setWhitePages(new WhitePagesImpl());
+        wplConf.setWhitePages(new JpaWhitePages(Persistence.createEntityManagerFactory("org.drools.grid")));
+        conf.addConfiguration(wplConf);
+        
+        
+         if ( port >= 0 ) {
+            //Configuring the SocketService
+            MultiplexSocketServiceCongifuration socketConf = new MultiplexSocketServiceCongifuration( new MultiplexSocketServerImpl( "127.0.0.1",
+                                                                                                                              new MinaAcceptorFactoryService(),
+                                                                                                                              SystemEventListenerFactory.getSystemEventListener(),
+                                                                                                                              grid) );
+            socketConf.addService( WhitePages.class.getName(), wplConf.getWhitePages(), port );
+//            socketConf.addService( SchedulerService.class.getName(), schlConf.getSchedulerService(), port );
+                        
+            conf.addConfiguration( socketConf );
+        }
+
+        conf.configure(grid);
+        
     }
 }

@@ -36,13 +36,8 @@ import org.drools.mas.Act;
 import org.drools.mas.Destination;
 import org.drools.mas.SessionMapping;
 import org.drools.mas.Encodings;
-import org.slf4j.Logger;
+import org.drools.mas.util.LoggerHelper;
 
-//Global Logger
-global Logger logger;
-
-// ACL message factory, to generate responses
-global org.drools.mas.util.ACLMessageFactory aclFactory;
 
 
 
@@ -62,7 +57,7 @@ when
     $patientId : String( this != null ) from InspectMessageHelper.inspect($msg,"$..name[0]")
     mapSession( $patientId , $sessionId ; )
 then
-    logger.debug(" ### Example CBR: Routing message " + $msgId + " to session " + $sessionId );
+    LoggerHelper.debug(" ### Example CBR: Routing message " + $msgId + " to session " + $sessionId );
     insert( new Destination($msgId, $sessionId) );
 end
 
@@ -73,7 +68,7 @@ when
     $patientId : String( this != null ) from InspectMessageHelper.inspect($msg,"//name") 
     mapSession( $patientId , $sessionId ; )
 then
-    logger.debug(" ### Example CBR: Routing message " + $msgId + " to session " + $sessionId );
+    LoggerHelper.debug(" ### Example CBR: Routing message " + $msgId + " to session " + $sessionId );
     insert( new Destination($msgId, $sessionId) );
 end
 
@@ -87,7 +82,7 @@ when
     Inform( $prop : proposition ) from $body
     MockFact( age > 18 ) from $prop.getData()
 then
-    logger.debug(" ### Example CBR: Routing message " + $msgId + " to session2 ");
+    LoggerHelper.debug(" ### Example CBR: Routing message " + $msgId + " to session2 ");
     insert( new Destination($msgId, "session2") );
 end
 
@@ -99,7 +94,7 @@ when
     $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.JSON )
     String( this == "ageOfPatient" ) from InspectMessageHelper.inspect($msg,"$..queryName[0]")
 then
-    logger.debug(" ### Example CBR: Routing message " + $msgId + " to session1 ");
+    LoggerHelper.debug(" ### Example CBR: Routing message " + $msgId + " to session1 ");
     insert( new Destination($msgId, "session1") );
 end
 
@@ -112,7 +107,7 @@ when
     $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.XML )
     String( this == "ageOfPatient" ) from InspectMessageHelper.inspect($msg,"//queryName")
 then
-    logger.debug(" ### Example CBR: Routing message " + $msgId + " to session1 ");
+    LoggerHelper.debug(" ### Example CBR: Routing message " + $msgId + " to session1 ");
     insert( new Destination($msgId, "session1") );
 end
 
@@ -124,7 +119,7 @@ when
     $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.XML )
     String( this == "queryExceptional" ) from InspectMessageHelper.inspect($msg,"//queryName")
 then
-    logger.debug(" ### Example CBR: Routing message " + $msgId + " to session1 ");
+    LoggerHelper.debug(" ### Example CBR: Routing message " + $msgId + " to session1 ");
     insert( new Destination($msgId, "session1") );
 end
 
@@ -142,7 +137,7 @@ when
     $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.JSON)
     String( this == "squareRoot" || this == "randomSum" || this == "errorSquareRoot" ) from InspectMessageHelper.inspect($msg,"$..actionName[0]")
 then
-    logger.debug(" ### Example CBR: Routing message " + $msgId + " to session2 ");
+    LoggerHelper.debug(" ### Example CBR: Routing message " + $msgId + " to session2 ");
     insert( new Destination($msgId, "session2") );
 end
 
@@ -155,7 +150,7 @@ when
     $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.XML)
     String( this == "squareRoot" || this == "randomSum" || this == "errorSquareRoot" ) from InspectMessageHelper.inspect($msg,"//actionName")
 then
-    logger.debug(" ### Example CBR: Routing message " + $msgId + " to session2 ");
+    LoggerHelper.debug(" ### Example CBR: Routing message " + $msgId + " to session2 ");
     insert( new Destination($msgId, "session2") );
 end
 
@@ -168,6 +163,6 @@ when
     Inform( $prop : proposition ) from $body
     String( this == "actionTrigger" || this == "actionTrigger2" ) from $prop.getData()
 then
-    logger.debug(" ### Example CBR: Routing message " + $msgId + " to session2 ");
+    LoggerHelper.debug(" ### Example CBR: Routing message " + $msgId + " to session2 ");
     insert( new Destination($msgId, "session2") );
 end

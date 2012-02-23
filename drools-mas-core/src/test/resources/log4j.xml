@@ -8,10 +8,16 @@
         </layout>
     </appender>
     <logger name="org.drools.mas">
-        <level value="INFO"/>
+        <level value="DEBUG"/>
+    </logger>
+    <logger name="org.drools.mas.util">
+        <level value="DEBUG"/>
+    </logger>
+    <logger name="org.drools.grid">
+        <level value="DEBUG"/>
     </logger>
     <root> 
-        <priority value ="INFO" /> 
+        <priority value ="ERROR" /> 
         <appender-ref ref="console" /> 
     </root> 
 </log4j:configuration>

@@ -1,23 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:jaxws="http://cxf.apache.org/jaxws"
-       xsi:schemaLocation="
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
-   
-    
-    <import resource="classpath:META-INF/cxf/cxf.xml" />
-    <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>
-    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
-    <jaxws:endpoint id="agent-ws"
-                    implementor="#agent-service">
-    </jaxws:endpoint> 
-  
-   
-    
-    
+
     <bean id="agent-service" class="org.drools.mas.SynchronousDroolsAgentServiceImpl">
         <property name="agent" ref="agent"/>
     </bean>  
@@ -37,7 +26,6 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
         <property name="subSessions">
             <list>
                 <ref local="agent1-session1"/>
-                
             </list>
         </property>
     </bean>
@@ -47,6 +35,5 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     <bean id="agent" class="org.drools.mas.core.DroolsAgent" factory-bean="agent-factory" factory-method="spawn">
         <constructor-arg ref="agent1-configuration"/>
     </bean>
-
 
 </beans>

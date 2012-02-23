@@ -26,5 +26,6 @@
         <resource type="DRL" source="classpath:org/drools/mas/acl_content_based_routing.drl" />
         <resource type="DRL" source="classpath:org/drools/mas/acl_protocol.drl" />
         <resource type="DRL" source="classpath:org/drools/mas/acl_internal.drl" />
+        <resource type="DRL" source="classpath:org/drools/mas/sessions_handling.drl" />
     </add>
 </change-set>

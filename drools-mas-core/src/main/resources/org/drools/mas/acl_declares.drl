@@ -29,22 +29,7 @@ import org.drools.base.*;
 import org.drools.mas.body.acts.*;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.AgentID;
-import org.slf4j.Logger;
 
-//Global Logger
-global Logger logger;
-
-// ACL message factory, to generate responses
-global org.drools.mas.util.ACLMessageFactory aclFactory;
-
-// Agent name
-global AgentID agentName;
-
-// References to slave sessions
-global Map proxies;
-
-// ChangeSet for dynamically generated subsessions
-global String defaultCS;
 
 
 // messages are declared events to handle timestamping
@@ -79,6 +64,8 @@ end
 
 declare ResponseContent
 @typesafe(false)
+    nodeId : String
+    sessionId : String
     messageId : String
     data : Object
 end
@@ -88,6 +75,13 @@ declare PerformativeFail
     cause     : String
 end
 
+declare MessageAnswer
+    @role(event)
+    messageId : String
+    answer: ACLMessage
+end
 
 
-
+query getAnswers(String msgId)
+    MessageAnswer(messageId == msgId, $ans: answer)
+end

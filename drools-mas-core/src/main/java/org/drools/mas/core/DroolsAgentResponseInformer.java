@@ -20,6 +20,7 @@
  */
 package org.drools.mas.core;
 
+import java.util.List;
 import org.drools.mas.ACLMessage;
 
 /**
@@ -29,5 +30,5 @@ import org.drools.mas.ACLMessage;
 public interface DroolsAgentResponseInformer {
 
     void informResponse(ACLMessage originalMessage, ACLMessage reponse);
-
+    
 }

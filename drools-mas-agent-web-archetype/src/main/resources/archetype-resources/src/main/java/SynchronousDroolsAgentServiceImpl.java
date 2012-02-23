@@ -24,7 +24,7 @@ import org.drools.mas.mappers.MyMapArgsEntryType;
 import org.drools.mas.mappers.MyMapReferenceEntryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.apache.cxf.feature.Features;
 
 
 /**
@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 @SOAPBinding(style = SOAPBinding.Style.DOCUMENT,
 use = SOAPBinding.Use.LITERAL,
 parameterStyle = SOAPBinding.ParameterStyle.WRAPPED)
+@Features(features = "org.apache.cxf.feature.LoggingFeature")
 public class SynchronousDroolsAgentServiceImpl implements SynchronousDroolsAgentService {
 
     private static Logger logger = LoggerFactory.getLogger(SynchronousDroolsAgentServiceImpl.class);

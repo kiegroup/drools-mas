@@ -22,32 +22,32 @@ import org.drools.mas.body.content.*;
 import org.drools.mas.body.acts.*;
 import org.drools.expectations.*;
 import org.drools.mas.Act;
-import org.slf4j.Logger;
+import org.drools.mas.util.LoggerHelper;
+import org.drools.mas.core.DroolsAgentConfiguration;
 
-//Global Logger
-global Logger logger;
 
 rule "Request_Protocol_Initiator"
 when
+    $conf: DroolsAgentConfiguration()
     $trigger : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $receiver : receiver,
                        performative == Act.REQUEST,                     // on a REQEUST
-                       sender.name == agentName)
+                       sender.name == $conf.getAgentId())
 then
     expect $nak : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $ackId : id,
                        conversationId == $convoId,
                        inReplyTo == $msgId,
                        sender.name == $receiver,
-                       receiver == agentName,
+                       receiver == $conf.getAgentId(),
                        performative == Act.REFUSE,                      // expect either a REFUSE or an AGREE
                        $body : body,
                        this after[0,10m] $trigger
                        ) ? {  
-                             if (logger.isTraceEnabled()) {
-                                  logger.trace(" ### CONFORMANCE: expect either a REFUSE or an AGREE->" + $body);
+                             if (LoggerHelper.isTraceEnabled()) {
+                                  LoggerHelper.trace(" ### CONFORMANCE: expect either a REFUSE or an AGREE->" + $body);
                              } 
                            }
     or
@@ -56,7 +56,7 @@ then
                        conversationId == $convoId,
                        inReplyTo == $msgId,
                        sender.name == $receiver,
-                       receiver == agentName,                           // but if they AGREE, expect a result
+                       receiver == $conf.getAgentId(),                           // but if they AGREE, expect a result
                        performative == Act.AGREE
                        ) ? {
                                 expect $fail : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
@@ -64,13 +64,13 @@ then
                                                             conversationId == $convoId,
                                                             inReplyTo == $msgId,
                                                             sender.name == $receiver,
-                                                            receiver == agentName,
+                                                            receiver == $conf.getAgentId(),
                                                             performative == Act.FAILURE,            // which can be a FAILURE
                                                             $body : body,
                                                             this after[0,10m] $ack
                                                           ) ? {  
-                                                                if (logger.isTraceEnabled()) {
-                                                                    logger.trace(" ### CONFORMANCE: which can be a FAILURE: " + $body);
+                                                                if (LoggerHelper.isTraceEnabled()) {
+                                                                    LoggerHelper.trace(" ### CONFORMANCE: which can be a FAILURE: " + $body);
                                                                 } 
                                                               }
                                 or
@@ -79,13 +79,13 @@ then
                                                             conversationId == $convoId,
                                                             inReplyTo == $msgId,
                                                             sender.name == $receiver,
-                                                            receiver == agentName,
+                                                            receiver == $conf.getAgentId(),
                                                             performative == Act.INFORM,             // or a success - i.e. an INFORM with the results
                                                             $body : body,
                                                             this after[0,10m] $ack
                                                           ) ? {  
-                                                                if (logger.isTraceEnabled()) {
-                                                                    logger.trace(" ### CONFORMANCE: or a success - i.e. an INFORM with the results:" + $body);
+                                                                if (LoggerHelper.isTraceEnabled()) {
+                                                                    LoggerHelper.trace(" ### CONFORMANCE: or a success - i.e. an INFORM with the results:" + $body);
                                                                 } 
                                                               }
                        }
@@ -95,25 +95,26 @@ end
 
 rule "QueryIf_Protocol_Initiator"
 when
+    $conf: DroolsAgentConfiguration()
     $trigger : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $receiver : receiver,
                        performative == Act.QUERY_IF,
-                       sender.name == agentName)
+                       sender.name == $conf.getAgentId())
 then
     expect $nak : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $ackId : id,
                        conversationId == $convoId,
                        inReplyTo == $msgId,
                        sender.name == $receiver,
-                       receiver == agentName,
+                       receiver == $conf.getAgentId(),
                        performative == Act.REFUSE,
                        $body : body,
                        this after[0,10m] $trigger
                        ) ? {  
-                             if (logger.isTraceEnabled()) {
-                                logger.trace(" ### CONFORMANCE: QueryIf_Protocol_Initiator (REFUSE): " + $body);
+                             if (LoggerHelper.isTraceEnabled()) {
+                                LoggerHelper.trace(" ### CONFORMANCE: QueryIf_Protocol_Initiator (REFUSE): " + $body);
                              } 
                            }
     or
@@ -122,7 +123,7 @@ then
                        conversationId == $convoId,
                        inReplyTo == $msgId,
                        sender.name == $receiver,
-                       receiver == agentName,
+                       receiver == $conf.getAgentId(),
                        performative == Act.AGREE
                        ) ? {
                                 expect $fail : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
@@ -130,13 +131,13 @@ then
                                                             conversationId == $convoId,
                                                             inReplyTo == $msgId,
                                                             sender.name == $receiver,
-                                                            receiver == agentName,
+                                                            receiver == $conf.getAgentId(),
                                                             performative == Act.FAILURE,
                                                             $body : body,
                                                             this after[0,10m] $ack
                                                           ) ? {  
-                                                                    if (logger.isTraceEnabled()) {
-                                                                        logger.trace(" ### CONFORMANCE: QueryIf_Protocol_Initiator (FAILURE): " + $body);
+                                                                    if (LoggerHelper.isTraceEnabled()) {
+                                                                        LoggerHelper.trace(" ### CONFORMANCE: QueryIf_Protocol_Initiator (FAILURE): " + $body);
                                                                     } 
                                                               }
                                 or
@@ -145,13 +146,13 @@ then
                                                             conversationId == $convoId,
                                                             inReplyTo == $msgId,
                                                             sender.name == $receiver,
-                                                            receiver == agentName,
+                                                            receiver == $conf.getAgentId(),
                                                             performative == Act.INFORM_IF,
                                                             $body : body,
                                                             this after[0,10m] $ack
                                                           ) ? {  
-                                                                if (logger.isTraceEnabled()) {
-                                                                        logger.trace(" ### CONFORMANCE: QueryIf_Protocol_Initiator (INFORM_IF): " + $body);
+                                                                if (LoggerHelper.isTraceEnabled()) {
+                                                                        LoggerHelper.trace(" ### CONFORMANCE: QueryIf_Protocol_Initiator (INFORM_IF): " + $body);
                                                                 } 
                                                               }
                        }
@@ -161,25 +162,26 @@ end
 
 rule "QueryRef_Protocol_Initiator"
 when
+    $conf: DroolsAgentConfiguration()
     $trigger : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $msgId : id,
                        $convoId : conversationId,
                        $receiver : receiver,
                        performative == Act.QUERY_REF,
-                       sender.name == agentName)
+                       sender.name == $conf.getAgentId())
 then
     expect $nak : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
                        $ackId : id,
                        conversationId == $convoId,
                        inReplyTo == $msgId,
                        sender.name == $receiver,
-                       receiver == agentName,
+                       receiver == $conf.getAgentId(),
                        performative == Act.REFUSE,
                        $body : body,
                        this after[0,10m] $trigger
                        ) ? {  
-                                if (logger.isTraceEnabled()) {
-                                    logger.trace(" ### CONFORMANCE: QueryRef_Protocol_Initiator (REFUSE): " + $body);
+                                if (LoggerHelper.isTraceEnabled()) {
+                                    LoggerHelper.trace(" ### CONFORMANCE: QueryRef_Protocol_Initiator (REFUSE): " + $body);
                                 }
                        }
     or
@@ -188,7 +190,7 @@ then
                        conversationId == $convoId,
                        inReplyTo == $msgId,
                        sender.name == $receiver,
-                       receiver == agentName,
+                       receiver == $conf.getAgentId(),
                        performative == Act.AGREE
                        ) ? {
                                 expect $fail : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
@@ -196,13 +198,13 @@ then
                                                             conversationId == $convoId,
                                                             inReplyTo == $msgId,
                                                             sender.name == $receiver,
-                                                            receiver == agentName,
+                                                            receiver == $conf.getAgentId(),
                                                             performative == Act.FAILURE,
                                                             $body : body,
                                                             this after[0,10m] $ack
                                                           ) ? {  
-                                                                if (logger.isTraceEnabled()) {
-                                                                    logger.trace(" ### CONFORMANCE: QueryRef_Protocol_Initiator (FAILURE): " + $body);
+                                                                if (LoggerHelper.isTraceEnabled()) {
+                                                                    LoggerHelper.trace(" ### CONFORMANCE: QueryRef_Protocol_Initiator (FAILURE): " + $body);
                                                                 }
                                                               }
                                 or
@@ -211,13 +213,13 @@ then
                                                             conversationId == $convoId,
                                                             inReplyTo == $msgId,
                                                             sender.name == $receiver,
-                                                            receiver == agentName,
+                                                            receiver == $conf.getAgentId(),
                                                             performative == Act.INFORM_REF,
                                                             $body : body,
                                                             this after[0,10m] $ack
                                                           ) ? {  
-                                                                 if (logger.isTraceEnabled()) {
-                                                                    logger.trace(" ### CONFORMANCE: QueryRef_Protocol_Initiator (INFORM_REF): " + $body);
+                                                                 if (LoggerHelper.isTraceEnabled()) {
+                                                                    LoggerHelper.trace(" ### CONFORMANCE: QueryRef_Protocol_Initiator (INFORM_REF): " + $body);
                                                                  } 
                                                               }
                        }

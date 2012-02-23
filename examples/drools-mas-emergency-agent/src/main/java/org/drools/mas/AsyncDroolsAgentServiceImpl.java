@@ -42,13 +42,13 @@ import org.slf4j.LoggerFactory;
 use = SOAPBinding.Use.LITERAL,
 parameterStyle = SOAPBinding.ParameterStyle.WRAPPED)
 @Features(features = "org.apache.cxf.feature.LoggingFeature") 
-public class SynchronousDroolsAgentServiceImpl implements SynchronousDroolsAgentService {
+public class AsyncDroolsAgentServiceImpl implements AsyncDroolsAgentService {
 
-    private static Logger logger = LoggerFactory.getLogger(SynchronousDroolsAgentServiceImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(AsyncDroolsAgentServiceImpl.class);
     private DroolsAgent agent;
 
 
-    public SynchronousDroolsAgentServiceImpl() {
+    public AsyncDroolsAgentServiceImpl() {
         
     }
 
@@ -60,7 +60,7 @@ public class SynchronousDroolsAgentServiceImpl implements SynchronousDroolsAgent
     
 
     @WebMethod(operationName = "tell")
-    public List<ACLMessage> tell(ACLMessage message) {
+    public void tell(ACLMessage message) {
         if (logger.isDebugEnabled()) {
             logger.debug(" >>> IN Message -> " + message.getPerformative().name());
         }
@@ -71,10 +71,14 @@ public class SynchronousDroolsAgentServiceImpl implements SynchronousDroolsAgent
                 logger.error(">>> exception => " + t.getMessage());
                 t.printStackTrace();
             }
-            return null;
+            
 
         }
-        List<ACLMessage> retrieveResponses = agent.getAgentAnswers(message.getId());
+        
+    }
+
+    public List<ACLMessage> getResponses(String msgId) {
+        List<ACLMessage> retrieveResponses = agent.getAgentAnswers(msgId);
         if (logger.isDebugEnabled()) {
             if (retrieveResponses != null) {
                 logger.debug(" <<< Number of OUT Messages -> " + retrieveResponses.size());
@@ -87,4 +91,5 @@ public class SynchronousDroolsAgentServiceImpl implements SynchronousDroolsAgent
         }
         return retrieveResponses;
     }
+    
 }

@@ -15,44 +15,25 @@
  */
 package org.drools.mas.core;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+public class DroolsAgentConfiguration implements Serializable {
 
-public class DroolsAgentConfiguration {
-
-    private String                              agentId;
-
-    private String                              changeset;
+    private String agentId;
+    private String changeset;
+    private String responseInformer;
+    private List<SubSessionDescriptor> subSessions = new ArrayList<SubSessionDescriptor>();
     
-    private DroolsAgentResponseInformer         responseInformer;
-    
-    private List<SubSessionDescriptor>          subSessions = new ArrayList<SubSessionDescriptor>();
-
-    private Map<String, Object>                 queueConnectionParameters = new HashMap<String, Object>();
-
-    private String                              springContextFilePath;
-
-    private String                              defaultSubsessionChangeSet;
+    private String springContextFilePath;
+    // Local by default, you can override it by configuration
+    private String defaultSubsessionChangeSet = "local";
+    private String mindNodeLocation;
+    private int port = 7000;
 
     public DroolsAgentConfiguration() {
-
     }
-
-
-
-    public Map<String, Object> getQueueConnectionParameters() {
-        return queueConnectionParameters;
-    }
-
-    public void setQueueConnectionParameters(Map<String, Object> queueConnectionParameters) {
-        this.queueConnectionParameters = queueConnectionParameters;
-    }
-
-
-
 
     public String getSpringContextFilePath() {
         return springContextFilePath;
@@ -62,8 +43,6 @@ public class DroolsAgentConfiguration {
         this.springContextFilePath = springContextFilePath;
     }
 
-
-
     public String getAgentId() {
         return agentId;
     }
@@ -71,9 +50,6 @@ public class DroolsAgentConfiguration {
     public void setAgentId(String agentId) {
         this.agentId = agentId;
     }
-
-
-
 
     public String getChangeset() {
         return changeset;
@@ -83,21 +59,13 @@ public class DroolsAgentConfiguration {
         this.changeset = changeset;
     }
 
-
-
-
-    public DroolsAgentResponseInformer getResponseInformer() {
+    public String getResponseInformer() {
         return responseInformer;
     }
 
-    public void setResponseInformer(DroolsAgentResponseInformer responseInformer) {
+    public void setResponseInformer(String responseInformer) {
         this.responseInformer = responseInformer;
     }
-
-
-
-
-
 
     public List<SubSessionDescriptor> getSubSessions() {
         return subSessions;
@@ -113,7 +81,6 @@ public class DroolsAgentConfiguration {
         this.subSessions.add(sub);
     }
 
-
     public String getDefaultSubsessionChangeSet() {
         return defaultSubsessionChangeSet;
     }
@@ -122,11 +89,25 @@ public class DroolsAgentConfiguration {
         this.defaultSubsessionChangeSet = defaultSubsessionChangeSet;
     }
 
+    public String getMindNodeLocation() {
+        return mindNodeLocation;
+    }
 
+    public void setMindNodeLocation(String mindNodeLocation) {
+        this.mindNodeLocation = mindNodeLocation;
+    }
 
+    public int getPort() {
+        return port;
+    }
 
+    public void setPort(int port) {
+        this.port = port;
+    }
+    
+    
 
-    public static class SubSessionDescriptor {
+    public static class SubSessionDescriptor implements Serializable {
 
         private String sessionId;
         private String changeset;
@@ -163,14 +144,24 @@ public class DroolsAgentConfiguration {
         }
 
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             SubSessionDescriptor that = (SubSessionDescriptor) o;
 
-            if (changeset != null ? !changeset.equals(that.changeset) : that.changeset != null) return false;
-            if (nodeId != null ? !nodeId.equals(that.nodeId) : that.nodeId != null) return false;
-            if (sessionId != null ? !sessionId.equals(that.sessionId) : that.sessionId != null) return false;
+            if (changeset != null ? !changeset.equals(that.changeset) : that.changeset != null) {
+                return false;
+            }
+            if (nodeId != null ? !nodeId.equals(that.nodeId) : that.nodeId != null) {
+                return false;
+            }
+            if (sessionId != null ? !sessionId.equals(that.sessionId) : that.sessionId != null) {
+                return false;
+            }
 
             return true;
         }
@@ -181,5 +172,17 @@ public class DroolsAgentConfiguration {
             result = 31 * result + (nodeId != null ? nodeId.hashCode() : 0);
             return result;
         }
+
+        @Override
+        public String toString() {
+            return "SubSessionDescriptor{" + "sessionId=" + sessionId + ", changeset=" + changeset + ", nodeId=" + nodeId + '}';
+        }
+        
     }
+
+    @Override
+    public String toString() {
+        return "DroolsAgentConfiguration{" + "agentId=" + agentId + ", changeset=" + changeset + ", responseInformer=" + responseInformer + ", subSessions=" + subSessions + ", springContextFilePath=" + springContextFilePath + ", defaultSubsessionChangeSet=" + defaultSubsessionChangeSet + ", mindNodeLocation=" + mindNodeLocation + ", port=" + port + '}';
+    }
+    
 }

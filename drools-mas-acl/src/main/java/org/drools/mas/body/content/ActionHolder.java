@@ -16,8 +16,10 @@
 
 package org.drools.mas.body.content;
 
+import java.io.Serializable;
 
-public class ActionHolder {
+
+public class ActionHolder implements Serializable{
 
     private String  refId;
     private Action  action;

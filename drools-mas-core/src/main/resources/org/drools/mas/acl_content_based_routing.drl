@@ -25,15 +25,21 @@ package org.drools.mas;
 import org.drools.mas.core.SessionManager;
 import org.drools.runtime.StatefulKnowledgeSession;
 import java.util.Map;
-import org.slf4j.Logger;
-
-//Global Logger
-global Logger logger;
+import org.drools.mas.util.LoggerHelper;
+import org.drools.mas.core.DroolsAgentConfiguration;
+import org.drools.mas.util.helper.SessionLocator;
+import org.drools.grid.helper.GridHelper;
 
 query mapSession( String $key, String $sid )
     SessionMapping( $key, $sid; )
 end
 
+rule "log"
+    when
+       $s: SessionMapping()
+    then
+        LoggerHelper.debug("  !#!@#!@#!@#!@####  Session Mapping: " + $s);
+end
 
 
 rule "generateSession"
@@ -42,12 +48,18 @@ when
     $qry : DroolsQuery(  name == "mapSession", $el : elements[0] )
     $key : String( this != "" ) from $el
     not SessionMapping( $key ;  )
+    $conf: DroolsAgentConfiguration()
 then
     String sid = $key;
-    SessionManager sm = SessionManager.create( sid, defaultCS );
-    StatefulKnowledgeSession kSession = sm.getStatefulKnowledgeSession();
+    if(LoggerHelper.isDebugEnabled()){
+        LoggerHelper.debug("  !#!@#!@#!@#!@#### Generating Session: " + sid + " with CS conf: "+$conf.getDefaultSubsessionChangeSet());
+    }
+    
+    StatefulKnowledgeSession kSession = SessionManager.create(sid, $conf, null, GridHelper.getGrid()).getStatefulKnowledgeSession();
     kSession.fireAllRules();
-        proxies.put(sid,kSession);
+        
+    //local for now.. 
+    insert( new SessionLocator($conf.getMindNodeLocation(), sid));
     insert( new SessionMapping( $key, sid ) );
 end
 

@@ -5,7 +5,7 @@ package org.drools.mas;
 import org.drools.mas.body.content.ActionHolder;
 import org.drools.mas.body.content.Action;
 
-global org.drools.mas.core.SessionManager manager;
+//global org.drools.mas.core.SessionManager manager;
 
 rule "Request_When_@{refId}"
 when

@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.drools.mas.core;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import org.drools.grid.*;
 import org.drools.mas.util.MessageContentEncoder;
 import org.drools.runtime.StatefulKnowledgeSession;
 
-import java.util.Map;
+import org.drools.grid.service.directory.WhitePages;
 import org.drools.mas.ACLMessage;
 import org.drools.mas.AgentID;
+import org.drools.mas.util.helper.SessionLocator;
+import org.drools.runtime.rule.QueryResults;
+import org.drools.runtime.rule.QueryResultsRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,68 +51,104 @@ public class DroolsAgent {
      */
     private StatefulKnowledgeSession mind;
     /**
-     * Response channel
+     * Response channel class
      */
-    private DroolsAgentResponseInformer responseInformer;
-
-    private static Logger logger = LoggerFactory.getLogger(DroolsAgent.class);
     
+    private Grid grid;
+    private static Logger logger = LoggerFactory.getLogger(DroolsAgent.class);
+
     public DroolsAgent() {
     }
 
-    
     /**
      * Main constructor
      *
      * @param id
      * @param session
-     * @param responseInformer
      */
-    public DroolsAgent(AgentID id, StatefulKnowledgeSession session, DroolsAgentResponseInformer responseInformer) {
+    public DroolsAgent(Grid grid, AgentID id, StatefulKnowledgeSession session) {
+        this.grid = grid;
         this.agentId = id;
         this.mind = session;
-        this.responseInformer = responseInformer;
+        
     }
 
     /**
-     * Main interface method, used to accept incoming messages.
-     * Messages are simply inserted into the main session and processed there
+     * Main interface method, used to accept incoming messages. Messages are
+     * simply inserted into the main session and processed there
+     *
      * @param msg
      */
     public void tell(ACLMessage msg) {
-        if(logger.isTraceEnabled()){
-            logger.trace(" +++ Message Inside Tell -> "+msg);
+        if (logger.isTraceEnabled()) {
+            logger.trace(" +++ Message Inside Tell -> " + msg);
         }
         MessageContentEncoder.decodeBody(msg.getBody(), msg.getEncoding());
         this.mind.insert(msg);
         this.mind.fireAllRules();
     }
+    
+    
 
     /**
      * Destructor
      */
     public void dispose() {
-        if(logger.isInfoEnabled()){
-            logger.info(" >>> Disposing Agent "+agentId.getName());
+        if (logger.isInfoEnabled()) {
+            logger.info(" >>> Disposing Agent " + agentId.getName());
         }
-        Map<String, StatefulKnowledgeSession> proxies = (Map<String, StatefulKnowledgeSession>) mind.getGlobal("proxies");
-        if (proxies != null) {
-            for (String sid : proxies.keySet()) {
-                StatefulKnowledgeSession subSession = proxies.get(sid);
-                if (subSession != null) {
-                    subSession.dispose();
-                }
+        QueryResults queryResults = mind.getQueryResults("getSessions", new Object[]{});
+        Iterator<QueryResultsRow> iterator = queryResults.iterator();
+        while (iterator.hasNext()) {
+
+            SessionLocator sessionLoc = (SessionLocator) iterator.next().get("$sessionLocator");
+            if (logger.isDebugEnabled()) {
+                logger.debug(" ### \t Disposing Agent Session :" + sessionLoc);
             }
+            GridNode node = grid.getGridNode(sessionLoc.getNodeId());
+            if (node == null) {
+                GridServiceDescription<GridNode> nGsd = grid.get(WhitePages.class).lookup(sessionLoc.getNodeId());
+                GridConnection<GridNode> conn = grid.get(ConnectionFactoryService.class).createConnection(nGsd);
+                node = conn.connect();
+            }
+            StatefulKnowledgeSession ksession = node.get(sessionLoc.getSessionId(), StatefulKnowledgeSession.class);
+            ksession.dispose();
+            node.dispose();
         }
+
+        grid.get(SocketService.class).close();
         mind.dispose();
     }
 
     public StatefulKnowledgeSession getInnerSession(String sessionId) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Looking for the inner session: " + sessionId);
+        }
         if (sessionId == null) {
             return mind;
         } else {
-            Map<String, StatefulKnowledgeSession> proxies = (Map<String, StatefulKnowledgeSession>) mind.getGlobal("proxies");
-            return proxies.get(sessionId);
+            QueryResults queryResults = mind.getQueryResults("getSessionById", new Object[]{sessionId});
+            //size must be 1
+            if (queryResults.size() > 1) {
+                throw new IllegalStateException("Duplicate sessions ids");
+            }
+            if (queryResults.size() == 0) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("No Session Found for SessionId: " + sessionId);
+                }
+                return null;
+            }
+            QueryResultsRow first = queryResults.iterator().next();
+            SessionLocator sessionLoc = (SessionLocator) first.get("$sessionLocator");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Session Locator Found: " + sessionLoc);
+            }
+            GridNode node = grid.getGridNode(sessionLoc.getNodeId());
+            StatefulKnowledgeSession ksession = node.get(sessionId, StatefulKnowledgeSession.class);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Session Located: " + ksession);
+            }
+            return ksession;
         }
 
     }
@@ -119,7 +161,14 @@ public class DroolsAgent {
         return mind;
     }
 
-    public DroolsAgentResponseInformer getResponseInformer() {
-        return responseInformer;
+    public List<ACLMessage> getAgentAnswers(String msgId){
+        List<ACLMessage> answers = new ArrayList<ACLMessage>();
+        QueryResults results = mind.getQueryResults("getAnswers",new Object[]{msgId});
+        Iterator<QueryResultsRow> iterator = results.iterator();
+        while(iterator.hasNext()){
+            QueryResultsRow row = iterator.next();
+            answers.add((ACLMessage)row.get("$ans"));
+        }
+        return answers;
     }
 }

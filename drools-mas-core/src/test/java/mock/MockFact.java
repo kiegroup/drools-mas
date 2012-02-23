@@ -32,8 +32,8 @@ public class MockFact implements Serializable {
 
     @Override
     public String toString() {
-        return "Person{" +
-                "name='" + name + '\'' +
+        return "Person{this = "+ hashCode() +
+                ", name='" + name + '\'' +
                 ", age=" + age +
                 '}';
     }

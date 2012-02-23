@@ -13,27 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.drools.mas;
 
-import java.util.Date;
-import java.util.LinkedHashMap;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.drools.mas.examples.emergency.Emergency;
 import org.drools.mas.helpers.SynchronousRequestHelper;
 import org.drools.mas.mock.MockFact;
+import org.h2.tools.DeleteDbFiles;
+import org.h2.tools.Server;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author salaboy
  */
 public class SynchronousDroolsAgentServiceServiceTest {
+
     private String endpoint = "http://localhost:8080/emergency-agent/services/?WSDL";
+
     public SynchronousDroolsAgentServiceServiceTest() {
     }
 
@@ -53,64 +62,116 @@ public class SynchronousDroolsAgentServiceServiceTest {
     public void tearDown() {
     }
 
-   
-   @Test
+    @Test
     public void testSimpleInformWithHelper() {
         SynchronousRequestHelper agentHelper = new SynchronousRequestHelper(endpoint);
-        
+
         MockFact fact = new MockFact("patient1", 18);
-        
+
 
         agentHelper.invokeInform("me", "you", fact);
-        
+
         Object result = agentHelper.getReturn(true);
         assertNull(result);
-       
+
 
 
     }
-   
+
     @Test
     public void informAgentAboutEmergency() {
-        
+
         SynchronousRequestHelper helper = new SynchronousRequestHelper(endpoint);
-        
-        
-        Emergency e = new Emergency("FirstEmergency",new Date(),"Fire",10);
-       
+
+
+        Emergency e = new Emergency("FirstEmergency", new Date(), "Fire", 10);
+
         //Agent meet the Fire Emergency
         helper.invokeInform("me", "you", e);
-        
+
         assertNull(helper.getReturn(false));
-        
+
         // Let's see if you know about a Fire Emergency
         helper.invokeQueryIf("me", "you", e);
-        
+
         assertEquals(e, helper.getReturn(true));
-        
-        
+
+
     }
 
     @Test
-    public void helpMeWithMyEmergency(){
+    public void helpMeWithMyEmergency() {
         SynchronousRequestHelper helper = new SynchronousRequestHelper(endpoint);
-        
-        
-        Emergency e = new Emergency("SecondEmergency",new Date(),"Fire",10);
-       
+
+
+        Emergency e = new Emergency("SecondEmergency", new Date(), "Fire", 10);
+
         //Agent meet the Fire Emergency
         helper.invokeInform("me", "you", e);
-        
+
         assertNull(helper.getReturn(false));
-        
+
         // Let's see if you know about a Fire Emergency
         helper.invokeQueryIf("me", "you", e);
-        
+
         assertEquals(e, helper.getReturn(true));
-    
+
         helper.invokeRequest("coordinateEmergency", new LinkedHashMap<String, Object>());
-        
+
         helper.getReturn(true);
+
+    }
+
+    @Test
+    public void multiThreadTest() throws InterruptedException {
+        final SynchronousRequestHelper helper = new SynchronousRequestHelper(endpoint);
+        final int EMERGENCY_COUNT = 45;
+        final int THREAD_COUNT = 10;
+
+        // Create test data and callable tasks
+        //
         
+
+        Collection <Callable<Void>> tasks = new ArrayList <Callable<Void>>();
+        for (int i = 0; i < EMERGENCY_COUNT; i++){
+
+            // Test data
+            final Emergency emergency = new Emergency("Emergency"+i, new Date(), "Fire"+i, 10);
+
+            // Tasks - each task makes exactly one service invocation.
+            tasks.add(new Callable<Void>() {
+                public Void call() throws Exception {
+                     helper.invokeInform("me", "you", emergency);
+                     helper.invokeRequest("coordinateEmergency", new LinkedHashMap<String, Object>());
+                     return null;
+                }
+            });
+        }
+        
+
+        // Execute tasks
+        //
+        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+        // invokeAll() blocks until all tasks have run...
+        List<Future<Void>> futures = executorService.invokeAll(tasks);
+        assertEquals(futures.size(), EMERGENCY_COUNT);
+
+        // Assertions
+        //
+//        Set articleIds = new HashSet(ARTICLE_COUNT);
+//        for (Future<article> future : futures) {
+//            // get() will throw an exception if an exception was thrown by the service.
+//            Article article = future.get();
+//            // Did we get an article?
+//            assertThat(article, not(nullValue()));
+//            // Did the service lock the article before returning?
+//            assertThat(article.isLocked(), is(true));
+//            // Is the article id unique (see Set.add() javadoc)?
+//            assertThat(articleIds.add(article.getId()), is(true));
+//        }
+//        // Did we get the right number of article ids?
+//        assertThat(articleIds.size(), is(ARTICLE_COUNT));
+
+
     }
 }

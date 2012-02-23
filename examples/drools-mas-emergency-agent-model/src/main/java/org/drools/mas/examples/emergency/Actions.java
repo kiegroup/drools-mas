@@ -4,6 +4,7 @@
  */
 package org.drools.mas.examples.emergency;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  *
  * @author salaboy
  */
-public class Actions {
+public class Actions implements Serializable{
     List<String> actions = new ArrayList<String>();
 
     public Actions(String... args) {
