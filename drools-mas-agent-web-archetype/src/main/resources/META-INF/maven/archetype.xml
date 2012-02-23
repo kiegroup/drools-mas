@@ -19,7 +19,8 @@
   xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype/1.0.0 http://maven.apache.org/xsd/archetype-1.0.0.xsd">
     <id>drools-mas-web-archetype</id>
     <sources>
-        <source>src/main/java/SynchronousDroolsAgentResponseInformer.java</source>
+        <source>src/main/java/AsyncDroolsAgentService.java</source>
+        <source>src/main/java/AsyncDroolsAgentServiceImpl.java</source>
         <source>src/main/java/SynchronousDroolsAgentService.java</source>
         <source>src/main/java/SynchronousDroolsAgentServiceImpl.java</source>
         <source>src/main/java/mock/MockFact.java</source>

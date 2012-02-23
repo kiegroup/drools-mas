@@ -156,21 +156,7 @@ public class SynchronousDroolsAgentServiceServiceTest {
         List<Future<Void>> futures = executorService.invokeAll(tasks);
         assertEquals(futures.size(), EMERGENCY_COUNT);
 
-        // Assertions
-        //
-//        Set articleIds = new HashSet(ARTICLE_COUNT);
-//        for (Future<article> future : futures) {
-//            // get() will throw an exception if an exception was thrown by the service.
-//            Article article = future.get();
-//            // Did we get an article?
-//            assertThat(article, not(nullValue()));
-//            // Did the service lock the article before returning?
-//            assertThat(article.isLocked(), is(true));
-//            // Is the article id unique (see Set.add() javadoc)?
-//            assertThat(articleIds.add(article.getId()), is(true));
-//        }
-//        // Did we get the right number of article ids?
-//        assertThat(articleIds.size(), is(ARTICLE_COUNT));
+
 
 
     }

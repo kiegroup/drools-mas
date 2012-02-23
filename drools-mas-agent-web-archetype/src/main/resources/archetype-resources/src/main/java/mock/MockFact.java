@@ -58,18 +58,14 @@ public class MockFact implements Serializable{
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 37 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 37 * hash + (this.age != null ? this.age.hashCode() : 0);
+        int hash = 5;
+        hash = 23 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 23 * hash + (this.age != null ? this.age.hashCode() : 0);
         return hash;
     }
-
+    
     @Override
     public String toString() {
         return "MockFact{" + "name=" + name + ", age=" + age + '}';
     }
-    
-    
-    
-    
 }

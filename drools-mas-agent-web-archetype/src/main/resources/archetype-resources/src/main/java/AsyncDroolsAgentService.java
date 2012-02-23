@@ -13,8 +13,8 @@ import javax.jws.WebService;
  * @author salaboy
  */
 @WebService
-public interface SynchronousDroolsAgentService {
+public interface AsyncDroolsAgentService {
     @WebMethod
-    List<ACLMessage> tell(ACLMessage message);
-    
+    void tell(ACLMessage message);
+    List<ACLMessage> getResponses(String msgId);
 }

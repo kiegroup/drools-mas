@@ -8,7 +8,10 @@
         </layout>
     </appender>
  <logger name="org.drools.mas">
-        <level value="debug"/>
+        <level value="DEBUG"/>
+    </logger>
+    <logger name="org.drools.grid">
+        <level value="DEBUG"/>
     </logger>
     <root> 
         <priority value ="INFO" /> 
