@@ -27,8 +27,7 @@ public class DroolsAgentConfiguration implements Serializable {
     private List<SubSessionDescriptor> subSessions = new ArrayList<SubSessionDescriptor>();
     
     private String springContextFilePath;
-    // Local by default, you can override it by configuration
-    private String defaultSubsessionChangeSet = "local";
+    private String defaultSubsessionChangeSet;
     private String mindNodeLocation;
     private int port = 7000;
 

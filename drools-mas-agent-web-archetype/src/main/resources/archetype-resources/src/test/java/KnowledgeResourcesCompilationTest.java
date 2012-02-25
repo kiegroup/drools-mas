@@ -1,24 +1,18 @@
 /*
- * Copyright 2011 JBoss Inc
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
  */
-
 package org.drools.mas;
 
+import java.sql.SQLException;
 import org.drools.mas.core.DroolsAgent;
+import org.drools.mas.mock.MockResponseInformer;
+import org.h2.tools.DeleteDbFiles;
+import org.h2.tools.Server;
 import org.junit.*;
 import static org.junit.Assert.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -27,7 +21,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * @author salaboy
  */
 public class KnowledgeResourcesCompilationTest {
-
+    private static Logger logger = LoggerFactory.getLogger(KnowledgeResourcesCompilationTest.class);
+    private Server server;
     public KnowledgeResourcesCompilationTest() {
     }
 
@@ -41,10 +36,23 @@ public class KnowledgeResourcesCompilationTest {
 
     @Before
     public void setUp() {
+         DeleteDbFiles.execute("~", "mydb", false);
+
+        logger.info("Staring DB for white pages ...");
+        try {
+            server = Server.createTcpServer(null).start();
+        } catch (SQLException ex) {
+            logger.error(ex.getMessage());
+        }
+        logger.info("DB for white pages started! ");
     }
 
     @After
     public void tearDown() {
+        
+        logger.info("Stopping DB ...");
+        server.stop();
+        logger.info("DB Stopped!");
     }
     /*
      * Test for check that the resources provided inside this agent 
