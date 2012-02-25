@@ -51,15 +51,22 @@ when
     $conf: DroolsAgentConfiguration()
 then
     String sid = $key;
+    String targetLocation = $conf.getMindNodeLocation(); //apply load balancing policy here
     if(LoggerHelper.isDebugEnabled()){
-        LoggerHelper.debug("  !#!@#!@#!@#!@#### Generating Session: " + sid + " with CS conf: "+$conf.getDefaultSubsessionChangeSet());
+        LoggerHelper.debug("  !#!@#!@#!@#!@#### Generating Session: " + sid + " with CS conf: "+ $conf.getDefaultSubsessionChangeSet() );
     }
     
-    StatefulKnowledgeSession kSession = SessionManager.create(sid, $conf, null, GridHelper.getGrid()).getStatefulKnowledgeSession();
+    StatefulKnowledgeSession kSession =
+        SessionManager.create( sid,
+                               $conf,
+                               new DroolsAgentConfiguration.SubSessionDescriptor( sid,
+                                                                                  null, // use default changeset
+                                                                                  targetLocation ),
+                               GridHelper.getGrid() ).getStatefulKnowledgeSession();
     kSession.fireAllRules();
         
     //local for now.. 
-    insert( new SessionLocator($conf.getMindNodeLocation(), sid));
+    insert( new SessionLocator( targetLocation, sid ) );
     insert( new SessionMapping( $key, sid ) );
 end
 
