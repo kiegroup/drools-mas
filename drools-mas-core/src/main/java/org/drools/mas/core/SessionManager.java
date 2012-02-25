@@ -51,15 +51,16 @@ public class SessionManager extends SessionTemplateManager {
 
     public static SessionManager create( DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor subDescr, Grid grid) {
         
-        return create(null, conf, subDescr,  grid);
+        return create( null, conf, subDescr,  grid);
     }
     
-    public static SessionManager create(String sessionId, DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor subDescr, Grid grid) {
+    public static SessionManager create( String sessionId, DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor subDescr, Grid grid ) {
         String id;
         String changeset;
         String nodeId;
-        
-        if (subDescr == null) {
+
+
+        if ( subDescr == null ) {
             id = conf.getAgentId();
             changeset = conf.getChangeset();
             nodeId = conf.getMindNodeLocation();
@@ -69,7 +70,7 @@ public class SessionManager extends SessionTemplateManager {
             changeset = subDescr.getChangeset();
             nodeId = subDescr.getNodeId();
         }
-        if(sessionId != null){
+        if( sessionId != null ){
             id = sessionId;
         }
         int port = conf.getPort();
@@ -100,13 +101,20 @@ public class SessionManager extends SessionTemplateManager {
             }
 
             return new SessionManager(id, buildKnowledgeBase(
-                    changeset != null ? changeset : DEFAULT_CHANGESET,
+                    changeset != null ?
+                            changeset :
+                            ( conf.getDefaultSubsessionChangeSet() != null ?
+                                conf.getDefaultSubsessionChangeSet() :
+                                DEFAULT_CHANGESET
+                            ),
                     node), node);
         } catch (IOException ioe) {
             ioe.printStackTrace();
             return null;
         }
     }
+
+
 
     protected SessionManager(String id, KnowledgeBase kbase, GridNode node) {
         super();
