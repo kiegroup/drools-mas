@@ -344,7 +344,7 @@ public class MessageContentEncoder {
 
     private static XStream getJsonConverter() {
         if (jsonConverter == null) {
-            jsonConverter = new XStream(new JettisonMappedXmlDriver());
+                jsonConverter = new XStream(new JettisonMappedXmlDriver());
         }
         return jsonConverter;
     }

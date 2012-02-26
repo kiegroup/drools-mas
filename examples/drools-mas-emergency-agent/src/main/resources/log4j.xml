@@ -11,7 +11,7 @@
         <level value="DEBUG"/>
     </logger>
     <logger name="org.drools.grid">
-        <level value="DEBUG"/>
+        <level value="TRACE"/>
     </logger>
     <root> 
         <priority value ="ERROR" /> 

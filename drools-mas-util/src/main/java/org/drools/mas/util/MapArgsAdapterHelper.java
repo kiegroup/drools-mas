@@ -26,34 +26,40 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.drools.mas.mappers.MyMapArgsEntryType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author salaboy
  */
-public class MapArgsAdapterHelper  {
-  
-  
-   public static List<MyMapArgsEntryType> marshal(Map<String, Object> arg0)  {
-      List<MyMapArgsEntryType> entries = new ArrayList<MyMapArgsEntryType>();
-      for(Entry<String, Object> entry : arg0.entrySet()) {
-         MyMapArgsEntryType myMapEntryType = 
-            new MyMapArgsEntryType();
-         myMapEntryType.setKey(entry.getKey());
-         myMapEntryType.setValue( entry.getValue());
-         entries.add(myMapEntryType);
-      }
-      return entries;
-   }
-  
-   
-   public static Map<String, Object> unmarshal(List<MyMapArgsEntryType> arg0)  {
-      HashMap<String, Object> hashMap = new HashMap<String, Object>();
-      for(MyMapArgsEntryType myEntryType : arg0) {
-         hashMap.put(myEntryType.getKey(), myEntryType.getValue());
-      }
-      return hashMap;
-   }
-  
+public class MapArgsAdapterHelper {
+
+    public static Logger logger = LoggerFactory.getLogger(MapArgsAdapterHelper.class);
+
+    public static List<MyMapArgsEntryType> marshal(Map<String, Object> arg0) {
+        if (logger.isTraceEnabled()) {
+            logger.trace(" $$$ Arguments to marshal( "+arg0+")");
+        }
+        List<MyMapArgsEntryType> entries = new ArrayList<MyMapArgsEntryType>();
+        for (Entry<String, Object> entry : arg0.entrySet()) {
+            MyMapArgsEntryType myMapEntryType =
+                    new MyMapArgsEntryType();
+            myMapEntryType.setKey(entry.getKey());
+            myMapEntryType.setValue(entry.getValue());
+            entries.add(myMapEntryType);
+        }
+        return entries;
+    }
+
+    public static Map<String, Object> unmarshal(List<MyMapArgsEntryType> arg0) {
+        if (logger.isTraceEnabled()) {
+            logger.trace(" $$$ Arguments to unmarshal( "+arg0+")");
+        }
+        HashMap<String, Object> hashMap = new HashMap<String, Object>();
+        for (MyMapArgsEntryType myEntryType : arg0) {
+            hashMap.put(myEntryType.getKey(), myEntryType.getValue());
+        }
+        return hashMap;
+    }
 }
-    

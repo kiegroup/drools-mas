@@ -37,13 +37,15 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.drools.RuleBaseConfiguration.AssertBehaviour;
 import org.drools.conf.AssertBehaviorOption;
+import org.drools.grid.helper.GridHelper;
 import org.drools.grid.service.directory.WhitePages;
+import org.drools.mas.util.helper.SessionLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SessionManager extends SessionTemplateManager {
 
-    private KnowledgeAgent kAgent;
+    //private KnowledgeAgent kAgent;
     private StatefulKnowledgeSession kSession;
     private Map<String, Resource> resources;
     private static final String DEFAULT_CHANGESET = "org/drools/mas/acl_subsession_def_changeset.xml";
@@ -127,10 +129,11 @@ public class SessionManager extends SessionTemplateManager {
 
         KnowledgeSessionConfiguration conf = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
         conf.setProperty(ClockTypeOption.PROPERTY_NAME, ClockType.REALTIME_CLOCK.toExternalForm());
-
+        
 //        this.kSession = kAgent.getKnowledgeBase().newStatefulKnowledgeSession(conf, null);
         this.kSession = kbase.newStatefulKnowledgeSession(conf, null);
 
+        this.kSession.insert(new SessionLocator(node.getId(), id));
         if (logger.isInfoEnabled()) {
             logger.info(" ### SessionManager : Registering session " + id + " in node: " + node.getId());
         }
@@ -143,7 +146,7 @@ public class SessionManager extends SessionTemplateManager {
             logger.debug(" ### SessionManager : CREATING kbase with CS: " + changeset);
         }
         KnowledgeBuilder kbuilder = node.get(KnowledgeBuilderFactoryService.class).newKnowledgeBuilder();
-        InputStream inputStream = new ClassPathResource(changeset, SessionManager.class.getClassLoader()).getInputStream();
+        InputStream inputStream = new ClassPathResource(changeset, SessionManager.class).getInputStream();
         byte[] bytes = IOUtils.toByteArray(inputStream);
         kbuilder.add(new ByteArrayResource(bytes), ResourceType.CHANGE_SET);
 
@@ -153,7 +156,7 @@ public class SessionManager extends SessionTemplateManager {
                 logger.error("Error: " + error.getMessage());
 
             }
-
+            throw new IllegalStateException("There were errors during the knowledge compilation ^^^^ !");
         }
         KnowledgeBaseConfiguration rbconf = node.get(KnowledgeBaseFactoryService.class).newKnowledgeBaseConfiguration();
         rbconf.setOption(EventProcessingOption.STREAM);
@@ -171,50 +174,49 @@ public class SessionManager extends SessionTemplateManager {
         return kSession;
     }
 
-    public void addResource(String id, Resource res) {
+    public static void addResource(String nodeId, String sessionId, String id, Resource res) {
+        if(logger.isDebugEnabled()){
+            logger.debug(" ### Session Manager: Add Resource -> nodeId: "+nodeId +" - sessionId: "+sessionId +" - id: "+id+" - res: "+res);
+        }
         ChangeSetImpl changeSet = new ChangeSetImpl();
         changeSet.setResourcesAdded(Arrays.asList(res));
 
-        resources.put(id, res);
-
+        //resources.put(id, res);
+        KnowledgeAgent kAgent = GridHelper.getKnowledgeAgentRemoteClient(nodeId, sessionId);
         kAgent.applyChangeSet(changeSet);
     }
 
-    public void addRule(String id, String drl) {
+    public void addRule(String nodeId, String sessionId, String id, String drl) {
         ByteArrayResource bar = new ByteArrayResource(drl.getBytes());
         bar.setResourceType(ResourceType.DRL);
-        addResource(id, bar);
+        addResource(nodeId, sessionId, id, bar);
     }
 
     public void removeRule(String id) {
         if (this.resources.containsKey(id)) {
             ChangeSetImpl changeSet = new ChangeSetImpl();
             changeSet.setResourcesRemoved(Arrays.asList((Resource) resources.get(id)));
-            kAgent.applyChangeSet(changeSet);
+            //TODO: kAgent.applyChangeSet(changeSet);
         }
     }
 
-    public void addRuleByTemplate(String id, String templateName, Object context) {
+    public void addRuleByTemplate(String nodeId, String sessionId,String id, String templateName, Object context) {
         String drl = applyTemplate(templateName, context, null);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Adding rule \n" + drl);
         }
 
-        addRule(id, drl);
+        addRule(nodeId, sessionId, id, drl);
 
         if (logger.isDebugEnabled()) {
             logger.debug("RULE ADDED ____________ \n");
         }
     }
 
-    public KnowledgeAgent getkAgent() {
-        return kAgent;
-    }
+    
 
-    protected void setkAgent(KnowledgeAgent kAgent) {
-        this.kAgent = kAgent;
-    }
+   
 
     private static GridNode createLocalNode(Grid grid, String nodeName) {
         if (logger.isDebugEnabled()) {
