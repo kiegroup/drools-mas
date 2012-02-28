@@ -34,18 +34,19 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import org.apache.commons.io.IOUtils;
 import org.drools.RuleBaseConfiguration.AssertBehaviour;
 import org.drools.conf.AssertBehaviorOption;
 import org.drools.grid.helper.GridHelper;
 import org.drools.grid.service.directory.WhitePages;
+import org.drools.io.internal.InternalResource;
 import org.drools.mas.util.helper.SessionLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SessionManager extends SessionTemplateManager {
 
-    //private KnowledgeAgent kAgent;
     private StatefulKnowledgeSession kSession;
     private Map<String, Resource> resources;
     private static final String DEFAULT_CHANGESET = "org/drools/mas/acl_subsession_def_changeset.xml";
@@ -81,18 +82,18 @@ public class SessionManager extends SessionTemplateManager {
             GridNode node = grid.getGridNode(nodeId);
             if (node == null) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("  ### Looking for Remote Node: " + nodeId);
+                    logger.debug("  ### Session Manager: Looking for Remote Node: " + nodeId);
                 }
                 GridServiceDescription<GridNode> n1Gsd = grid.get(WhitePages.class).lookup(nodeId);
                 if (n1Gsd != null) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("  ### Remote Node Descriptor Found: " + n1Gsd);
+                        logger.debug("  ### Session Manager: Remote Node Descriptor Found: " + n1Gsd);
                     }
                     GridConnection<GridNode> conn = grid.get(ConnectionFactoryService.class).createConnection(n1Gsd);
                     node = conn.connect();
                 } else {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("  ### Creating a new Local Node");
+                        logger.debug(" ### Session Manager: Creating a new Local Node");
                     }
                     node = createLocalNode(grid, nodeId);
 
@@ -121,7 +122,7 @@ public class SessionManager extends SessionTemplateManager {
     protected SessionManager(String id, KnowledgeBase kbase, GridNode node) {
         super();
         if (logger.isInfoEnabled()) {
-            logger.info("SessionManager : CREATING session " + id);
+            logger.info(" ### SessionManager : CREATING session " + id);
         }
 //        KnowledgeAgentConfiguration kaConfig = KnowledgeAgentFactory.newKnowledgeAgentConfiguration();
 //        kaConfig.setProperty("drools.agent.newInstance", "false");
@@ -153,10 +154,10 @@ public class SessionManager extends SessionTemplateManager {
         KnowledgeBuilderErrors errors = kbuilder.getErrors();
         if (errors != null && errors.size() > 0) {
             for (KnowledgeBuilderError error : errors) {
-                logger.error("Error: " + error.getMessage());
+                logger.error("### Session Manager: Error: " + error.getMessage());
 
             }
-            throw new IllegalStateException("There were errors during the knowledge compilation ^^^^ !");
+            throw new IllegalStateException(" ### Session Manager: There were errors during the knowledge compilation ^^^^ !");
         }
         KnowledgeBaseConfiguration rbconf = node.get(KnowledgeBaseFactoryService.class).newKnowledgeBaseConfiguration();
         rbconf.setOption(EventProcessingOption.STREAM);
@@ -175,15 +176,24 @@ public class SessionManager extends SessionTemplateManager {
     }
 
     public static void addResource(String nodeId, String sessionId, String id, Resource res) {
-        if(logger.isDebugEnabled()){
-            logger.debug(" ### Session Manager: Add Resource -> nodeId: "+nodeId +" - sessionId: "+sessionId +" - id: "+id+" - res: "+res);
+        try {
+            if(logger.isDebugEnabled()){
+                logger.debug(" ### Session Manager: Add Resource -> nodeId: "+nodeId +" - sessionId: "+sessionId +" - id: "+id+" - res: "+res);
+            }
+             String changeSetString = "<change-set xmlns='http://drools.org/drools-5.0/change-set'>"
+                    + "<add>"
+                    + "<resource type=\"PMML\" source=\"classpath:"+((InternalResource)res).getURL().toString()+"\" />"
+                    + "</add>"
+                    + "</change-set>"
+                    + "";
+            Resource changeSetRes = new ByteArrayResource(changeSetString.getBytes());
+            ((InternalResource) changeSetRes).setResourceType(ResourceType.CHANGE_SET);
+            //resources.put(id, res);
+            KnowledgeAgent kAgent = GridHelper.getKnowledgeAgentRemoteClient(nodeId, sessionId);
+            kAgent.applyChangeSet(changeSetRes);
+        } catch (IOException ex) {
+            logger.error( " ### SessionManager: " + ex);
         }
-        ChangeSetImpl changeSet = new ChangeSetImpl();
-        changeSet.setResourcesAdded(Arrays.asList(res));
-
-        //resources.put(id, res);
-        KnowledgeAgent kAgent = GridHelper.getKnowledgeAgentRemoteClient(nodeId, sessionId);
-        kAgent.applyChangeSet(changeSet);
     }
 
     public void addRule(String nodeId, String sessionId, String id, String drl) {
@@ -204,13 +214,13 @@ public class SessionManager extends SessionTemplateManager {
         String drl = applyTemplate(templateName, context, null);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Adding rule \n" + drl);
+            logger.debug(" ### Session Manager: Adding rule \n" + drl);
         }
 
         addRule(nodeId, sessionId, id, drl);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("RULE ADDED ____________ \n");
+            logger.debug(" ### Session Manager: RULE ADDED ____________ \n");
         }
     }
 
@@ -220,7 +230,7 @@ public class SessionManager extends SessionTemplateManager {
 
     private static GridNode createLocalNode(Grid grid, String nodeName) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Creating Local Node called: " + nodeName);
+            logger.debug(" ### Session Manager: Creating Local Node called: " + nodeName);
         }
         GridNode localNode = grid.createGridNode(nodeName);
         return localNode;
