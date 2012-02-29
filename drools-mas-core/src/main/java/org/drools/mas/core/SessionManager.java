@@ -150,7 +150,7 @@ public class SessionManager extends SessionTemplateManager {
         InputStream inputStream = new ClassPathResource(changeset, SessionManager.class).getInputStream();
         byte[] bytes = IOUtils.toByteArray(inputStream);
         kbuilder.add(new ByteArrayResource(bytes), ResourceType.CHANGE_SET);
-
+        
         KnowledgeBuilderErrors errors = kbuilder.getErrors();
         if (errors != null && errors.size() > 0) {
             for (KnowledgeBuilderError error : errors) {
@@ -182,7 +182,7 @@ public class SessionManager extends SessionTemplateManager {
             }
              String changeSetString = "<change-set xmlns='http://drools.org/drools-5.0/change-set'>"
                     + "<add>"
-                    + "<resource type=\""+((InternalResource)res).getResourceType().getName()+"\" source=\"classpath:"+((InternalResource)res).getURL().toString()+"\" />"
+                    + "<resource type=\""+((InternalResource)res).getResourceType().getName()+"\" source=\""+((InternalResource)res).getURL().toString()+"\" />"
                     + "</add>"
                     + "</change-set>"
                     + "";
