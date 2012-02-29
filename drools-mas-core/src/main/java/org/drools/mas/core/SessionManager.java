@@ -178,11 +178,11 @@ public class SessionManager extends SessionTemplateManager {
     public static void addResource(String nodeId, String sessionId, String id, Resource res) {
         try {
             if(logger.isDebugEnabled()){
-                logger.debug(" ### Session Manager: Add Resource -> nodeId: "+nodeId +" - sessionId: "+sessionId +" - id: "+id+" - res: "+res);
+                logger.debug(" ### Session Manager: Add Resource -> nodeId: "+nodeId +" - sessionId: "+sessionId +" - id: "+id+" - res: "+((InternalResource)res).getURL().toString() +" -  type: "+((InternalResource)res).getResourceType().getName());
             }
              String changeSetString = "<change-set xmlns='http://drools.org/drools-5.0/change-set'>"
                     + "<add>"
-                    + "<resource type=\"PMML\" source=\"classpath:"+((InternalResource)res).getURL().toString()+"\" />"
+                    + "<resource type=\""+((InternalResource)res).getResourceType().getName()+"\" source=\"classpath:"+((InternalResource)res).getURL().toString()+"\" />"
                     + "</add>"
                     + "</change-set>"
                     + "";

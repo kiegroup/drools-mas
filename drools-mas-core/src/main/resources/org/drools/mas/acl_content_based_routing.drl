@@ -52,6 +52,7 @@ when
 then
     String sid = $key;
     String targetLocation = $conf.getMindNodeLocation(); //apply load balancing policy here
+    insert( new SessionMapping( $key, sid ) );
     if(LoggerHelper.isDebugEnabled()){
         LoggerHelper.debug("  !#!@#!@#!@#!@#### Generating Session: " + sid + " with CS conf: "+ $conf.getDefaultSubsessionChangeSet() );
     }
@@ -66,9 +67,9 @@ then
     kSession.insert(new SessionLocator( targetLocation, sid ) );                           
     kSession.fireAllRules();
         
-    //local for now.. 
+    
     insert( new SessionLocator( targetLocation, sid ) );
-    insert( new SessionMapping( $key, sid ) );
+    
 end
 
 
