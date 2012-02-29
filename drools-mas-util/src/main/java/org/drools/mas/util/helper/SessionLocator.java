@@ -4,14 +4,20 @@
  */
 package org.drools.mas.util.helper;
 
+import org.drools.definition.type.Position;
+
 import java.io.Serializable;
 
 /**
  *
  * @author salaboy
  */
-public class SessionLocator implements Serializable{
+public class SessionLocator implements Serializable {
+
+    @Position(0)
     private String nodeId;
+
+    @Position(1)
     private String sessionId;
 
     public SessionLocator(String nodeId, String sessionId) {
