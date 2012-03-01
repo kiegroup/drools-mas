@@ -25,6 +25,7 @@ import org.drools.mas.ACLMessage;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.command.CommandFactory;
 import org.drools.command.BatchExecutionCommand;
+import org.drools.grid.remote.command.AsyncBatchExecutionCommandImpl;
 import org.drools.runtime.rule.QueryResults;
 import org.drools.mas.Act;
 import org.drools.mas.body.content.*;
@@ -67,14 +68,14 @@ then
     if (LoggerHelper.isDebugEnabled()) {
             LoggerHelper.debug(" ### INTERNAL RULES: Trying to execute in = "+kSession);
         }
-    Object retVal = null;
+    //Object retVal = null;
 
     try {
         org.drools.runtime.impl.ExecutionResultImpl result = (org.drools.runtime.impl.ExecutionResultImpl) kSession.execute($batch);
-        retVal = result.getValue("$out_"+$msgId);
-        if (LoggerHelper.isDebugEnabled()) {
-            LoggerHelper.debug(" ### INTERNAL RULES: Remote Execution return = "+retVal);
-        }
+        //retVal = result.getValue("$out_"+$msgId);
+        //if (LoggerHelper.isDebugEnabled()) {
+        //    LoggerHelper.debug(" ### INTERNAL RULES: Remote Execution return = "+retVal);
+        //}
     } catch ( Exception e ) {
         if (LoggerHelper.isDebugEnabled()) {
             LoggerHelper.debug(" ### INTERNAL RULES: Remote Execution fails = "+e.getMessage());
@@ -82,8 +83,8 @@ then
         insert( new PerformativeFail( $msgId, e.getMessage() ) );
     }
 
-    ResponseContent response = new ResponseContent($nodeId, $sessionId, $msgId, retVal );
-    insert( response );
+    //ResponseContent response = new ResponseContent($nodeId, $sessionId, $msgId, retVal );
+    //insert( response );
 
 
 end
@@ -123,9 +124,10 @@ then
         LoggerHelper.trace(" ### INTERNAL: GENERATING COMMANDS FOR INFORM " + $msgId );
     }
     List list = new ArrayList(2);
-            list.add(CommandFactory.newInsert( $info.getData(), "$out_"+$msgId ));
+            //list.add(CommandFactory.newInsert( $info.getData(), "$out_"+$msgId ));
+            list.add(CommandFactory.newInsert( $info.getData()));
             list.add(CommandFactory.newFireAllRules());
-    BatchExecutionCommand batch = CommandFactory.newBatchExecution(list);
+    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl(list);
     insert( new MessageCommands( $msgId, batch ) );
 end
 
@@ -144,17 +146,11 @@ then
         LoggerHelper.trace(" ### INTERNAL: GENERATING COMMANDS FOR QUERYIF " + $msgId );
     }
     List list = new ArrayList(1);
-           // list.add(new SetVariableCommandFromCommand("__TEMP__", "$out_"+$msgId,
-           //         new KnowledgeContextResolveFromContextCommand(
-           //                 new QueryRemoteCommand("$out_"+$msgId, "queryIf", true, new Object[] {$info.getData()} ), 
-           //         null,
-           //         null,
-           //         $sessionId,
-           //         "$out_"+$msgId        
-           //         )));
-            list.add(new QueryRemoteCommand("$out_"+$msgId, "queryIf", true, new Object[] {$info.getData()} ));
-            //list.add(new QueryCommand("$out_"+$msgId, "queryIf", true, new Object[] {$info.getData()} ));
-    BatchExecutionCommand batch = CommandFactory.newBatchExecution(list);
+           
+            //This is the one that we were using
+            //list.add(new QueryRemoteCommand("$out_"+$msgId, "queryIf", true, new Object[] {$info.getData()} ));
+            list.add(new QueryRemoteCommand(null, "queryIf", true, new Object[] {$info.getData()} ));
+    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl(list);
     insert( new MessageCommands( $msgId, batch ) );
 end
 
@@ -196,17 +192,10 @@ then
         LoggerHelper.trace(" ### INTERNAL: GENERATING COMMANDS FOR QUERYREF " + $msgId);
     }
     List list = new ArrayList(2);
-            //list.add(new SetVariableCommandFromCommand("__TEMP__", "$out_"+$msgId, 
-            //            new KnowledgeContextResolveFromContextCommand(
-            //                new QueryRemoteCommand( "$out_"+$msgId, $query.getQueryName() ,true, $query.getArgs().toArray() ), 
-            //            null,
-            //            null,
-            //            $sessionId,
-            //            "$out_"+$msgId       
-            //            )));
-            list.add(new QueryRemoteCommand( "$out_"+$msgId, $query.getQueryName() ,true, $query.getArgs().toArray() ));
-            //list.add(new QueryCommand( "$out_"+$msgId, $query.getQueryName() ,true, $query.getArgs().toArray() ));
-    BatchExecutionCommand batch = CommandFactory.newBatchExecution(list);
+            
+            //list.add(new QueryRemoteCommand( "$out_"+$msgId, $query.getQueryName() ,true, $query.getArgs().toArray() ));
+            list.add(new QueryRemoteCommand( null, $query.getQueryName() ,true, $query.getArgs().toArray() ));
+    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl(list);
     insert( new MessageCommands( $msgId, batch ) );
 end
 
@@ -249,17 +238,10 @@ then
     List list = new ArrayList(3);
             list.add(CommandFactory.newInsert( $req.getAction() ));
             list.add(CommandFactory.newFireAllRules());
-            //list.add(new SetVariableCommandFromCommand("__TEMP__", "$out_"+$msgId,
-            //            new KnowledgeContextResolveFromContextCommand(
-            //                new QueryRemoteCommand( "$out_"+$msgId, $act.getActionName() , true, MessageContentHelper.getActionArgsArray( $req.getAction() ) ), 
-            //            null,
-            //            null,
-            //            $sessionId,
-            //            "$out_"+$msgId          
-            //            )));
-            list.add(new QueryRemoteCommand( "$out_"+$msgId, $act.getActionName() , true, MessageContentHelper.getActionArgsArray( $req.getAction() ) ) );
-            //list.add(new QueryCommand( "$out_"+$msgId, $act.getActionName() , true, MessageContentHelper.getActionArgsArray( $req.getAction() ) ) );
-    BatchExecutionCommand batch = CommandFactory.newBatchExecution(list);
+            
+            //list.add(new QueryRemoteCommand( "$out_"+$msgId, $act.getActionName() , true, MessageContentHelper.getActionArgsArray( $req.getAction() ) ) );
+            list.add(new QueryRemoteCommand( null, $act.getActionName() , true, MessageContentHelper.getActionArgsArray( $req.getAction() ) ) );
+    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl(list);
     insert( new MessageCommands( $msgId, batch ) );
 end
 
@@ -304,17 +286,10 @@ then
 
     java.util.List list = new ArrayList(1);
               list.add(CommandFactory.newFireAllRules());
-              //list.add(new SetVariableCommandFromCommand("__TEMP__", "$out_"+$msgId, 
-              //            new KnowledgeContextResolveFromContextCommand(
-              //              new QueryRemoteCommand( "$out_"+$msgId, $act.getActionName() , true, MessageContentHelper.getActionArgsArray($act)), 
-              //            null,
-              //            null,
-              //            $sessionId,
-              //            "$out_"+$msgId          
-              //          )));
-              list.add(new QueryRemoteCommand( "$out_"+$msgId, $act.getActionName() , true, MessageContentHelper.getActionArgsArray($act)) );
-              //list.add(new QueryCommand( "$out_"+$msgId, $act.getActionName() , true,  MessageContentHelper.getActionArgsArray($act)) ); 
-    BatchExecutionCommand batch = CommandFactory.newBatchExecution(list);
+              
+              //list.add(new QueryRemoteCommand( "$out_"+$msgId, $act.getActionName() , true, MessageContentHelper.getActionArgsArray($act)) );
+              list.add(new QueryRemoteCommand(null, $act.getActionName() , true, MessageContentHelper.getActionArgsArray($act)) );
+    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl(list);
     insert( new MessageCommands( $msgId, batch ) );
 
 
@@ -337,17 +312,10 @@ then
 
     java.util.List list = new ArrayList(1);
               list.add(CommandFactory.newFireAllRules());
-              //list.add(new SetVariableCommandFromCommand("__TEMP__", "$out_"+$msgId,
-              //              new KnowledgeContextResolveFromContextCommand(
-              //                  new QueryRemoteCommand( "$out_"+$msgId, $act.getActionName() , true, MessageContentHelper.getActionArgsArray($act)), 
-              //              null,
-              //              null,
-              //              $sessionId,
-              //             "$out_"+$msgId          
-              //          )));
-              list.add(new QueryRemoteCommand( "$out_"+$msgId, $act.getActionName() , true, MessageContentHelper.getActionArgsArray($act)) );
-              //list.add(new QueryCommand( "$out_"+$msgId, $act.getActionName() ,true, MessageContentHelper.getActionArgsArray($act)) );
-    BatchExecutionCommand batch = CommandFactory.newBatchExecution(list);
+              
+              //list.add(new QueryRemoteCommand( "$out_"+$msgId, $act.getActionName() , true, MessageContentHelper.getActionArgsArray($act)) );
+              list.add(new QueryRemoteCommand( null, $act.getActionName() , true, MessageContentHelper.getActionArgsArray($act)) );
+    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl(list);
     insert( new MessageCommands( $msgId, batch ) );
 end
 
