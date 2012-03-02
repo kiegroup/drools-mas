@@ -21,6 +21,7 @@
 package org.drools.mas.util;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.drools.grid.remote.InternalQueryResultsClient;
@@ -36,6 +37,7 @@ import org.drools.mas.mappers.MyMapReferenceEntryType;
 import org.drools.rule.Declaration;
 import org.drools.runtime.rule.impl.NativeQueryResults;
 import org.drools.runtime.rule.QueryResults;
+import org.drools.runtime.rule.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,4 +142,21 @@ public class MessageContentHelper {
 
         return ref;
     }
+    
+     public static Ref getActionReferences(Action action, Map<String, Object> results) {
+         if (results.size() == 0) {
+            return null;
+        }
+        Map<String, Object> map = new HashMap<String, Object>();
+        Iterator<MyMapArgsEntryType> iterator = action.getArgs().iterator();
+        while(iterator.hasNext()){
+            MyMapArgsEntryType entry = iterator.next();
+            if(entry.getValue() instanceof Variable){
+                 map.put(entry.getKey(), results.get(entry.getKey()));   
+            }
+        }
+        Ref ref = new Ref();
+        ref.setReferences(MapArgsAdapterHelper.marshal(map));
+        return ref;
+     }
 }

@@ -33,6 +33,7 @@ import org.drools.mas.util.LoggerHelper;
 import org.drools.mas.core.helpers.ResponseInformerHelper;
 import org.drools.mas.core.DroolsAgentConfiguration;
 import org.drools.mas.util.helper.SessionLocator;
+import org.drools.mas.util.helper.ResponseContent;
 
 
 rule "Inform"
@@ -324,26 +325,26 @@ end
 
 
 
-rule "Not Understood I"
-salience -1000
-when
-    $msg : ACLMessage( performative == Act.REQUEST || == Act.REQUEST_WHEN || == Act.REQUEST_WHENEVER,
-                       $msgId : id, $sender : sender, $body : body )                       
-    not    ResponseContent( messageId == $msgId )
-    $conf: DroolsAgentConfiguration()
-    
-then
-    ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithNotUnderstoodMessage( $msg,
-                                            $sender,
-                                            ((Request) $body).getAction(),
-                                            "Routing error : No dedicated session"  );
-    if (LoggerHelper.isTraceEnabled()) { 
-        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
-    }
-    //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
-    insert(new MessageAnswer($msg.getId(), ans));
-    retract( $msg );
-end
+//rule "Not Understood I"
+//salience -1000
+//when
+//    $msg : ACLMessage( performative == Act.REQUEST || == Act.REQUEST_WHEN || == Act.REQUEST_WHENEVER,
+//                       $msgId : id, $sender : sender, $body : body )                       
+//    not    ResponseContent( messageId == $msgId )
+//    $conf: DroolsAgentConfiguration()
+//    
+//then
+//    ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithNotUnderstoodMessage( $msg,
+//                                            $sender,
+//                                            ((Request) $body).getAction(),
+//                                            "Routing error : No dedicated session"  );
+//    if (LoggerHelper.isTraceEnabled()) { 
+//        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+//    }
+//    //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
+//    insert(new MessageAnswer($msg.getId(), ans));
+//    retract( $msg );
+//end
 
 rule "Not Understood II"
 salience -1000

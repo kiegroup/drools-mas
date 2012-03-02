@@ -43,7 +43,8 @@ public abstract class AbstractMessageContent implements Serializable {
     private String encodedContent;
     private boolean encoded;
     private Encodings encoding;
-
+    protected String msgId;
+    
     public String getEncodedContent() {
         return encodedContent;
     }
@@ -67,4 +68,14 @@ public abstract class AbstractMessageContent implements Serializable {
     public void setEncoded(boolean encoded) {
         this.encoded = encoded;
     }
+
+    public String getMsgId() {
+        return msgId;
+    }
+
+    public void setMsgId(String msgId) {
+        this.msgId = msgId;
+    }
+    
+    
 }

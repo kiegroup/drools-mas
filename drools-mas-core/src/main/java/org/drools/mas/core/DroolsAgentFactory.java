@@ -110,12 +110,14 @@ public class DroolsAgentFactory {
                 
                 mindSet.fireAllRules();
                 
-                mind.insert(new SessionLocator(descr.getNodeId(),descr.getSessionId()));
+                mindSet.insert(new SessionLocator(config.getMindNodeLocation(),config.getAgentId(),true, false));
+                mindSet.insert(new SessionLocator(descr.getNodeId(),descr.getSessionId(), false, true));
+                mind.insert(new SessionLocator(descr.getNodeId(),descr.getSessionId(), false, true));
             }
             mind.insert(aid);
             //Insert configuration as a fact inside the mind session
             mind.insert(config);
-            
+            mind.insert(new SessionLocator(config.getMindNodeLocation(),config.getAgentId(),true, false));
             mind.fireAllRules();
 
             return new DroolsAgent(grid, aid, mind);

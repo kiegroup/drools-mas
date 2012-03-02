@@ -64,11 +64,11 @@ then
                                                                                   null, // use default changeset
                                                                                   targetLocation ),
                                GridHelper.getGrid() ).getStatefulKnowledgeSession();
-    kSession.insert(new SessionLocator( targetLocation, sid ) );                           
+    kSession.insert(new SessionLocator( targetLocation, sid , false, true) );                           
     kSession.fireAllRules();
         
     
-    insert( new SessionLocator( targetLocation, sid ) );
+    insert( new SessionLocator( targetLocation, sid , false, true) );
     
 end
 

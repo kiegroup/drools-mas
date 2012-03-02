@@ -224,7 +224,20 @@ public class Action extends AbstractMessageContent implements Map<String, Object
         }
         return list;
     }
-
+    public List getArgNames(){
+        List<String> list = new ArrayList<String>();
+        for ( MyMapArgsEntryType entry : args ) {
+            list.add( entry.getKey() );
+        }
+        return list; 
+    }
+    public List getArgValues(){
+        List<Object> list = new ArrayList<Object>();
+        for ( MyMapArgsEntryType entry : args ) {
+            list.add( entry.getValue() );
+        }
+        return list;
+    }
     public Set entrySet() {
         HashSet<Entry<String,Object>> set = new HashSet<Entry<String,Object>>();
         for ( MyMapArgsEntryType entry : args ) {

@@ -29,7 +29,7 @@ import org.drools.base.*;
 import org.drools.mas.body.acts.*;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.AgentID;
-
+import org.drools.mas.util.helper.ResponseContent;
 
 
 // messages are declared events to handle timestamping
@@ -63,11 +63,7 @@ declare Destination
 end
 
 declare ResponseContent
-@typesafe(false)
-    nodeId : String
-    sessionId : String
-    messageId : String
-    data : Object
+    @typesafe(false) 
 end
 
 declare PerformativeFail

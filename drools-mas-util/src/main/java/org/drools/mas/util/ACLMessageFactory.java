@@ -139,7 +139,7 @@ public class ACLMessageFactory implements Serializable {
             MessageContentEncoder.encodeBody(body, getDefaultEncoding());
         }
         msg.setBody(body);
-
+        
         return true;
     }
 
@@ -147,6 +147,8 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = newMessage(sender, receiver);
         AcceptProposal body = new AcceptProposal();
         body.setPerformative(Act.ACCEPT);
+        action.setMsgId(msg.getId());
+        condition.setMsgId(msg.getId());
         body.setAction(action);
         body.setCondition(condition);
         
@@ -158,6 +160,8 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = newMessage(sender, receiver);
         Agree body = new Agree();
         body.setPerformative(Act.AGREE);
+        action.setMsgId(msg.getId());
+        condition.setMsgId(msg.getId());
         body.setAction(action);
         body.setCondition(condition);
         setMessageBody(msg, body);
@@ -168,6 +172,7 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = newMessage(sender, receiver);
         Cancel body = new Cancel();
         body.setPerformative(Act.CANCEL);
+        action.setMsgId(msg.getId());
         body.setAction(action);
         setMessageBody(msg, body);
         return msg;
@@ -177,6 +182,8 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = newMessage(sender, receiver);
         CallForProposal body = new CallForProposal();
         body.setPerformative(Act.CALL_FOR_PROPOSAL);
+        action.setMsgId(msg.getId());
+        condition.setMsgId(msg.getId());
         body.setAction(action);
         body.setCondition(condition);
         setMessageBody(msg, body);
@@ -189,6 +196,7 @@ public class ACLMessageFactory implements Serializable {
         body.setPerformative(Act.CONFIRM);
         Info info = new Info();
         info.setData(proposition);
+        info.setMsgId(msg.getId());
         body.setProposition(info);
         setMessageBody(msg, body);
         return msg;
@@ -200,6 +208,7 @@ public class ACLMessageFactory implements Serializable {
         body.setPerformative(Act.DISCONFIRM);
         Info info = new Info();
         info.setData(proposition);
+        info.setMsgId(msg.getId());
         body.setProposition(info);
         setMessageBody(msg, body);
         return msg;
@@ -211,6 +220,7 @@ public class ACLMessageFactory implements Serializable {
         body.setPerformative(Act.FAILURE);
         body.setAction(action);
         Info info = new Info();
+        info.setMsgId(msg.getId());
         info.setData(cause);
         body.setAction(action);
         setMessageBody(msg, body);
@@ -222,6 +232,7 @@ public class ACLMessageFactory implements Serializable {
         Inform body = new Inform();
         body.setPerformative(Act.INFORM);
         Info info = new Info();
+        info.setMsgId(msg.getId());
         info.setData(proposition);
         body.setProposition(info);
         setMessageBody(msg, body);
@@ -234,6 +245,7 @@ public class ACLMessageFactory implements Serializable {
         body.setPerformative(Act.INFORM_IF);
         Info info = new Info();
         info.setData(proposition);
+        info.setMsgId(msg.getId());
         body.setProposition(info);
         setMessageBody(msg, body);
         return msg;
@@ -254,6 +266,7 @@ public class ACLMessageFactory implements Serializable {
         body.setPerformative(Act.NOT_UNDERSTOOD);
         body.setAction(action);
         Info info = new Info();
+        info.setMsgId(msg.getId());
         info.setData(cause);
         body.setCause(info);
         setMessageBody(msg, body);
@@ -275,6 +288,7 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = newMessage(sender, receiver);
         Propose body = new Propose();
         body.setPerformative(Act.PROPOSE);
+        action.setMsgId(msg.getId());
         body.setAction(action);
         body.setCondition(precondition);
         setMessageBody(msg, body);
@@ -287,6 +301,7 @@ public class ACLMessageFactory implements Serializable {
         body.setPerformative(Act.PROXY);
         body.setTargets(targets);
         body.setMessage(innerMsg);
+        condition.setMsgId(msg.getId());
         body.setCondition(condition);
         setMessageBody(msg, body);
         return msg;
@@ -297,6 +312,7 @@ public class ACLMessageFactory implements Serializable {
         QueryIf body = new QueryIf();
         body.setPerformative(Act.QUERY_IF);
         Info info = new Info();
+        info.setMsgId(msg.getId());
         info.setData(proposition);
         body.setProposition(info);
         setMessageBody(msg, body);
@@ -307,6 +323,7 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = newMessage(sender, receiver);
         QueryRef body = new QueryRef();
         body.setPerformative(Act.QUERY_REF);
+        query.setMsgId(msg.getId());
         body.setQuery(query);
         setMessageBody(msg, body);
         return msg;
@@ -316,8 +333,10 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = newMessage(sender, receiver);
         Refuse body = new Refuse();
         body.setPerformative(Act.REFUSE);
+        action.setMsgId(msg.getId());
         body.setAction(action);
         Info info = new Info();
+        info.setMsgId(msg.getId());
         info.setData(cause);
         body.setCause(info);
         setMessageBody(msg, body);
@@ -328,9 +347,12 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = newMessage(sender, receiver);
         Reject body = new Reject();
         body.setPerformative(Act.REJECT);
+        call.setMsgId(msg.getId());
         body.setCall(call);
+        proposal.setMsgId(msg.getId());
         body.setProposal(proposal);
         Info info = new Info();
+        info.setMsgId(msg.getId());
         info.setData(cause);
         body.setCause(info);
         setMessageBody(msg, body);
@@ -341,6 +363,7 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = newMessage(sender, receiver);
         Request body = new Request();
         body.setPerformative(Act.REQUEST);
+        action.setMsgId(msg.getId());
         body.setAction(action);
         setMessageBody(msg, body);
         return msg;
@@ -350,6 +373,7 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = newMessage(sender, receiver);
         RequestWhen body = new RequestWhen();
         body.setPerformative(Act.REQUEST_WHEN);
+        action.setMsgId(msg.getId());
         body.setAction(action);
         body.setCondition(condition);
         setMessageBody(msg, body);
@@ -360,6 +384,8 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = newMessage(sender, receiver);
         RequestWhenever body = new RequestWhenever();
         body.setPerformative(Act.REQUEST_WHENEVER);
+        action.setMsgId(msg.getId());
+        condition.setMsgId(msg.getId());
         body.setAction(action);
         body.setCondition(condition);
         setMessageBody(msg, body);
@@ -370,6 +396,7 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = newMessage(sender, receiver);
         Subscribe body = new Subscribe();
         body.setPerformative(Act.SUBSCRIBE);
+        query.setMsgId(msg.getId());
         body.setQuery(query);
         setMessageBody(msg, body);
         return msg;
@@ -379,7 +406,9 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = createReply(origin, sender);
         AcceptProposal body = new AcceptProposal();
         body.setPerformative(Act.ACCEPT);
+        action.setMsgId(msg.getId());
         body.setAction(action);
+        condition.setMsgId(msg.getId());
         body.setCondition(condition);
         setMessageBody(msg, body);
         return msg;
@@ -389,7 +418,9 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = createReply(origin, sender);
         Agree body = new Agree();
         body.setPerformative(Act.AGREE);
+        action.setMsgId(msg.getId());
         body.setAction(action);
+        condition.setMsgId(msg.getId());
         body.setCondition(condition);
         setMessageBody(msg, body);
         return msg;
@@ -399,6 +430,7 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = createReply(origin, sender);
         Cancel body = new Cancel();
         body.setPerformative(Act.CANCEL);
+        action.setMsgId(msg.getId());
         body.setAction(action);
         setMessageBody(msg, body);
         return msg;
@@ -406,6 +438,8 @@ public class ACLMessageFactory implements Serializable {
 
     public ACLMessage newReplyWithCallForProposalMessage(ACLMessage origin, AgentID sender, Action action, Rule condition) {
         ACLMessage msg = createReply(origin, sender);
+        action.setMsgId(msg.getId());
+        condition.setMsgId(msg.getId());
         CallForProposal body = new CallForProposal(action, condition);
         body.setPerformative(Act.CALL_FOR_PROPOSAL);
         body.setAction(action);
@@ -419,6 +453,7 @@ public class ACLMessageFactory implements Serializable {
         Confirm body = new Confirm();
         body.setPerformative(Act.CONFIRM);
         Info info = new Info();
+        info.setMsgId(msg.getId());
         info.setData(proposition);
         body.setProposition(info);
         setMessageBody(msg, body);
@@ -430,6 +465,7 @@ public class ACLMessageFactory implements Serializable {
         Disconfirm body = new Disconfirm();
         body.setPerformative(Act.DISCONFIRM);
         Info info = new Info();
+        info.setMsgId(msg.getId());
         info.setData(proposition);
         body.setProposition(info);
         setMessageBody(msg, body);
@@ -442,6 +478,7 @@ public class ACLMessageFactory implements Serializable {
         body.setPerformative(Act.FAILURE);
         body.setAction(action);
         Info info = new Info();
+        info.setMsgId(msg.getId());
         info.setData(cause);
         body.setCause(info);
         setMessageBody(msg, body);
@@ -453,6 +490,7 @@ public class ACLMessageFactory implements Serializable {
         Inform body = new Inform();
         body.setPerformative(Act.INFORM);
         Info info = new Info();
+        info.setMsgId(msg.getId());
         info.setData(proposition);
         body.setProposition(info);
         setMessageBody(msg, body);
@@ -464,6 +502,7 @@ public class ACLMessageFactory implements Serializable {
         InformIf body = new InformIf();
         body.setPerformative(Act.INFORM_IF);
         Info info = new Info();
+        info.setMsgId(msg.getId());
         info.setData(proposition);
         body.setProposition(info);
         setMessageBody(msg, body);
@@ -474,6 +513,7 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = createReply(origin, sender);
         InformRef body = new InformRef();
         body.setPerformative(Act.INFORM_REF);
+        references.setMsgId(msg.getId());
         body.setReferences(references);
         setMessageBody(msg, body);
         return msg;
@@ -486,6 +526,7 @@ public class ACLMessageFactory implements Serializable {
         body.setAction(action);
         Info info = new Info();
         info.setData(cause);
+        info.setMsgId(msg.getId());
         body.setCause(info);
         setMessageBody(msg, body);
         return msg;
@@ -497,6 +538,7 @@ public class ACLMessageFactory implements Serializable {
         body.setPerformative(Act.PROPAGATE);
         body.setTargets(targets);
         body.setMessage(innerMsg);
+        condition.setMsgId(msg.getId());
         body.setCondition(condition);
         setMessageBody(msg, body);
         return msg;
@@ -506,7 +548,9 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = createReply(origin, sender);
         Propose body = new Propose();
         body.setPerformative(Act.PROPOSE);
+        action.setMsgId(msg.getId());
         body.setAction(action);
+        precondition.setMsgId(msg.getId());
         body.setCondition(precondition);
         setMessageBody(msg, body);
         return msg;
@@ -518,6 +562,7 @@ public class ACLMessageFactory implements Serializable {
         body.setPerformative(Act.PROXY);
         body.setTargets(targets);
         body.setMessage(innerMsg);
+        condition.setMsgId(msg.getId());
         body.setCondition(condition);
         setMessageBody(msg, body);
         return msg;
@@ -528,6 +573,7 @@ public class ACLMessageFactory implements Serializable {
         QueryIf body = new QueryIf();
         body.setPerformative(Act.QUERY_IF);
         Info info = new Info();
+        info.setMsgId(msg.getId());
         info.setData(proposition);
         body.setProposition(info);
         setMessageBody(msg, body);
@@ -538,6 +584,7 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = createReply(origin, sender);
         QueryRef body = new QueryRef();
         body.setPerformative(Act.QUERY_IF);
+        query.setMsgId(msg.getId());
         body.setQuery(query);
         setMessageBody(msg, body);
         return msg;
@@ -549,6 +596,7 @@ public class ACLMessageFactory implements Serializable {
         body.setPerformative(Act.REFUSE);
         body.setAction(action);
         Info info = new Info();
+        info.setMsgId(msg.getId());
         info.setData(cause);
         body.setCause(info);
         setMessageBody(msg, body);
@@ -572,6 +620,7 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = createReply(origin, sender);
         Request body = new Request();
         body.setPerformative(Act.REQUEST);
+        action.setMsgId(msg.getId());
         body.setAction(action);
         setMessageBody(msg, body);
         return msg;
@@ -581,7 +630,9 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = createReply(origin, sender);
         RequestWhen body = new RequestWhen(action, condition);
         body.setPerformative(Act.REQUEST_WHEN);
+        action.setMsgId(msg.getId());
         body.setAction(action);
+        condition.setMsgId(msg.getId());
         body.setCondition(condition);
         setMessageBody(msg, body);
         return msg;
@@ -591,7 +642,9 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = createReply(origin, sender);
         RequestWhenever body = new RequestWhenever();
         body.setPerformative(Act.REQUEST_WHENEVER);
+        action.setMsgId(msg.getId());
         body.setAction(action);
+        condition.setMsgId(msg.getId());
         body.setCondition(condition);
         setMessageBody(msg, body);
         return msg;
@@ -601,6 +654,7 @@ public class ACLMessageFactory implements Serializable {
         ACLMessage msg = createReply(origin, sender);
         Subscribe body = new Subscribe();
         body.setPerformative(Act.SUBSCRIBE);
+        query.setMsgId(msg.getId());
         body.setQuery(query);
         setMessageBody(msg, body);
         return msg;

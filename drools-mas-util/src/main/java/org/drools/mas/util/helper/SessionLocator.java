@@ -19,11 +19,24 @@ public class SessionLocator implements Serializable {
 
     @Position(1)
     private String sessionId;
+    @Position(2)
+    private boolean mind = true;
+    @Position(3)
+    private boolean child = false;
 
     public SessionLocator(String nodeId, String sessionId) {
         this.nodeId = nodeId;
         this.sessionId = sessionId;
     }
+
+    public SessionLocator(String nodeId, String sessionId, boolean mind, boolean child) {
+        this.nodeId = nodeId;
+        this.sessionId = sessionId;
+        this.mind = mind;
+        this.child = child;
+    }
+    
+    
 
     public String getNodeId() {
         return nodeId;
@@ -40,6 +53,24 @@ public class SessionLocator implements Serializable {
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
+
+    public boolean isChild() {
+        return child;
+    }
+
+    public void setChild(boolean child) {
+        this.child = child;
+    }
+
+    public boolean isMind() {
+        return mind;
+    }
+
+    public void setMind(boolean mind) {
+        this.mind = mind;
+    }
+    
+    
 
     @Override
     public boolean equals(Object obj) {

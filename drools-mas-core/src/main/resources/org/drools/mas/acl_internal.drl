@@ -22,6 +22,7 @@
 
 package org.drools.mas;
 import org.drools.mas.ACLMessage;
+import org.drools.mas.util.helper.ResponseContent;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.command.CommandFactory;
 import org.drools.command.BatchExecutionCommand;
@@ -44,6 +45,13 @@ import org.drools.mas.util.helper.SessionLocator;
 import org.drools.grid.remote.command.*;
 import org.drools.command.*;
 
+rule "Response content inserted"
+    when
+        $r: ResponseContent()
+    then
+        System.out.println("CONTENT = "+$r);
+end
+
 rule "Invoke"
 when
     $msg : ACLMessage( $msgId : id )
@@ -51,7 +59,7 @@ when
     $cmd : MessageCommands( $msgId, $batch ; )
     SessionLocator($nodeId: nodeId, sessionId == $sessionId)
 then
-   
+    System.out.println(" ### INTERNAL: INVOKE - EXECUTING msg commands for "+ $msgId + " in " + $sessionId);
     if (LoggerHelper.isDebugEnabled()) {
         LoggerHelper.debug(" ### INTERNAL: INVOKE - EXECUTING msg commands for "+ $msgId + " in " + $sessionId);
         LoggerHelper.debug(" ### INTERNAL: \t commands " + $cmd);
@@ -69,9 +77,10 @@ then
             LoggerHelper.debug(" ### INTERNAL RULES: Trying to execute in = "+kSession);
         }
     //Object retVal = null;
-
+    System.out.println(" ### INTERNAL RULES: Trying to execute in = "+kSession + " -  batch: "+$batch);
     try {
         org.drools.runtime.impl.ExecutionResultImpl result = (org.drools.runtime.impl.ExecutionResultImpl) kSession.execute($batch);
+        
         //retVal = result.getValue("$out_"+$msgId);
         //if (LoggerHelper.isDebugEnabled()) {
         //    LoggerHelper.debug(" ### INTERNAL RULES: Remote Execution return = "+retVal);
@@ -88,6 +97,7 @@ then
 
 
 end
+
 
 
 rule "Invoke_OneShot"
@@ -240,7 +250,7 @@ then
             list.add(CommandFactory.newFireAllRules());
             
             //list.add(new QueryRemoteCommand( "$out_"+$msgId, $act.getActionName() , true, MessageContentHelper.getActionArgsArray( $req.getAction() ) ) );
-            list.add(new QueryRemoteCommand( null, $act.getActionName() , true, MessageContentHelper.getActionArgsArray( $req.getAction() ) ) );
+            //list.add(new QueryRemoteCommand( null, $act.getActionName() , true, MessageContentHelper.getActionArgsArray( $req.getAction() ) ) );
     AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl(list);
     insert( new MessageCommands( $msgId, batch ) );
 end
@@ -259,13 +269,17 @@ then
         LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR REQUEST " + $sessionId);
         LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR REQUEST " + $nodeId);
         LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR REQUEST " + $data);
+        
     }
-    if($data instanceof QueryResultsDescriptor){
-        $data = GridHelper.getQueryResultRemoteClient($nodeId, $sessionId, 
-                ((QueryResultsDescriptor)$data).getQueryName(), ((QueryResultsDescriptor)$data).getQueryId());
-    }
+    //if($data instanceof QueryResultsDescriptor){
+    //    $data = GridHelper.getQueryResultRemoteClient($nodeId, $sessionId, 
+    //            ((QueryResultsDescriptor)$data).getQueryName(), ((QueryResultsDescriptor)$data).getQueryId());
+    //}
 
-    $cont.setData( MessageContentHelper.getActionReferences($act, (QueryResults) $data));
+    
+    $cont.setData( MessageContentHelper.getActionReferences($act, (Map) $data));
+    
+    
     update($cont);
 end
 
@@ -288,7 +302,7 @@ then
               list.add(CommandFactory.newFireAllRules());
               
               //list.add(new QueryRemoteCommand( "$out_"+$msgId, $act.getActionName() , true, MessageContentHelper.getActionArgsArray($act)) );
-              list.add(new QueryRemoteCommand(null, $act.getActionName() , true, MessageContentHelper.getActionArgsArray($act)) );
+              //list.add(new QueryRemoteCommand(null, $act.getActionName() , true, MessageContentHelper.getActionArgsArray($act)) );
     AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl(list);
     insert( new MessageCommands( $msgId, batch ) );
 
@@ -314,7 +328,7 @@ then
               list.add(CommandFactory.newFireAllRules());
               
               //list.add(new QueryRemoteCommand( "$out_"+$msgId, $act.getActionName() , true, MessageContentHelper.getActionArgsArray($act)) );
-              list.add(new QueryRemoteCommand( null, $act.getActionName() , true, MessageContentHelper.getActionArgsArray($act)) );
+              //list.add(new QueryRemoteCommand( null, $act.getActionName() , true, MessageContentHelper.getActionArgsArray($act)) );
     AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl(list);
     insert( new MessageCommands( $msgId, batch ) );
 end

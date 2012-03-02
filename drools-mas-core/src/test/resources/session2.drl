@@ -19,7 +19,18 @@ import mock.MockFact;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.mappers.MyMapArgsEntryType;
 import org.drools.mas.util.LoggerHelper;
-
+import org.drools.grid.helper.GridHelper;
+import org.drools.grid.GridNode;
+import org.drools.runtime.StatefulKnowledgeSession;
+import org.drools.mas.util.helper.SessionLocator;
+import java.util.Map;
+import java.util.HashMap;
+import org.drools.mas.util.helper.ResponseContent;
+import org.drools.command.CommandFactory;
+import org.drools.grid.remote.command.AsyncBatchExecutionCommandImpl;
+import java.util.ArrayList;
+import java.util.List;
+import org.drools.runtime.rule.Variable;
 
 declare MathResponse
     x : Double
@@ -55,16 +66,50 @@ then
     insert( new Integer($x*$x) );
 end
 
+query squareRoot( Double $x, Double $return  )
+    MathResponse( $x, $return ;)
+end
+
 rule "Action_Request : squareRoot"
 when
+    
     $a : Action( actionName == "squareRoot",
                  keySet contains "x", $x : this["x"] >= 0 )
 then
-    retract($a);
+    System.out.println(" SESSION 2: EXAMPLE RULES (session 2): Executing square root");
     LoggerHelper.info("EXAMPLE RULES (session 2): Executing square root");
     insert( new MathResponse((Double) $x, Math.sqrt( (Double) $x), 0.0) );
 end
 
+
+rule "Action_Request : squareRoot - Result "
+    when
+        $s: SessionLocator($nodeId: nodeId, $sessionId: sessionId, mind == true)
+        $a : Action( actionName == "squareRoot", $msgId: msgId,
+                 $a1:= argValues[0], $k1:= argNames[0]    )
+        squareRoot(  $a1,  $return ;  )
+        
+    then
+       retract($a);
+       Map result  = new HashMap();
+       result.put($k1, $a1); 
+       result.put("?return", $return );
+       System.out.println(" ### SESSION 2: RESPONSE MAP = "+result);
+       ResponseContent response = new ResponseContent($nodeId, $sessionId, $msgId, result);
+        GridNode node = GridHelper.getGridNode($nodeId);
+        LoggerHelper.error(" ### SESSION 2 : Looking session = "+$sessionId + " in node = "+$nodeId + " - " + node + $s);
+        if (LoggerHelper.isDebugEnabled()) {
+            LoggerHelper.debug(" ### SESSION 2 : Looking session = "+$sessionId + " in node = "+$nodeId + " - " + node);
+        }
+        StatefulKnowledgeSession kSession = node.get($sessionId, StatefulKnowledgeSession.class);
+        LoggerHelper.error("SESSION 2:  "+response);
+        java.util.List list = new ArrayList(2);
+        list.add(CommandFactory.newInsert(response));
+        list.add(CommandFactory.newFireAllRules());
+        AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl(list);
+        kSession.execute(batch);
+        
+end
 
 rule "Action_Request : squareRoot_error"
 when
@@ -74,10 +119,12 @@ then
     throw new IllegalArgumentException( "can't extract the square root of " + $x );
 end
 
-query squareRoot( Double $x, Double $return  )
-    MathResponse( $x, $return ;)
-end
 
+
+
+query randomSum( Double $x, Double $return, Double $z  )
+    MathResponse( $x, $return, $z;)
+end
 
 
 rule "Action_Request : randomSum"
@@ -86,16 +133,61 @@ when
                  keySet contains "x", $x : this["x"]  )
 
 then
-    retract($a);
     Double x = (Double) $x;
     Double z = Math.random();
     LoggerHelper.info("EXAMPLE RULES (session 2): ACTING II " + x + "   " +z + "  ");
     insert( new MathResponse(x, x+z, z ) );
 end
 
-query randomSum( Double $x, Double $return, Double $z  )
-    MathResponse( $x, $return, $z;)
+rule "Action_Request : randomSum - Result DEBUG"
+    salience -1
+    when
+        $s: SessionLocator($nodeId: nodeId, $sessionId: sessionId, mind == true)
+        $a : Action( actionName == "randomSum", $msgId: msgId,
+                 $a1:= argValues[0], $k1:= argNames[0], 
+                $a2:= argValues[1], $k2:= argNames[1], 
+                $a3:= argValues[2], $k3:= argNames[2] 
+             )
+            randomSum(  $a1,  $aa2, $aa3 ;  )
+    then
+       
+       System.out.println(" ###&*&*&*&*&*& SESSION 2: values = a1: "+$a1 + "- a2: "+$a2 + "- a3: "+$a3); 
 end
+
+
+/*rule "Action_Request : randomSum - Result "
+    when
+        $s: SessionLocator($nodeId: nodeId, $sessionId: sessionId, mind == true)
+        $a : Action( actionName == "randomSum", $msgId: msgId,
+                 $a1:= argValues[0], $k1:= argNames[0], 
+                $a2:= argValues[1], $k2:= argNames[1], 
+                $a3:= argValues[2], $k3:= argNames[2] 
+             )
+        randomSum(  $a1,  $a2, $a3 ;  )
+        
+    then
+       retract($a);
+       Map result  = new HashMap();
+       result.put($k1, $a1); 
+       result.put($k2, $a2); 
+       result.put($k3, $a3); 
+       System.out.println(" ### SESSION 2: RESPONSE MAP = "+result);
+       ResponseContent response = new ResponseContent($nodeId, $sessionId, $msgId, result);
+        GridNode node = GridHelper.getGridNode($nodeId);
+        LoggerHelper.error(" ### SESSION 2 : Looking session = "+$sessionId + " in node = "+$nodeId + " - " + node + $s);
+        if (LoggerHelper.isDebugEnabled()) {
+            LoggerHelper.debug(" ### SESSION 2 : Looking session = "+$sessionId + " in node = "+$nodeId + " - " + node);
+        }
+        StatefulKnowledgeSession kSession = node.get($sessionId, StatefulKnowledgeSession.class);
+        LoggerHelper.error("SESSION 2:  "+response);
+        java.util.List list = new ArrayList(2);
+        list.add(CommandFactory.newInsert(response));
+        list.add(CommandFactory.newFireAllRules());
+        AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl(list);
+        kSession.execute(batch);
+        
+end*/
+
 
 
 
@@ -103,6 +195,6 @@ rule "Log"
 when
     $o : Object()
 then
-    LoggerHelper.trace(" >>> SESSION #2 >>> " + $o);
+    LoggerHelper.error(" >>> SESSION #2 >>> " + $o);
 end
 

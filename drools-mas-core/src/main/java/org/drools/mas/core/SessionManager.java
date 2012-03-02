@@ -134,7 +134,7 @@ public class SessionManager extends SessionTemplateManager {
 //        this.kSession = kAgent.getKnowledgeBase().newStatefulKnowledgeSession(conf, null);
         this.kSession = kbase.newStatefulKnowledgeSession(conf, null);
 
-        this.kSession.insert(new SessionLocator(node.getId(), id));
+        //this.kSession.insert(new SessionLocator(node.getId(), id));
         if (logger.isInfoEnabled()) {
             logger.info(" ### SessionManager : Registering session " + id + " in node: " + node.getId());
         }
