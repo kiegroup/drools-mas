@@ -96,12 +96,8 @@ rule "Action_Request : squareRoot - Result "
        result.put("?return", $return );
        System.out.println(" ### SESSION 2: RESPONSE MAP = "+result);
        ResponseContent response = new ResponseContent($nodeId, $sessionId, $msgId, result);
-        GridNode node = GridHelper.getGridNode($nodeId);
-        LoggerHelper.error(" ### SESSION 2 : Looking session = "+$sessionId + " in node = "+$nodeId + " - " + node + $s);
-        if (LoggerHelper.isDebugEnabled()) {
-            LoggerHelper.debug(" ### SESSION 2 : Looking session = "+$sessionId + " in node = "+$nodeId + " - " + node);
-        }
-        StatefulKnowledgeSession kSession = node.get($sessionId, StatefulKnowledgeSession.class);
+      
+        StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession($nodeId, $sessionId);
         LoggerHelper.error("SESSION 2:  "+response);
         java.util.List list = new ArrayList(2);
         list.add(CommandFactory.newInsert(response));
@@ -173,12 +169,7 @@ end
        result.put($k3, $a3); 
        System.out.println(" ### SESSION 2: RESPONSE MAP = "+result);
        ResponseContent response = new ResponseContent($nodeId, $sessionId, $msgId, result);
-        GridNode node = GridHelper.getGridNode($nodeId);
-        LoggerHelper.error(" ### SESSION 2 : Looking session = "+$sessionId + " in node = "+$nodeId + " - " + node + $s);
-        if (LoggerHelper.isDebugEnabled()) {
-            LoggerHelper.debug(" ### SESSION 2 : Looking session = "+$sessionId + " in node = "+$nodeId + " - " + node);
-        }
-        StatefulKnowledgeSession kSession = node.get($sessionId, StatefulKnowledgeSession.class);
+       StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession($nodeId, $sessionId);
         LoggerHelper.error("SESSION 2:  "+response);
         java.util.List list = new ArrayList(2);
         list.add(CommandFactory.newInsert(response));
