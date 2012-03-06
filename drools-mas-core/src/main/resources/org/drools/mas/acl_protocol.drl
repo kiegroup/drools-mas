@@ -32,8 +32,7 @@ import org.drools.mas.Act;
 import org.drools.mas.util.LoggerHelper;
 import org.drools.mas.core.helpers.ResponseInformerHelper;
 import org.drools.mas.core.DroolsAgentConfiguration;
-import org.drools.mas.util.helper.SessionLocator;
-import org.drools.mas.util.helper.ResponseContent;
+import org.drools.mas.util.helper.*;
 
 
 rule "Inform"
@@ -341,10 +340,49 @@ end
 //    if (LoggerHelper.isTraceEnabled()) { 
 //        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
 //    }
-//    //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
 //    insert(new MessageAnswer($msg.getId(), ans));
 //    retract( $msg );
 //end
+
+rule "Not Understood I - because of internal ExecutionFault"
+    salience -1000
+    when
+        $msg : ACLMessage( performative == Act.REQUEST || == Act.REQUEST_WHEN || == Act.REQUEST_WHENEVER,
+                       $msgId : id, $sender : sender, $body : body )  
+        ResponseContent(messageId == $msgId, $fault: fault) 
+        ExecutionFault($faultString: faultString) from $fault
+        $conf: DroolsAgentConfiguration()
+    then
+        ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithNotUnderstoodMessage( $msg,
+                                            $sender,
+                                            ((Request) $body).getAction(),
+                                            $faultString  );
+    if (LoggerHelper.isTraceEnabled()) { 
+        LoggerHelper.trace(" ### PROTOCOL RULES: NOT UNDERSTOOD I - Internal Fault" + $conf.getAgentId() + " >>>> " + ans);
+    }
+    insert(new MessageAnswer($msg.getId(), ans));
+    retract( $msg );
+end
+
+rule "Not Understood II - because of NoHandlerFault"
+    salience -1000
+    when
+        $msg : ACLMessage( performative == Act.REQUEST || == Act.REQUEST_WHEN || == Act.REQUEST_WHENEVER,
+                       $msgId : id, $sender : sender, $body : body )  
+        ResponseContent(messageId == $msgId, $fault: fault) 
+        NoHandlerFault($faultString: faultString) from $fault
+        $conf: DroolsAgentConfiguration()
+    then
+        ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithNotUnderstoodMessage( $msg,
+                                            $sender,
+                                            ((Request) $body).getAction(),
+                                            $faultString  );
+    if (LoggerHelper.isTraceEnabled()) { 
+        LoggerHelper.trace(" ### PROTOCOL RULES: NOT UNDERSTOOD II - NoHandlerFault" + $conf.getAgentId() + " >>>> " + ans);
+    }
+    insert(new MessageAnswer($msg.getId(), ans));
+    retract( $msg );
+end
 
 rule "Not Understood II"
 salience -1000
@@ -361,7 +399,7 @@ then
     if (LoggerHelper.isTraceEnabled()) { 
         LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
     }
-    //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
+
     insert(new MessageAnswer($msg.getId(), ans));
     retract( $msg );
 end
@@ -386,7 +424,6 @@ then
    if (LoggerHelper.isTraceEnabled()) { 
         LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
    }
-   //ResponseInformerHelper.informResponse($conf.getResponseInformer(), $msg, ans );
    insert(new MessageAnswer($msg.getId(), ans)); 
    retract($msg);
    retract($resp);

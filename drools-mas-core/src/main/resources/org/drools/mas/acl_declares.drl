@@ -38,7 +38,6 @@ declare ACLMessage
 end
 
 
-
 // reference between a message and the commands to process that message content in a remote session
 declare MessageCommands
     msgId : String

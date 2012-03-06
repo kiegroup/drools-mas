@@ -15,6 +15,7 @@ public class ResponseContent implements Serializable{
     private String sessionId; 
     private String messageId;
     private Object data;
+    private Fault fault;
 
     public ResponseContent(String nodeId, String sessionId, String messageId, Object data) {
         this.nodeId = nodeId;
@@ -22,7 +23,7 @@ public class ResponseContent implements Serializable{
         this.messageId = messageId;
         this.data = data;
     }
-
+    
     public Object getData() {
         return data;
     }
@@ -55,6 +56,14 @@ public class ResponseContent implements Serializable{
         this.sessionId = sessionId;
     }
 
+    public Fault getFault() {
+        return fault;
+    }
+
+    public void setFault(Fault fault) {
+        this.fault = fault;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -76,23 +85,28 @@ public class ResponseContent implements Serializable{
         if (this.data != other.data && (this.data == null || !this.data.equals(other.data))) {
             return false;
         }
+        if (this.fault != other.fault && (this.fault == null || !this.fault.equals(other.fault))) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 29 * hash + (this.nodeId != null ? this.nodeId.hashCode() : 0);
-        hash = 29 * hash + (this.sessionId != null ? this.sessionId.hashCode() : 0);
-        hash = 29 * hash + (this.messageId != null ? this.messageId.hashCode() : 0);
-        hash = 29 * hash + (this.data != null ? this.data.hashCode() : 0);
+        int hash = 7;
+        hash = 89 * hash + (this.nodeId != null ? this.nodeId.hashCode() : 0);
+        hash = 89 * hash + (this.sessionId != null ? this.sessionId.hashCode() : 0);
+        hash = 89 * hash + (this.messageId != null ? this.messageId.hashCode() : 0);
+        hash = 89 * hash + (this.data != null ? this.data.hashCode() : 0);
+        hash = 89 * hash + (this.fault != null ? this.fault.hashCode() : 0);
         return hash;
     }
 
     @Override
     public String toString() {
-        return "ResponseContent{" + "nodeId=" + nodeId + ", sessionId=" + sessionId + ", messageId=" + messageId + ", data=" + data + '}';
+        return "ResponseContent{" + "nodeId=" + nodeId + ", sessionId=" + sessionId + ", messageId=" + messageId + ", data=" + data + ", fault=" + fault + '}';
     }
+
     
     
 }

@@ -97,14 +97,15 @@ public class TestAgent {
     }
 
     @Test
-    @Ignore
-    public void testSimpleInform() {
+    public void testSimpleInform() throws InterruptedException {
         MockFact fact = new MockFact("patient1", 18);
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
 
         ACLMessage info = factory.newInformMessage("me", "you", fact);
         mainAgent.tell(info);
-
+        //Now this is also async
+        Thread.sleep(2000);
+        
         assertNotNull(mainAgent.getAgentAnswers(info.getId()));
         StatefulKnowledgeSession target = mainAgent.getInnerSession("session1");
         assertTrue(target.getObjects().contains(fact));
@@ -113,8 +114,7 @@ public class TestAgent {
     }
 
     @Test
-    @Ignore
-    public void testInformAsTrigger() {
+    public void testInformAsTrigger() throws InterruptedException {
         MockFact fact = new MockFact("patient1", 22);
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
 
@@ -122,7 +122,9 @@ public class TestAgent {
         ACLMessage info = factory.newInformMessage("me", "you", fact);
         mainAgent.tell(info);
 
-
+        //Now this is also async
+        Thread.sleep(2000);
+        
         assertNotNull(mainAgent.getAgentAnswers(info.getId()));
         StatefulKnowledgeSession target = mainAgent.getInnerSession("session2");
         for (Object o : target.getObjects()) {
@@ -133,18 +135,19 @@ public class TestAgent {
     }
 
     @Test
-    @Ignore
-    public void testQueryIf() {
+    public void testQueryIf() throws InterruptedException {
         MockFact fact = new MockFact("patient1", 18);
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
 
         ACLMessage info = factory.newInformMessage("me", "you", fact);
         mainAgent.tell(info);
-
+        //Now this is also async
+        Thread.sleep(2000);
         ACLMessage qryif = factory.newQueryIfMessage("me", "you", fact);
         assertEquals(0, mainAgent.getAgentAnswers(qryif.getId()).size());
         mainAgent.tell(qryif);
-
+        //Now this is also async
+        Thread.sleep(2000);
         assertNotNull(mainAgent.getAgentAnswers(qryif.getId()));
         assertEquals(1, mainAgent.getAgentAnswers(qryif.getId()).size());
 
@@ -155,17 +158,19 @@ public class TestAgent {
     }
 
     @Test
-    @Ignore
-    public void testQueryRef() {
+    public void testQueryRef() throws InterruptedException {
         MockFact fact = new MockFact("patient1", 18);
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
 
         ACLMessage info = factory.newInformMessage("me", "you", fact);
         mainAgent.tell(info);
+        //Now this is also async
+        Thread.sleep(2000);
         Query query = MessageContentFactory.newQueryContent("ageOfPatient", new Object[]{MessageContentHelper.variable("?mock"), "patient1", MessageContentHelper.variable("?age")});
         ACLMessage qryref = factory.newQueryRefMessage("me", "you", query);
         mainAgent.tell(qryref);
-
+        //Now this is also async
+        Thread.sleep(2000);
         assertNotNull(mainAgent.getAgentAnswers(qryref.getId()));
         assertEquals(2, mainAgent.getAgentAnswers(qryref.getId()).size());
 
@@ -281,7 +286,7 @@ public class TestAgent {
     }
 
     @Test
-    @Ignore
+    @Ignore // We need to add full unification to the query mechanism in order to work
     public void testRequestWithMultipleOutputs() throws InterruptedException {
 
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
@@ -341,8 +346,7 @@ public class TestAgent {
     }
     
     @Test
-    @Ignore
-    public void testSimpleInformInNewSession() {
+    public void testSimpleInformInNewSession() throws InterruptedException {
         MockFact fact = new MockFact("patient3", 18);
         MockFact fact2 = new MockFact("patient3", 44);
 
@@ -351,6 +355,8 @@ public class TestAgent {
         ACLMessage info = factory.newInformMessage("me", "you", fact);
         
         mainAgent.tell(info);
+        //Now this is also async
+        Thread.sleep(2000);
         
         System.out.println(" answers: "+mainAgent.getAgentAnswers(info.getId()));
         assertEquals(0,mainAgent.getAgentAnswers(info.getId()).size());
@@ -361,7 +367,8 @@ public class TestAgent {
         ACLMessage info2 = factory.newInformMessage("me", "you", fact2);
         
         mainAgent.tell(info2);
-        
+        //Now this is also async
+        Thread.sleep(2000);
         assertTrue(target.getObjects().contains(fact2));
 
         StatefulKnowledgeSession target2 = mainAgent.getInnerSession("session2");
@@ -369,22 +376,23 @@ public class TestAgent {
     }
 
     @Test
-    @Ignore
-    public void testNotUnderstood() {
+    public void testNotUnderstood() throws InterruptedException {
 
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
 
         Action action = MessageContentFactory.newActionContent("nonExistingRequest", new LinkedHashMap());
         ACLMessage notUnd = factory.newRequestMessage("me", "you", action);
         mainAgent.tell(notUnd);
-
+        //Now this is also async
+        Thread.sleep(4000);
+        
+        
         assertEquals(Act.NOT_UNDERSTOOD, mainAgent.getAgentAnswers(notUnd.getId()).get(0).getPerformative());
 
     }
 
     @Test
-    @Ignore
-    public void testImplicitRequestFailure() {
+    public void testImplicitRequestFailure() throws InterruptedException {
 
         Double in = new Double(-9);
 
@@ -393,10 +401,13 @@ public class TestAgent {
         Map<String, Object> args = new LinkedHashMap<String, Object>();
         args.put("x", in);
 
-        Action action = MessageContentFactory.newActionContent("errorSquareRoot", args);
+        Action action = MessageContentFactory.newActionContent("squareRoot", args);
         ACLMessage req = factory.newRequestMessage("me", "you", action);
         mainAgent.tell(req);
-
+        //Now this is also async
+        Thread.sleep(3000);
+        
+        
         assertEquals(2, mainAgent.getAgentAnswers(req.getId()).size());
         assertEquals(Act.AGREE, mainAgent.getAgentAnswers(req.getId()).get(0).getPerformative());
         assertEquals(Act.FAILURE, mainAgent.getAgentAnswers(req.getId()).get(1).getPerformative());
@@ -412,8 +423,7 @@ public class TestAgent {
 
        
     @Test
-    @Ignore
-    public void testExplicitRequestFailure() {
+    public void testExplicitRequestFailure() throws InterruptedException {
 
         Double in = new Double(-9);
 
@@ -425,7 +435,9 @@ public class TestAgent {
         Action action = MessageContentFactory.newActionContent("squareRoot", args);
         ACLMessage req = factory.newRequestMessage("me", "you", action);
         mainAgent.tell(req);
-
+        //Now this is also async
+        Thread.sleep(4000);
+        
         assertEquals(Act.AGREE, mainAgent.getAgentAnswers(req.getId()).get(0).getPerformative());
         assertEquals(Act.FAILURE, mainAgent.getAgentAnswers(req.getId()).get(1).getPerformative());
 
@@ -439,30 +451,32 @@ public class TestAgent {
     }
 
     @Test
-    @Ignore
-    public void testQueryNotUnderstoodFailure() {
+    public void testQueryNotUnderstoodFailure() throws InterruptedException {
 
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
 
         Query query = MessageContentFactory.newQueryContent("queryNonExists", new Object[0]);
         ACLMessage qryref = factory.newQueryRefMessage("me", "you", query);
         mainAgent.tell(qryref);
-
+        //Now this is also async
+        Thread.sleep(2000);
+        
         assertEquals(1, mainAgent.getAgentAnswers(qryref.getId()).size());
         assertEquals(Act.NOT_UNDERSTOOD, mainAgent.getAgentAnswers(qryref.getId()).get(0).getPerformative());
 
     }
 
     @Test
-    @Ignore
-    public void testQueryRefFailure() {
+    public void testQueryRefFailure() throws InterruptedException {
 
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
 
         Query query = MessageContentFactory.newQueryContent("queryExceptional", new Object[]{"?x"});
         ACLMessage qryref = factory.newQueryRefMessage("me", "you", query);
         mainAgent.tell(qryref);
-
+        //Now this is also async
+        Thread.sleep(2000);
+        
         assertEquals(2, mainAgent.getAgentAnswers(qryref.getId()).size());
         assertEquals(Act.AGREE, mainAgent.getAgentAnswers(qryref.getId()).get(0).getPerformative());
         assertEquals(Act.FAILURE, mainAgent.getAgentAnswers(qryref.getId()).get(1).getPerformative());
