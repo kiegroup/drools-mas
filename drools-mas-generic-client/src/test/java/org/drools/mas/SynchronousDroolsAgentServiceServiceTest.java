@@ -20,7 +20,7 @@
  */
 package org.drools.mas;
 
-import org.drools.mas.helpers.SynchronousRequestHelper;
+import org.drools.mas.helpers.RequestHelper;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -59,7 +59,7 @@ public class SynchronousDroolsAgentServiceServiceTest {
     @Test
     public void genericTest() {
         // Get the helper 
-        SynchronousRequestHelper helper = new SynchronousRequestHelper(endpoint);
+        RequestHelper helper = new RequestHelper(endpoint);
         
         // Interact with the agent :)
        

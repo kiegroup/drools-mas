@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SynchronousDroolsAgentServiceServiceTest {
 
-    private String endpoint = "http://localhost:8080/emergency-agent/services/?WSDL";
+    private String endpoint = "http://localhost:8080/emergency-agent/services/SyncAgentService?WSDL";
 
     public SynchronousDroolsAgentServiceServiceTest() {
     }

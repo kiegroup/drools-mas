@@ -11,13 +11,18 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     <import resource="classpath:META-INF/cxf/cxf.xml" />
     <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
-    <jaxws:endpoint id="agent-ws"
+    <jaxws:endpoint id="agent-ws" address="http://localhost:8080/emergency-agent/services/SyncAgentService"
                     implementor="#agent-service">
     </jaxws:endpoint> 
   
+    <jaxws:endpoint id="async-agent-ws" address="http://localhost:8080/emergency-agent/services/AsyncAgentService"
+                    implementor="#async-agent-service">
+    </jaxws:endpoint> 
    
     
-    
+    <bean id="async-agent-service" class="org.drools.mas.AsyncDroolsAgentServiceImpl">
+        <property name="agent" ref="agent"/>
+    </bean>  
     <bean id="agent-service" class="org.drools.mas.SynchronousDroolsAgentServiceImpl">
         <property name="agent" ref="agent"/>
     </bean>  

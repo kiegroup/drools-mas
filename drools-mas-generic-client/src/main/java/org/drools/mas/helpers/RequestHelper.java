@@ -18,7 +18,7 @@ import org.drools.mas.util.MessageContentEncoder;
 import org.drools.mas.util.MessageContentFactory;
 import org.drools.runtime.rule.Variable;
 
-public class SynchronousRequestHelper {
+public class RequestHelper {
 
     boolean multiReturnValue = false;
     private AbstractMessageBody returnBody;
@@ -28,23 +28,23 @@ public class SynchronousRequestHelper {
 
     private boolean initialized = false;
 
-    public SynchronousRequestHelper(String url, Encodings enc) {
+    public RequestHelper(String url, Encodings enc) {
         try {
             this.endpointURL = new URL(SynchronousDroolsAgentServiceImplService.class.getResource("."), url);
         } catch (MalformedURLException ex) {
-            Logger.getLogger(SynchronousRequestHelper.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RequestHelper.class.getName()).log(Level.SEVERE, null, ex);
         }
-        this.qname = new QName("http://mas.drools.org/", "SynchronousDroolsAgentServiceImplService");
+        this.qname = new QName("http://mas.drools.org/", "AsyncDroolsAgentServiceImplService");
         this.encode = enc;
     }
 
-    public SynchronousRequestHelper(String url) {
+    public RequestHelper(String url) {
         try {
             this.endpointURL = new URL(SynchronousDroolsAgentServiceImplService.class.getResource("."), url);
         } catch (MalformedURLException ex) {
-            Logger.getLogger(SynchronousRequestHelper.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RequestHelper.class.getName()).log(Level.SEVERE, null, ex);
         }
-        this.qname = new QName("http://mas.drools.org/", "SynchronousDroolsAgentServiceImplService");
+        this.qname = new QName("http://mas.drools.org/", "AsyncDroolsAgentServiceImplService");
 
     }
 

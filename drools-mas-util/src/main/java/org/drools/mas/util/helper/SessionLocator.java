@@ -100,8 +100,10 @@ public class SessionLocator implements Serializable {
 
     @Override
     public String toString() {
-        return "SessionEntry{" + "nodeId=" + nodeId + ", sessionId=" + sessionId + '}';
+        return "SessionLocator{" + "nodeId=" + nodeId + ", sessionId=" + sessionId + ", mind=" + mind + ", child=" + child + '}';
     }
+
+    
     
     
 }

@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.1
  * 
  */
-@WebServiceClient(name = "SynchronousDroolsAgentServiceImplService", targetNamespace = "http://mas.drools.org/", wsdlLocation = "http://localhost:8080/clinical-decision-support-agent/services/?WSDL")
+@WebServiceClient(name = "SynchronousDroolsAgentServiceImplService", targetNamespace = "http://mas.drools.org/", wsdlLocation = "http://localhost:8080/agent/services/?WSDL")
 public class SynchronousDroolsAgentServiceImplService
     extends Service
 {
@@ -30,9 +30,9 @@ public class SynchronousDroolsAgentServiceImplService
         try {
             URL baseUrl;
             baseUrl = org.drools.mas.helpers.SynchronousDroolsAgentServiceImplService.class.getResource(".");
-            url = new URL(baseUrl, "http://localhost:8080/clinical-decision-support-agent/services/?WSDL");
+            url = new URL(baseUrl, "http://localhost:8080/agent/services/?WSDL");
         } catch (MalformedURLException e) {
-            logger.warning("Failed to create URL for the wsdl Location: 'http://localhost:8080/clinical-decision-support-agent/services/?WSDL', retrying as a local file");
+            logger.warning("Failed to create URL for the wsdl Location: 'http://localhost:8080/agent/services/?WSDL', retrying as a local file");
             logger.warning(e.getMessage());
         }
         SYNCHRONOUSDROOLSAGENTSERVICEIMPLSERVICE_WSDL_LOCATION = url;

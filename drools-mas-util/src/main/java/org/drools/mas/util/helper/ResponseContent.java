@@ -31,7 +31,6 @@ public class ResponseContent implements Serializable{
     public static void deliverResponse( String $nodeId, String $sessionId, String $msgId, Object $return, Fault $fault ) {
 
         Map results = null;
-
         if ( $return != null ) {
             results = new HashMap();
             results.put( "?return", $return );

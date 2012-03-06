@@ -7,15 +7,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.namespace.QName;
-import org.drools.mas.ACLMessage;
-import org.drools.mas.Act;
-import org.drools.mas.Encodings;
+import org.drools.mas.*;
 import org.drools.mas.body.acts.AbstractMessageBody;
 import org.drools.mas.body.acts.Inform;
 import org.drools.mas.body.acts.InformRef;
 import org.drools.mas.body.content.Action;
-import org.drools.mas.SynchronousDroolsAgentService;
-import org.drools.mas.SynchronousDroolsAgentServiceImplService;
 import org.drools.mas.body.acts.InformIf;
 import org.drools.mas.util.ACLMessageFactory;
 import org.drools.mas.util.MessageContentEncoder;
@@ -32,21 +28,21 @@ public class SynchronousRequestHelper {
 
     public SynchronousRequestHelper(String url, Encodings enc) {
         try {
-            this.endpointURL = new URL(SynchronousDroolsAgentServiceImplService.class.getResource("."), url);
+            this.endpointURL = new URL(SyncAgentService.class.getResource("."), url);
         } catch (MalformedURLException ex) {
             Logger.getLogger(SynchronousRequestHelper.class.getName()).log(Level.SEVERE, null, ex);
         }
-        this.qname = new QName("http://mas.drools.org/", "SynchronousDroolsAgentServiceImplService");
+        this.qname = new QName("http://mas.drools.org/", "SyncAgentService");
         this.encode = enc;
     }
 
     public SynchronousRequestHelper(String url) {
         try {
-            this.endpointURL = new URL(SynchronousDroolsAgentServiceImplService.class.getResource("."), url);
+            this.endpointURL = new URL(SyncAgentService.class.getResource("."), url);
         } catch (MalformedURLException ex) {
             Logger.getLogger(SynchronousRequestHelper.class.getName()).log(Level.SEVERE, null, ex);
         }
-        this.qname = new QName("http://mas.drools.org/", "SynchronousDroolsAgentServiceImplService");
+        this.qname = new QName("http://mas.drools.org/", "SyncAgentService");
 
     }
 
@@ -67,7 +63,7 @@ public class SynchronousRequestHelper {
             //synchronousDroolsAgentServicePort = new SynchronousDroolsAgentServiceImplService().getSynchronousDroolsAgentServiceImplPort();
             throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
         } else {
-            synchronousDroolsAgentServicePort = new SynchronousDroolsAgentServiceImplService(this.endpointURL, this.qname).getSynchronousDroolsAgentServiceImplPort();
+            synchronousDroolsAgentServicePort = new SyncAgentService(this.endpointURL, this.qname).getSyncAgentServicePort();
         }
         ACLMessageFactory factory = new ACLMessageFactory(encode);
 
@@ -94,7 +90,7 @@ public class SynchronousRequestHelper {
         if (this.endpointURL == null || this.qname == null) {
             throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
         } else {
-            synchronousDroolsAgentServicePort = new SynchronousDroolsAgentServiceImplService(this.endpointURL, this.qname).getSynchronousDroolsAgentServiceImplPort();
+            synchronousDroolsAgentServicePort = new SyncAgentService(this.endpointURL, this.qname).getSyncAgentServicePort();
         }
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
 
@@ -110,7 +106,7 @@ public class SynchronousRequestHelper {
         if (this.endpointURL == null || this.qname == null) {
             throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
         } else {
-            synchronousDroolsAgentServicePort = new SynchronousDroolsAgentServiceImplService(this.endpointURL, this.qname).getSynchronousDroolsAgentServiceImplPort();
+            synchronousDroolsAgentServicePort = new SyncAgentService(this.endpointURL, this.qname).getSyncAgentServicePort();
         }
         ACLMessageFactory factory = new ACLMessageFactory(encode);
         ACLMessage newInformMessage = factory.newInformMessage(sender, receiver, proposition);

@@ -134,7 +134,8 @@
                         </goals>
                         <configuration>
                             <wsdlUrls>
-                                <wsdlUrl>http://localhost:8080/emergency-agent/services/?WSDL</wsdlUrl>
+                                <wsdlUrl>http://localhost:8080/emergency-agent/services/AsyncAgentService?WSDL</wsdlUrl>
+                                <wsdlUrl>http://localhost:8080/emergency-agent/services/SyncAgentService?WSDL</wsdlUrl>    
                             </wsdlUrls>
                             <staleFile>${project.build.directory}/jaxws/stale/.wsdl.stale</staleFile>
                         </configuration>
