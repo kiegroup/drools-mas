@@ -46,10 +46,12 @@ end
 rule "generateSession"
 salience 9999
 when
+    
     $qry : DroolsQuery(  name == "mapSession", $el : elements[0] )
     $key : String( this != "" ) from $el
     not SessionMapping( $key ;  )
     $conf: DroolsAgentConfiguration()
+    $sessionLocator: SessionLocator(mind == true)
 then
     String sid = $key;
     String targetLocation = $conf.getMindNodeLocation(); //apply load balancing policy here
@@ -65,7 +67,8 @@ then
                                                                                   null, // use default changeset
                                                                                   targetLocation ),
                                GridHelper.getGrid() ).getStatefulKnowledgeSession();
-    kSession.insert(new SessionLocator( targetLocation, sid , false, true) );                           
+    kSession.insert(new SessionLocator( targetLocation, sid , false, true) );
+    kSession.insert( $sessionLocator );
     kSession.fireAllRules();
         
     

@@ -356,7 +356,7 @@ public class TestAgent {
         
         mainAgent.tell(info);
         //Now this is also async
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         
         System.out.println(" answers: "+mainAgent.getAgentAnswers(info.getId()));
         assertEquals(0,mainAgent.getAgentAnswers(info.getId()).size());

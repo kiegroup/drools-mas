@@ -23,7 +23,6 @@ import org.drools.grid.*;
 import org.drools.io.Resource;
 import org.drools.io.impl.ByteArrayResource;
 import org.drools.io.impl.ChangeSetImpl;
-import org.drools.io.impl.ClassPathResource;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.conf.ClockTypeOption;
@@ -32,18 +31,21 @@ import org.drools.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import org.apache.commons.io.IOUtils;
-import org.drools.RuleBaseConfiguration.AssertBehaviour;
 import org.drools.conf.AssertBehaviorOption;
 import org.drools.grid.helper.GridHelper;
 import org.drools.grid.service.directory.WhitePages;
+import org.drools.io.impl.UrlResource;
 import org.drools.io.internal.InternalResource;
-import org.drools.mas.util.helper.SessionLocator;
+import org.drools.xml.ChangeSetSemanticModule;
+import org.drools.xml.SemanticModules;
+import org.drools.xml.XmlChangeSetReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 public class SessionManager extends SessionTemplateManager {
 
@@ -111,10 +113,12 @@ public class SessionManager extends SessionTemplateManager {
                                 DEFAULT_CHANGESET
                             ),
                     node), node);
+        } catch (SAXException ex) {
+            ex.printStackTrace();
         } catch (IOException ioe) {
-            ioe.printStackTrace();
-            return null;
+            ioe.printStackTrace();    
         }
+        return null;
     }
 
 
@@ -142,14 +146,29 @@ public class SessionManager extends SessionTemplateManager {
         this.resources = new HashMap<String, Resource>();
     }
 
-    private static KnowledgeBase buildKnowledgeBase(String changeset, GridNode node) throws IOException {
+    private static KnowledgeBase buildKnowledgeBase(String changeset, GridNode node) throws IOException, SAXException {
         if (logger.isDebugEnabled()) {
             logger.debug(" ### SessionManager : CREATING kbase with CS: " + changeset);
         }
         KnowledgeBuilder kbuilder = node.get(KnowledgeBuilderFactoryService.class).newKnowledgeBuilder();
-        InputStream inputStream = new ClassPathResource(changeset, SessionManager.class).getInputStream();
-        byte[] bytes = IOUtils.toByteArray(inputStream);
-        kbuilder.add(new ByteArrayResource(bytes), ResourceType.CHANGE_SET);
+        SemanticModules semanticModules = new SemanticModules();
+        semanticModules.addSemanticModule( new ChangeSetSemanticModule() );
+        XmlChangeSetReader reader = new XmlChangeSetReader(semanticModules);
+
+        //InputStream inputStream = new ClassPathResource(changeset, SessionManager.class).getInputStream();
+        reader.setClassLoader(SessionManager.class.getClassLoader(),
+                                   null );
+        ChangeSet cs = reader.read(SessionManager.class.getClassLoader().getResourceAsStream(changeset));
+        Collection<Resource> resourcesAdded = cs.getResourcesAdded();
+        for(Resource res: resourcesAdded){
+            System.out.println("Resource: "+res+ " file: "+((InternalResource)res).getURL().getFile());
+            InputStream inputStream = new UrlResource("file:"+((InternalResource)res).getURL().getFile()).getInputStream();
+            byte[] bytes = IOUtils.toByteArray(inputStream);
+        
+            kbuilder.add(new ByteArrayResource(bytes), ((InternalResource)res).getResourceType());
+        }
+        
+        
         
         KnowledgeBuilderErrors errors = kbuilder.getErrors();
         if (errors != null && errors.size() > 0) {
