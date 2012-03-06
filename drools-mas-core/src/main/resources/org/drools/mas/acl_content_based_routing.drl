@@ -29,6 +29,7 @@ import org.drools.mas.util.LoggerHelper;
 import org.drools.mas.core.DroolsAgentConfiguration;
 import org.drools.mas.util.helper.SessionLocator;
 import org.drools.grid.helper.GridHelper;
+import org.drools.mas.util.helper.NoHandlerFault;
 
 query mapSession( String $key, String $sid )
     SessionMapping( $key, $sid; )
@@ -71,6 +72,21 @@ then
     insert( new SessionLocator( targetLocation, sid , false, true) );
     
 end
+
+
+
+rule "No session of this kind of message"
+    salience -10000
+    when
+        $s: SessionLocator($nodeId: nodeId, $sessionId: sessionId, mind == true)
+        ACLMessage( $msgId : id  )
+        not Destination($msgId;)
+    then
+        ResponseContent response = new ResponseContent($nodeId, $sessionId, $msgId, null);
+        response.setFault( new NoHandlerFault( $msgId, "CRITICAL : No Internal Routing Rule for this Message! " ) );
+        insert(response);
+end
+
 
 
 

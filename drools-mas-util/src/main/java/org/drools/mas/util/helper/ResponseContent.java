@@ -4,7 +4,16 @@
  */
 package org.drools.mas.util.helper;
 
+import org.drools.command.CommandFactory;
+import org.drools.grid.helper.GridHelper;
+import org.drools.grid.remote.command.AsyncBatchExecutionCommandImpl;
+import org.drools.runtime.StatefulKnowledgeSession;
+
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -16,6 +25,31 @@ public class ResponseContent implements Serializable{
     private String messageId;
     private Object data;
     private Fault fault;
+
+
+
+    public static void deliverResponse( String $nodeId, String $sessionId, String $msgId, Object $return, Fault $fault ) {
+
+        Map results = null;
+
+        if ( $return != null ) {
+            results = new HashMap();
+            results.put( "?return", $return );
+            System.out.println(" ### SUB-SESSION x: RESPONSE MAP = " + results );
+        }
+
+        ResponseContent response = new ResponseContent( $nodeId, $sessionId, $msgId, results );
+        response.setFault( $fault );
+
+        StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession($nodeId, $sessionId);
+        List list = new ArrayList(2);
+            list.add( CommandFactory.newInsert(response) );
+            list.add( CommandFactory.newFireAllRules() );
+        AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl( list );
+        kSession.execute( batch );
+    }
+
+
 
     public ResponseContent(String nodeId, String sessionId, String messageId, Object data) {
         this.nodeId = nodeId;

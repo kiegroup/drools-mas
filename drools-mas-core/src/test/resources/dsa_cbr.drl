@@ -167,14 +167,3 @@ then
     insertLogical( new Destination($msgId, "session2") );
 end
 
-rule "No session of this kind of message"
-    salience -10000
-    when
-        $s: SessionLocator($nodeId: nodeId, $sessionId: sessionId, mind == true)
-        ACLMessage( $msgId : id  )
-        not Destination($msgId;)
-    then
-        ResponseContent response = new ResponseContent($nodeId, $sessionId, $msgId, null);
-        response.setFault(new NoHandlerFault($msgId, "there is no session to handle this kind of message! "));
-        insert(response);
-end
