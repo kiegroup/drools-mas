@@ -161,8 +161,16 @@ public class SessionManager extends SessionTemplateManager {
         ChangeSet cs = reader.read(SessionManager.class.getClassLoader().getResourceAsStream(changeset));
         Collection<Resource> resourcesAdded = cs.getResourcesAdded();
         for(Resource res: resourcesAdded){
-            System.out.println("Resource: "+res+ " file: "+((InternalResource)res).getURL().getFile());
-            InputStream inputStream = new UrlResource("file:"+((InternalResource)res).getURL().getFile()).getInputStream();
+            
+            String file = ((InternalResource)res).getURL().getFile();
+            if(!file.contains("file:")){
+                file = "file:"+file;
+            }
+            if(file.contains("jar!")){
+                file = "jar:"+file;
+            }
+            System.out.println("Resource: "+res+ " file: "+file);
+            InputStream inputStream = new UrlResource(file).getInputStream();
             byte[] bytes = IOUtils.toByteArray(inputStream);
         
             kbuilder.add(new ByteArrayResource(bytes), ((InternalResource)res).getResourceType());
