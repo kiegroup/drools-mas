@@ -7,6 +7,8 @@ package org.drools.mas.util.helper;
 import org.drools.command.CommandFactory;
 import org.drools.grid.helper.GridHelper;
 import org.drools.grid.remote.command.AsyncBatchExecutionCommandImpl;
+import org.drools.mas.Encodings;
+import org.drools.mas.util.MessageContentEncoder;
 import org.drools.runtime.StatefulKnowledgeSession;
 
 import java.io.Serializable;
@@ -29,23 +31,28 @@ public class ResponseContent implements Serializable{
 
 
     public static void deliverResponse( String $nodeId, String $sessionId, String $msgId, Object $return, Fault $fault ) {
-
+        try {
         Map results = null;
         if ( $return != null ) {
             results = new HashMap();
-            results.put( "?return", $return );
-            System.out.println(" ### SUB-SESSION x: RESPONSE MAP = " + results );
+            if ( $return instanceof String ) {
+                results.put( "?return", $return );
+            } else {
+                String ret = MessageContentEncoder.encode( $return, Encodings.XML );
+                results.put( "?return", ret );
+            }
         }
 
         ResponseContent response = new ResponseContent( $nodeId, $sessionId, $msgId, results );
         response.setFault( $fault );
 
-        StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession($nodeId, $sessionId);
+        StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession( $nodeId, $sessionId );
         List list = new ArrayList(2);
             list.add( CommandFactory.newInsert(response) );
             list.add( CommandFactory.newFireAllRules() );
         AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl( list );
         kSession.execute( batch );
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
 

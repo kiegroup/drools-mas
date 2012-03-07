@@ -160,7 +160,7 @@ public class SessionManager extends SessionTemplateManager {
                                    null );
         ChangeSet cs = reader.read(SessionManager.class.getClassLoader().getResourceAsStream(changeset));
         Collection<Resource> resourcesAdded = cs.getResourcesAdded();
-        for(Resource res: resourcesAdded){
+        for( Resource res: resourcesAdded ){
             
             String file = ((InternalResource)res).getURL().getFile();
             if(!file.contains("file:")){
@@ -169,7 +169,7 @@ public class SessionManager extends SessionTemplateManager {
             if(file.contains("jar!")){
                 file = "jar:"+file;
             }
-            System.out.println("Resource: "+res+ " file: "+file);
+            logger.info("Resource: "+res+ " file: "+file);
             InputStream inputStream = new UrlResource(file).getInputStream();
             byte[] bytes = IOUtils.toByteArray(inputStream);
         
@@ -213,11 +213,11 @@ public class SessionManager extends SessionTemplateManager {
                     + "</add>"
                     + "</change-set>"
                     + "";
-            Resource changeSetRes = new ByteArrayResource(changeSetString.getBytes());
-            ((InternalResource) changeSetRes).setResourceType(ResourceType.CHANGE_SET);
+            Resource changeSetRes = new ByteArrayResource( changeSetString.getBytes() );
+            ((InternalResource) changeSetRes).setResourceType(ResourceType.CHANGE_SET );
             //resources.put(id, res);
-            KnowledgeAgent kAgent = GridHelper.getKnowledgeAgentRemoteClient(nodeId, sessionId);
-            kAgent.applyChangeSet(changeSetRes);
+            KnowledgeAgent kAgent = GridHelper.getKnowledgeAgentRemoteClient( nodeId, sessionId );
+            kAgent.applyChangeSet( changeSetRes );
         } catch (IOException ex) {
             logger.error( " ### SessionManager: " + ex);
         }
