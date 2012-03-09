@@ -20,7 +20,8 @@
  */
 package org.drools.mas;
 
-import org.drools.mas.helpers.RequestHelper;
+
+import org.drools.mas.helpers.DialogueHelper;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -59,7 +60,7 @@ public class SynchronousDroolsAgentServiceServiceTest {
     @Test
     public void genericTest() {
         // Get the helper 
-        RequestHelper helper = new RequestHelper(endpoint);
+        DialogueHelper helper = new DialogueHelper(endpoint);
         
         // Interact with the agent :)
        
