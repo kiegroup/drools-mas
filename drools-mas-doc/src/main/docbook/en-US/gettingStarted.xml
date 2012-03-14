@@ -42,17 +42,29 @@
             mvn clean install
         </code>
         <para>    
-            Look at the archetype section to see some examples about how to create your own agents.
+            Look at the archetypes section to see some examples about how to create your own agents.
         </para>
     </section>
     <section>
+        <title>Examples</title>
         <para>
             Take a look at the examples directory to find out a very simple agent and a client that test
-            the agent functionality. This example was created using the archetypes projects:
+            the agent functionality. The example provided witht the project was created using the archetypes projects:
             <itemizedlist>
                 <listitem>drools-mas-agent-web-archetype</listitem>
-                <listitem>drools-mas-client-side-archetype</listitem>
+                <listitem>drools-mas-client-side-app-archetype</listitem>
             </itemizedlist>
+            
+            Right now the example provided is called Emergency Agent, and it's composed by three different modules:
+            <itemizedlist>
+                <listitem>drools-mas-emergency-agent-model</listitem>
+                <listitem>drools-mas-emergency-agent</listitem>
+                <listitem>drools-mas-emergency-agent-client</listitem>
+            </itemizedlist>
+            The Model project contains all the domain classes that will be shared by the agent and its clients. 
+            The Client project contains a simple test that demonstrate how to contact the agent from your client applications. 
+            It will also include a test about how you application can be contacted by the agent in the case that its required by 
+            the business scenario. This example is analyzed more in depth in the Emergency Agent section of this documentation.
         </para>
     </section>
         

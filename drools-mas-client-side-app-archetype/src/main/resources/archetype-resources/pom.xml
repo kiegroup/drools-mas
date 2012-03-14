@@ -156,5 +156,10 @@
             <artifactId>drools-mas-util</artifactId>
             <version>${version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.drools.mas</groupId>
+            <artifactId>drools-mas-generic-client</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
 </project>

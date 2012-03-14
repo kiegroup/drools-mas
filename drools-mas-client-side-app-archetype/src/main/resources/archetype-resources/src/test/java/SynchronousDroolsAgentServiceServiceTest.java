@@ -21,7 +21,7 @@
 package org.drools.mas;
 
 import org.drools.mas.mock.MockFact;
-import org.drools.mas.helpers.SynchronousRequestHelper;
+import org.drools.mas.helpers.DialogueHelper;
 import org.drools.mas.util.*;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -58,7 +58,7 @@ public class SynchronousDroolsAgentServiceServiceTest {
    
    @Test
     public void testSimpleInformWithHelper() {
-        SynchronousRequestHelper agentHelper = new SynchronousRequestHelper("http://localhost:8080/${agent-name}/services/?WSDL");
+        DialogueHelper agentHelper = new DialogueHelper("http://localhost:8080/${agent-name}/services/?WSDL");
         
         MockFact fact = new MockFact("patient1", 18);
         

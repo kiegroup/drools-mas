@@ -22,7 +22,7 @@
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
     <title>Drools MAS - Architectural Overview </title>
     <section>
-        <title>Architecture Introduction</title>
+        <title>Architecture Overview</title>
     
         <para> Each individual agent is composed by a set of components that provides different set of functionalities.
             The following section describe these internal components and their main responsabilities.
@@ -52,7 +52,7 @@
        
         <para>
             The Util module contains a set of helper classes that will be used to speed up and simplify the development process. Message Factories, 
-            Decoders/Encoders and general tools will be provided by this module.
+            Decoders/Encoders and general purpose tools will be provided by this module.
         </para>
        
         <para>
@@ -73,7 +73,35 @@
             </itemizedlist>       
 
         </para>
-       
+        <para>
+            We can instantiate each agent that we define as a single POJO like component interacting directly with the Agent's core, 
+            or we can expose the agent's core via a Service Layer that will enable other applications and agents hosted remotely 
+            to interact with our agent.
+        </para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="images/04-agent-service-layer.png" format="PNG"/>
+            </imageobject>
+        </mediaobject>
+        <para>
+            This service layer will expose a couple of endpoints that will make our agent core available to remote clients. 
+            The current version of the service layer is using CXF (JAX-WS 2.0) to expose the agent interfaces via Web Services.
+            The web services mappings and configurations are provided by the drools-mas-agent-web-archetype archetype that allows us to 
+            automatically build a parameterized new agent that exposes the described endpoints.
+        </para>
+        <para>
+            Now every application or agent can consume the exposed WSDL and start interacting with the agents. 
+            If the client application or agent share a specific business model the model dependency will need to be 
+            included in both (the agent project and the client) projects. 
+        </para>
+        <para>
+            If we choose to go with the Web Application archetype for exposing our agents, all the dependencies will be included
+            inside the WebApplication Archive. This Web application can be deployed in any web container. Included in these dependencies,
+            the CXF dependencies are also included. If you are planning to have more than one agent deployed in the same container a policy for
+            shared dependencies can be created and the War files customized. As mentioned previously you can leverage the power of Maven 
+            profiles to do that.
+        </para>
+        
         <para>
             The following section goes deep in each of these components and analyze the simple Emergency Agent example.
         </para>

@@ -20,12 +20,145 @@
          xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
-    <title>Drools MAS - Deployment </title>
+    <title>Drools MAS - Service Layer and Deployment</title>
     
+    <section>
+        <title>Service Layer</title>
+        <para>
+            As mentioned in this documentation introduction, the agents core can be used directly as a regular bean or it can be exposed via services.
+            The differences between one agent implementation and another can be categorized as following:
+
+        </para>
+        <itemizedlist>
+            <listitem>Design Goals</listitem>
+            <listitem>Domain Model + Domain Dependencies</listitem>
+            <listitem>Topology + Configuration</listitem>
+        </itemizedlist>
+        <para>
+            Our agent design goals will define how we model and create our business assets to accomplish that behavior. We will create rules, processes
+            and events on top of our business model in order to achive the design goals functionality. In order to use our domain models inside
+            the agents project it will be required to add those models as direct dependency to the agent. How the agent defines their own internal topology
+            is up to the implementation and it will be derived based on the agent's designs goal.
+        </para>
+        
+        <para>
+            If we choose to expose the core of our agent implementation we can use the drools-mas-agent-web-archetype project archetype to 
+            generate an empty structure of a new agent containing all the configurations required to deploy it in a container.
+            Because the result will be a simple Web Application we can deploy the agent in any container. If we use this archetype some configurations files
+            will be created and the CXF dependencies are being automatically added to the resultant project.
+            
+            
+            
+        </para>
+        <para>
+            In order to expose the agent core via web services some cxf spring configurations are required:
+        </para>
+        <programlisting language="xml">
+            &lt;beans xmlns="http://www.springframework.org/schema/beans"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:jaxws="http://cxf.apache.org/jaxws"
+            xsi:schemaLocation="
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd"&gt;
+
+   
+    
+    &lt;import resource="classpath:META-INF/cxf/cxf.xml" /&gt;
+    &lt;import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/&gt;
+    &lt;import resource="classpath:META-INF/cxf/cxf-servlet.xml" /&gt;
+    &lt;jaxws:endpoint id="agent-ws" address="http://localhost:8080/emergency-agent/services/SyncAgentService"
+            implementor="#agent-service"&gt;
+    &lt;/jaxws:endpoint&gt; 
+  
+    &lt;jaxws:endpoint id="async-agent-ws" address="http://localhost:8080/emergency-agent/services/AsyncAgentService"
+            implementor="#async-agent-service"&gt;
+    &lt;/jaxws:endpoint&gt; 
+   
+    
+    &lt;bean id="async-agent-service" class="org.drools.mas.AsyncDroolsAgentServiceImpl"&gt;
+        &lt;property name="agent" ref="agent"/&gt;
+    &lt;/bean&gt;  
+    &lt;bean id="agent-service" class="org.drools.mas.SynchronousDroolsAgentServiceImpl"&gt;
+        &lt;property name="agent" ref="agent"/&gt;
+    &lt;/bean&gt;  
+        </programlisting>
+        <para>
+            This xml snippet was taken from the Emergency Agent demo that can be found inside the examples directory.
+            As you may notice two jaxws endpoints are being defined by default for all of our agents. CXF is using a jetty to create 
+            this endpoints and for that reason we need to be careful with not registering more than two endpoints using the same port. 
+            If you are planning to deploy more than one agent in the same container you need to  be sure that the ports defined inside the
+            address attribute are unique for each agent.
+        </para>
+        <para>
+            Another important thing to notice is the fact that we are exposing two different endpoints, one is a Sync endpoint 
+            and the other one is Async. Depending if our application want to wait for long operations or not which one we use. 
+            Notice that both endpoints uses the same internal agent instance. 
+            The AsyncDroolsAgentServiceImpl and SynchronousDroolsAgentServiceImpl classes are the ones that contains all the JAX WS 
+            annotations which generates the WSDL that is exposed by the web application.
+        </para>  
+        <para>
+            Because the agents can be configured to work on top of remote sessions, the orm.xml and persistence.xml for Drools Grid needs to be
+            included in the project. You will not need to change these files unless you want to change the where the database that will be used
+            by Drools Grid is located.
+        </para>
+    </section>
     <section>
         <title>Deployment</title>
         <para>
-            This section covers the common configurations required to deploy a Drools MAS agent. 		
+            This section covers the common configurations required to deploy a Drools MAS agent. 
+            Leveraging the power of Maven profile each agent can be parameterized to be deployed in different enviroments. 
+            This customizations can be done in the service layer, but if more core customization are needed the same Maven profiles + variables
+            approach can be used. 
         </para>
+        <para>
+            The current version of the drools-mas-agent-web-archetype defines two different profiles: dev and prod. 
+            In order to execute one of these profiles you need to run:
+        </para>
+        <code>
+            mvn -Pdev package
+        </code>
+        <programlisting language="xml">
+            &lt;profiles&gt;
+        &lt;profile&gt;
+            &lt;id&gt;dev&lt;/id&gt;
+            &lt;activation&gt;
+                &lt;activeByDefault&gt;true&lt;/activeByDefault&gt;
+            &lt;/activation&gt;
+            &lt;properties&gt; 
+                &lt;db.driverClass&gt;org.h2.Driver&lt;/db.driverClass&gt; 
+                &lt;db.connectionURL&gt;jdbc:h2:tcp://localhost/~/mydb&lt;/db.connectionURL&gt; 
+                &lt;db.username&gt;sa&lt;/db.username&gt; 
+                &lt;db.password&gt;sasa&lt;/db.password&gt; 
+                &lt;db.dialect&gt;org.hibernate.dialect.H2Dialect&lt;/db.dialect&gt;
+                &lt;agent.name&gt;lackey-agent&lt;/agent.name&gt;
+                &lt;agent.node&gt;lackey-agent-localnode&lt;/agent.node&gt;
+                &lt;agent.port&gt;8100&lt;/agent.port&gt;
+            &lt;/properties&gt; 
+        &lt;/profile&gt;
+        &lt;profile&gt;
+            &lt;id&gt;prod&lt;/id&gt;
+            &lt;activation&gt;
+                &lt;activeByDefault&gt;true&lt;/activeByDefault&gt;
+            &lt;/activation&gt;
+            &lt;properties&gt; 
+                &lt;db.driverClass&gt;com.mysql.jdbc.Driver&lt;/db.driverClass&gt; 
+                &lt;db.connectionURL&gt;jdbc:mysql://localhost:3306/drools-grid&lt;/db.connectionURL&gt; 
+                &lt;db.username&gt;root&lt;/db.username&gt; 
+                &lt;db.password&gt;root&lt;/db.password&gt; 
+                &lt;db.dialect&gt;org.hibernate.dialect.MySQL5Dialect&lt;/db.dialect&gt;
+                &lt;agent.name&gt;lackey-agent&lt;/agent.name&gt;
+                &lt;agent.node&gt;lackey-agent-localnode&lt;/agent.node&gt;
+                &lt;agent.port&gt;8100&lt;/agent.port&gt;
+            &lt;/properties&gt; 
+            &lt;dependencies&gt;
+                &lt;dependency&gt;
+                    &lt;groupId&gt;mysql&lt;/groupId&gt;
+                    &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+                    &lt;version&gt;5.1.1&lt;/version&gt;
+                &lt;/dependency&gt;
+            &lt;/dependencies&gt;
+        &lt;/profile&gt;
+    &lt;/profiles&gt;
+            </programlisting>
     </section>    
 </chapter>

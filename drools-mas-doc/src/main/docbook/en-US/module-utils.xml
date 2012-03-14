@@ -20,19 +20,44 @@
          xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
-    <title>Drools FIPA Agent Utils</title>
-    <mediaobject>
-        <imageobject>
-            <imagedata fileref="images/module-dashboard.png" format="PNG"/>
-        </imageobject>
-    </mediaobject>
-       
+    <title>Drools MAS Utils</title>
+   
     <section>
         <title>Introduction</title>
         <para>
-            This module contains a set of utilities that can be used to parse ACL message, build common structures.
-            You will needs utilities when you want to customize the agent behavior. 
+            This module contains a set of utilities that can be used to parse ACL message and build common structures.
+            These utilities will be included in almost every project related with the agents, because the provide helpers that
+            makes the developer life extremely easy. Some of most important utility classes inside this project are:
+            
+            <itemizedlist>
+                <listitem>ACLMessageFactory</listitem>
+                <listitem>MessageContentFactory</listitem>
+                <listitem>MessageContentEncoder</listitem>
+                <listitem>InspectMessageHelper</listitem>
+            </itemizedlist>	
         </para>
+        <para>
+            The ACLMessageFactory utility class helps us to build our ACL Messages. ACL Messages are complex structures that needs to be
+            correctly initialized, using this class we can easily create ACL performatives. Look the following example:
+        </para>  
+        <programlisting language="java">ACLMessage inform = factory.newInformMessage("agent", "other", obj);</programlisting>
+        <para>  
+            The previous snippet initialize and creates a new Inform ACL Message, which will notify an agent about the existence of the object "obj".
+        </para>  
+        <para>
+            The MessageContentFactory helps us to create the message content for the different performatives. Usually actions inside Request Performatives
+            and queries inside the QueryIf and QueryRef performatives will be created using this helper.
+        </para>  
+        <para>
+            The MessageContentEncoder plays a very important role in how the agent process each message that is received. This helper is in charge
+            of encoding the content of our ACLMessages. It supports different formats like: JSON and XML which allow us to send content 
+            that the client could not decode but it can inspect.
+        </para> 
+        <para>
+            The InspectMessageHelper uses XPath and JSONPath to analyze the encoded content without the need of having an Object like version of 
+            the information that is propagated inside the messages.
+        </para> 
+        
     </section>
    
    

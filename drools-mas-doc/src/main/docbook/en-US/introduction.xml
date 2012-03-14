@@ -25,15 +25,13 @@
         <title>What is an Intelligent Agent?</title>
         
         <para>
-                There is no standarized defintion for what an Intelligent Agent is, so for the sake of this document an agent
-                is a piece of software that is designed to act and communicate with other entities based on its internal goals, state and 
-                knowledge.
+            There is no standarized defintion for what an Intelligent Agent is, so for the sake of this document an agent
+            is a piece of software that is designed to act and communicate with other entities based on its internal goals, state and 
+            knowledge.
                 
-                These intelligent agents by design will keep an internal state that will be used by the agent to decide what to do next 
-                or how to answer request from other agents. 
-                
-                
-            
+            These intelligent agents by design will keep an internal state that will be used by the agent to decide what to do next 
+            or how to answer request from other agents. 
+
         </para>
         
        
@@ -43,11 +41,10 @@
         <para>
             When we have multiple agents interacting in the same ecosystem we need an infrastructure to enable all the interactions.
             For this reason a set of global components will be provided to build this ecosystem that will enable rich interactions.
-            
         </para>
         
     </section>    
-     <section>
+    <section>
         <title>Drools MAS</title>
         <para>
             Drools MAS aims to provide the common infrastructure and set of tools to create the individual agents and 
@@ -55,7 +52,13 @@
             use individual agents. The second half will be focused on how to use the different components provided to build an
             scalable infrastructure to host these agents (work in progress).
         </para>
-     </section>
+        <para>
+            Right now the project provides the basic set of components to build platform independent autonomous agents that are 
+            able to perform different tasks that can be defined declarativel using Rules, Process and Events. This agents are 
+            also enabled to interact between each other using a FIPA-ACL like implementation. The project also provides
+            a web service layer that allows us to expose agent via two  (Async and Sync) web services end points. 
+        </para>
+    </section>
      
      
 </chapter>

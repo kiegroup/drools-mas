@@ -21,41 +21,202 @@
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
     <title>Drools MAS - Core</title>
-    <figure>
-        <title>Core Module</title>
-        <mediaobject>
-            <imageobject>
-                <imagedata fileref="images/02-module-core.png" format="PNG"/>
-            </imageobject>
-        </mediaobject>
-    </figure>   
+    
     <section>
-        <title>Introduction</title>
+        <title>Agents Structure</title>
         <para> 
-            The core module contains the logic for the agent interaction. This module contains all the
+            The core module contains the logic for the agent interaction and internal logic. This module contains all the
             internal mechanisms that will allow us to configure our agent internal topology.
         </para>
-        <itemizedlist>
-            <listitem>Structure</listitem>
-            <listitem>Configuration</listitem>
-        </itemizedlist>	
+        
+       
+        <para> 
+            Each agent contains a Mind, that is represented by a StatefulKnowledgeSession with a predefined set of rules and processes
+            which defines the agent standard behavior. The agent's mind responsability is to understand and processes the incoming messages 
+            received from the external clients, route those messages to more specific sessions and process the answers in order to provide an
+            appropriate response to the ones interested in them.
+            Each agent will contain only one mind session, but it can define any number of sub sessions. The following section explains 
+            the core funtionalities of the mind session and how this functionality allows us to route specific messages to dedicated sessions.
+            
+        </para>
+        <figure>
+            <title>Core Module</title>
+        
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="images/02-module-core.png" format="PNG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>   
         <para>
-            The ACL module and the Core module are required to build our agents, so you will find dependencies to these modules,
-            in almost all the implementations.
+            There are three main core functionalities implemented in separate DRL files that can be extended.
+            <itemizedlist>
+                <listitem>ACL Content Based Routing</listitem>
+                <listitem>ACL Internals</listitem>
+                <listitem>ACL Protocol</listitem>
+            </itemizedlist>	
+            Content Based Routing rules (acl_content_based_routing.drl) are an extensible way to define which fo the sub sessions will be responsible to deal with a 
+            specific message. Depending the type of the action or the logic that the agent need to achieve is how the sub sessions
+            will interact to solve a specific situation. These rules will allow us to inspect the incoming messages and plug our custom logic
+            to move the appropriate information to each particular sub session. As a result of these rules the ACL Internal Rules will be notified 
+            about the Destination sub session that will be in charge of processing the incoming information.
+        </para>
+        <para>
+            ACL Internals (acl_internal.drl) is in charge of processing the incoming messages and propagate to the selected sub session.
+            These internal rules has the responsibility to map from FIPA-ACL performatives to a batch of Drools commands which will implement
+            the performatives behavior. Some of these performatives are executed in an asynchronous fashion (request an action, for example) 
+            and some of them are executed in a synchronous fashion (query for information, for example).
+        </para>
+        <para>
+            ACL Protocol (acl_protocol.drl) contains the rules that defines how we need to deal with each specific FIPA-ACL performative.
+            This rules are in charge of building the response for the client who start the interaction. Based on the FIPA-ACL standard definitions,
+            One or more ACL Messages are created to send them back to the one that made the request. If the performative is executed in an 
+            asynchronous fashion, the client could query the agent for the results later.
+        </para>
+        <para>
+            These rules definitions can be adapted to fulfill your needs and extended to be complaiant with the FIPA-ACL specification.
         </para>
         
+        
+        <figure>
+            <title>Mind Session and Domain Specific Sessions</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="images/03-module-core-mind-and-sessions.png" format="PNG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>
+            The agents internal topology must be defined by configuration, but they will always have a Mind session. As you can see in the
+            previous figure, sessions can be hosted locally, in the same JVM that the mind session or in a different JVM. In order to be able
+            to create remote sub sessions we will need to start different Grid Nodes. The Drools MAS Agents leverage the power of the drools grid
+            project to virtualize where the session will be hosted and run.
+            
+        </para>
+    </section>
+    <section>
+        <title>Agents Configuration</title>
+        <para>
+            In order to set up an agent we need to define it's topology and some parameters. We can easily set up an agent instance
+            using Spring.
+            
+            
+        </para>
+        <programlisting language="xml">
+            &lt;beans xmlns="http://www.springframework.org/schema/beans"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"&gt;
+  
+    &lt;bean id="agent1-session1" class="org.drools.mas.core.DroolsAgentConfiguration$SubSessionDescriptor"&gt;
+        &lt;constructor-arg value="session1"/&gt;
+        &lt;constructor-arg value="sub1.xml"/&gt;
+        &lt;constructor-arg value="local"/&gt;
+    &lt;/bean&gt;  
+    
+    &lt;bean id="agent1-session2" class="org.drools.mas.core.DroolsAgentConfiguration$SubSessionDescriptor"&gt;
+        &lt;constructor-arg value="session2"/&gt;
+        &lt;constructor-arg value="sub2.xml"/&gt;
+        &lt;constructor-arg value="local"/&gt;
+    &lt;/bean&gt;  
+    
+
+    &lt;bean id="agent1-configuration" class="org.drools.mas.core.DroolsAgentConfiguration"&gt;
+        &lt;property name="agentId" value="Agent 1"/&gt;
+        &lt;property name="changeset" value="mainTestAgent_changeset.xml" /&gt;
+        &lt;property name="responseInformer" value="org.drools.mas.mock.MockResponseInformer"/&gt;
+        &lt;!-- by default the mindNodeLocation is local --&gt; 
+        &lt;property name="mindNodeLocation" value="local"/&gt;
+        &lt;property name="port" value="7000"/&gt;
+        &lt;property name="subSessions"&gt;
+            &lt;list&gt;
+                &lt;ref local="agent1-session1"/&gt;
+                &lt;ref local="agent1-session2"/&gt;
+            &lt;/list&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+  
+    &lt;bean id="agent-factory" class="org.drools.mas.core.DroolsAgentFactory" factory-method="getInstance"/&gt;
+  
+    &lt;bean id="agent" class="org.drools.mas.core.DroolsAgent" factory-bean="agent-factory" factory-method="spawn"&gt;
+        &lt;constructor-arg ref="agent1-configuration"/&gt;
+    &lt;/bean&gt;
+
+&lt;/beans&gt;
+        </programlisting>
+        <para>
+            The class DroolsAgentConfiguration is in charge of gathering all the parameters required to build up an agent. Using this
+            configuration the DroolsAgentFactory will be in charge of building up the agent instance according the provided configuration.
+            In this example we define an agent called "Agent 1" which will use the "mainTestAgent_changeset.xml" changeset to define the mind session.
+            The mind session will be in charge of coordinating two sub session in this example: session1 and session2 that are defined using the class
+            called DroolsAgentConfiguration$SubSessionDescriptor. Each of these sub sessions needs to specify the sub session name, the sub session changeset
+            and the node where the session will run. For this example the all the sessions that will be created by the Drools Agent Factory will be running
+            in the same JVM if the local node is local. The DroolsAgentFactory will use the Grid Services to locate where the "local" node is and it will interact
+            with it transparently. 
+        </para>
+        <para>
+            The mind agent changeset will usually contain the custom content based routing rules for this specific sessions. In this example the 
+            "mainTestAgent_changeset.xml" changeset looks like:
+        </para>
+        <programlisting language="xml">
+            &lt;change-set xmlns='http://drools.org/drools-5.0/change-set'&gt;
+    &lt;add&gt;
+
+        &lt;resource type="CHANGE_SET" source="classpath:org/drools/mas/acl_changeset.xml" /&gt;
+        &lt;resource type="DRL" source="classpath:test_cbr.drl" /&gt;
+
+    &lt;/add&gt;
+&lt;/change-set&gt;
+        </programlisting>  
+        <para>
+            Notice that the changeset include the Core Changeset -> "org/drools/mas/acl_changeset.xml" and the test_cbr.drl rules to 
+            decide how to route each message that arrives to the agent. The rules defined inside the test_cbr.drl file looks like:
+            
+        </para>
+        <programlisting language="java">
+rule "Mapping"
+when
+then
+    insert( new SessionMapping("patient1","session1") );
+    insert( new SessionMapping("patient2","session2") );
+end
+
+
+rule "Route_Encoded"
+salience -1
+when
+    $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.JSON  )
+    $patientId : String( this != null ) from InspectMessageHelper.inspect($msg,"$..name[0]")
+    mapSession( $patientId , $sessionId ; )
+then
+    LoggerHelper.debug(" ### Example CBR: Routing message " + $msgId + " to session " + $sessionId );
+    insertLogical( new Destination($msgId, $sessionId) );
+end
+
+
+
+rule "Patients of age greater than 18 go to session #2"
+dialect "mvel"
+salience -1
+when
+    $msg : ACLMessage( $msgId : id, $body : body, performative == Act.INFORM  )
+    Inform( $prop : proposition ) from $body
+    MockFact( age > 18 ) from $prop.getData()
+then
+    LoggerHelper.debug(" ### Example CBR: Routing message " + $msgId + " to session2 ");
+    insertLogical( new Destination($msgId, "session2") );
+end
+
+        </programlisting>
+        <para>
+            This rules define the session mappings and then for each incomming ACL message that the agent receives, the "Route_Encoded" rule
+            is in charge of deciding to which session to propagate the Message. In this simple example we have two sessions which will 
+            represent two different patients that the agent will handle. Depending the data provided inside the ACL Message, the rule called 
+            "Patients of age greater than 18 go to session #2" shows a simple example about how we can inspect the message information and
+            based on it select on appropriate Destination. The Destination Object that is being logically inserted in these rules will be used by 
+            the rules inside "acl_internal.drl" to execute actions in the different sessions.
+        </para>
         
         
     </section>
-    <figure>
-        <title>Mind Session and Domain Specific Sessions</title>
-        <mediaobject>
-            <imageobject>
-                <imagedata fileref="images/03-module-core-mind-and-sessions.png" format="PNG"/>
-            </imageobject>
-        </mediaobject>
-    </figure>  
-    
-    
-
 </chapter>

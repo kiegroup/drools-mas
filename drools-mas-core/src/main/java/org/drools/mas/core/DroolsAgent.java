@@ -106,16 +106,24 @@ public class DroolsAgent {
                 logger.debug(" ### \t Disposing Agent Session :" + sessionLoc);
             }
             GridNode node = grid.getGridNode(sessionLoc.getNodeId());
+            GridServiceDescription<GridNode> nGsd = null;
             if (node == null) {
-                GridServiceDescription<GridNode> nGsd = grid.get(WhitePages.class).lookup(sessionLoc.getNodeId());
+                nGsd = grid.get(WhitePages.class).lookup(sessionLoc.getNodeId());
                 GridConnection<GridNode> conn = grid.get(ConnectionFactoryService.class).createConnection(nGsd);
                 node = conn.connect();
             }
             StatefulKnowledgeSession ksession = node.get(sessionLoc.getSessionId(), StatefulKnowledgeSession.class);
             ksession.dispose();
-            node.dispose();
+            //@TODO: We need to check if there are no more sessions in the remote node to dispose it completely
+            if( nGsd != null ){
+                grid.removeGridNode( nGsd.getId() );
+            }
+            if( node != null){
+                node.dispose();
+            }
+            
         }
-
+        
         grid.get(SocketService.class).close();
         mind.dispose();
     }

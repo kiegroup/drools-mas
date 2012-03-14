@@ -30,8 +30,8 @@ public interface AsyncDroolsAgentService {
      * @param arg0
      */
     @WebMethod
-    @RequestWrapper(localName = "tell", targetNamespace = "http://helpers.mas.drools.org/", className = "org.drools.mas.Tell")
-    @ResponseWrapper(localName = "tellResponse", targetNamespace = "http://helpers.mas.drools.org/", className = "org.drools.mas.helpers.TellResponse")
+    @RequestWrapper(localName = "tell", targetNamespace = "http://mas.drools.org/", className = "org.drools.mas.Tell")
+    @ResponseWrapper(localName = "tellResponse", targetNamespace = "http://mas.drools.org/", className = "org.drools.mas.helpers.TellResponse")
     public void tell(
         @WebParam(name = "arg0", targetNamespace = "")
         ACLMessage arg0);
@@ -44,8 +44,8 @@ public interface AsyncDroolsAgentService {
      */
     @WebMethod
     @WebResult(targetNamespace = "")
-    @RequestWrapper(localName = "getResponses", targetNamespace = "http://helpers.mas.drools.org/", className = "org.drools.mas.helpers.GetResponses")
-    @ResponseWrapper(localName = "getResponsesResponse", targetNamespace = "http://helpers.mas.drools.org/", className = "org.drools.mas.helpers.GetResponsesResponse")
+    @RequestWrapper(localName = "getResponses", targetNamespace = "http://mas.drools.org/", className = "org.drools.mas.helpers.GetResponses")
+    @ResponseWrapper(localName = "getResponsesResponse", targetNamespace = "http://mas.drools.org/", className = "org.drools.mas.helpers.GetResponsesResponse")
     public List<ACLMessage> getResponses(
         @WebParam(name = "arg0", targetNamespace = "")
         String arg0);

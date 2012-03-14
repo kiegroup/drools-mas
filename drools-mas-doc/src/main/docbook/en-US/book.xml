@@ -38,6 +38,9 @@
     <xi:include href="architecturalOverview.xml"/>
     <xi:include href="components.xml"/>
     <xi:include href="deployment.xml"/>
+    <xi:include href="othercomponents.xml"/>
+    <xi:include href="archetypes.xml"/>
+    <xi:include href="emergency-agent-example.xml"/>
     <xi:include href="futureWork.xml"/>
     <xi:include href="referencesLinks.xml"/>
     <index/>

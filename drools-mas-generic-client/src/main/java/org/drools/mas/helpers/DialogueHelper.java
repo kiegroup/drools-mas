@@ -46,11 +46,11 @@ public class DialogueHelper {
 
     }
 
-    public void invokeRequest(String methodName, LinkedHashMap<String, Object> args) throws UnsupportedOperationException {
-        invokeRequest("", "", methodName, args);
+    public String invokeRequest(String methodName, LinkedHashMap<String, Object> args) throws UnsupportedOperationException {
+        return invokeRequest("", "", methodName, args);
     }
 
-    public void invokeRequest(String sender, String receiver, String methodName, LinkedHashMap<String, Object> args) throws UnsupportedOperationException{
+    public String invokeRequest(String sender, String receiver, String methodName, LinkedHashMap<String, Object> args) throws UnsupportedOperationException{
         multiReturnValue = false;
         for (Object o : args.values()) {
             if (o == Variable.v) {
@@ -105,7 +105,7 @@ public class DialogueHelper {
         } else {
             returnBody = answers.size() == 2 ? ((InformRef) answers.get(1).getBody()) : null;
         }
-
+        return req.getId();
     }
 
     public void invokeQueryIf(String sender, String receiver, Object proposition) {
@@ -138,8 +138,8 @@ public class DialogueHelper {
         System.out.println("QNAME = " + this.qname);
         System.out.println("BEFORE CALLING TELL = " + newInformMessage);
         asyncServicePort.tell(newInformMessage);
-        List<ACLMessage> answers = asyncServicePort.getResponses(newInformMessage.getId());
-        System.out.println("AFTER CALLING TELL = " + answers);
+        //List<ACLMessage> answers = asyncServicePort.getResponses(newInformMessage.getId());
+        //System.out.println("AFTER CALLING TELL = " + answers);
         // No Answer needed
 
 
@@ -166,5 +166,15 @@ public class DialogueHelper {
             }
         }
         return returnBody;
+    }
+
+    public List<ACLMessage> getAgentAnswers(String reqId) {
+        AsyncDroolsAgentService asyncServicePort = null;
+        if (this.endpointURL == null || this.qname == null) {
+            throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
+        } else {
+            asyncServicePort = new AsyncAgentService(this.endpointURL, this.qname).getAsyncAgentServicePort();
+        }
+        return asyncServicePort.getResponses(reqId);
     }
 }
