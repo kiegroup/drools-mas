@@ -118,21 +118,53 @@ public class TestAgent {
     
     @Test
     public void testSimpleInform() throws InterruptedException {
-        MockFact fact = new MockFact("patient1", 18);
+        MockFact fact = new MockFact( "patient1", 18 );
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
 
-        ACLMessage info = factory.newInformMessage("me", "you", fact);
-        mainAgent.tell(info);
+        ACLMessage info = factory.newInformMessage( "me", "you", fact );
+        mainAgent.tell( info );
         
         //Now this is also async
         waitForAnswers( info.getId(), 0, 250, 50 );
         
-        assertNotNull( mainAgent.getAgentAnswers(info.getId() ) );
+        assertNotNull( mainAgent.getAgentAnswers( info.getId() ) );
         StatefulKnowledgeSession target = mainAgent.getInnerSession( "session1" );
         assertTrue( target.getObjects().contains( fact ) );
 
 
     }
+
+    @Test
+    @Ignore
+    public void testSimpleConfirmAndDisconfirm() throws InterruptedException {
+        MockFact fact = new MockFact( "patient1", 18 );
+        ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
+
+        ACLMessage info = factory.newConfirmMessage( "me", "you", fact );
+        mainAgent.tell( info );
+
+        //Now this is also async
+        waitForAnswers( info.getId(), 0, 250, 50 );
+
+        assertNotNull( mainAgent.getAgentAnswers( info.getId() ) );
+        StatefulKnowledgeSession target = mainAgent.getInnerSession( "session1" );
+        assertTrue( target.getObjects().contains( fact ) );
+
+
+        MockFact fact2 = new MockFact( "patient1", 18 );
+
+        ACLMessage info2 = factory.newDisconfirmMessage( "me", "you", fact2 );
+        mainAgent.tell( info2 );
+
+        //Now this is also async
+        waitForAnswers( info2.getId(), 0, 250, 50 );
+
+        assertNotNull( mainAgent.getAgentAnswers( info2.getId() ) );
+        assertFalse( target.getObjects().contains( fact ) );
+
+
+    }
+
 
     @Test
     public void testInformAsTrigger() throws InterruptedException {
@@ -247,7 +279,6 @@ public class TestAgent {
 
     //leave ignored until we fix the remoting kagent
     @Test
-    @Ignore
     public void testRequestWhen() {
 
         Double in = new Double(36);
