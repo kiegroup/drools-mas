@@ -20,23 +20,67 @@
          xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
-    <title>Emergency Service City Map</title>
+    <title>Drools MAS Archetypes </title>
    
     <section>
         <title>Introduction</title>
         <para>
-            This module 
+            The Drools MAS provided archetypes are being used to create new agent instances. Each time that we want to
+            design a new agent we can use this archetypes to generate a template that automatically will create
+            the Sync and Async endpoints that will allow our applications and other agents to interact with it.
+            We will be able also to create a client for our agent using an archetype that provides an unit test
+            to interact with our agent. The following two sections explains what exactly is being created by the
+            archetypes and how we can use them.
         </para>
     </section>
-    <figure>
-        <title>City Map</title>
-        <mediaobject>
-            <imageobject>
-                <imagedata fileref="images/module-citymap.png" format="PNG"/>
-            </imageobject>
-        </mediaobject>
-    </figure>
-    
    
+     <section>
+        <title>Agent (Web) Archetype</title>
+        <para>
+           This project contains the agent template. Which basically is a Web Application. This template will generate everything
+           that is required ot create a deployable agent. In order to run this archetype to create a new agent template we need to run:
+           
+        </para>
+        <programlisting>
+            mvn -DarchetypeGroupId=org.drools.mas -DarchetypeArtifactId=drools-mas-agent-web-archetype 
+                -DarchetypeVersion=1.0-SNAPSHOT -DarchetypeRepository=local -DgroupId=org.drools.mas 
+                -DartifactId=myNewAgent -Dversion=1.0-SNAPSHOT -Dpackage=org.drools.mas 
+                -Dbasedir=/drools-mas-agents-impl/ -Dagent-name=new-agent
+            
+        </programlisting>
+        <para>
+            Once we get our template created we can start modifying it in order to add our custom logic.
+            Remeber that if you need a domain model to be handled by the agent you will need to add 
+            the model dependency to the agent pom.xml file.
+        </para> 
+        <para>
+             The following screens shows how you can create a new Agent, using the archetypes installed in your
+             local repository. 
+        </para>
+        <figure>
+            <title>Agent Archetype Wizzard</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="images/07-agent-archetype-creation.png" format="PNG"/>
+                </imageobject>
+            </mediaobject>
+        </figure> 
+    </section>
+   <section>
+        <title>Agent Client (Jar) Archetype</title>
+        <para>
+           This archetype generates a client to consume our agent Web Service Endpoints. 
+           It uses the drools mas generic client and the Dialogue Helper. The following files will be added to the 
+           client structure:
+        </para>
+        <figure>
+            <title>Client Archetype Classes</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="images/08-agent-client-archetype-classes.png" format="PNG"/>
+                </imageobject>
+            </mediaobject>
+        </figure> 
+    </section>
 
 </chapter>

@@ -40,5 +40,8 @@
     <xi:include href="module-acl.xml"/>
     <xi:include href="module-core.xml"/>
     <xi:include href="module-utils.xml"/>
+    <xi:include href="module-generic-client-helper.xml"/>
+    <xi:include href="module-archetypes.xml"/>
+    
     
 </chapter>

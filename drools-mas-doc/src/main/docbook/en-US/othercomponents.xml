@@ -34,7 +34,33 @@
         </para>
         
     </section>
+    <section>
+        <title>White Pages Database</title>
     
+        <para>
+            Drools Grid will use a centralized place to store where all the Grid Nodes are located. In order to find them when
+            they are needed, each time that we start a new grid node it will automatically register itself into the white pages.
+            If you take a look at the Agent's archetypes you will find that a database is being setted up and required in order
+            to run the agents. When we have an environment where more than one agent is required we will need to set up a 
+            common database for both agents, so they can find each other and interact. 
+            
+            When we have just one agent, we can use an embeded database to enable the agent to work. The Dev(Development) and Prod(Production)
+            Maven profiles that are defined inside the agents contains the parameters that will be used by the agents at start up to 
+            initialize the database. If the database is correctly initialized, the internal Grid Nodes used by the agents will be 
+            automatically registered inside the generated tables. 
+        </para>
+        
+    </section>
+    <section>
+        <title>Create and Start a new Grid Node</title>
+    
+        <para>
+           A Drools Grid Node represents a different JVM instance which can host multiple Knowledge Sessions that can be accessed
+           remotely. This mechanism is being used by Drools MAS in order to be able to distributed the internal sessions of 
+           an agent into different machines. 
+        </para>
+        
+    </section>
     
 
 </chapter>

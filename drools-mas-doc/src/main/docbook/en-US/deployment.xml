@@ -159,6 +159,65 @@
             &lt;/dependencies&gt;
         &lt;/profile&gt;
     &lt;/profiles&gt;
-            </programlisting>
-    </section>    
+        </programlisting>
+    </section> 
+    <section>
+        <title>Deployment Requirements</title>
+        <para>
+            In order to successfully deploy our agents, we need to build and package our project selecting a profile (Dev or Prod),
+            setting all the configuration parameters correctly and choosing an appropriate container.
+            The agents projects generated with the archetypes by default includes all the agent dependencies, but you can
+            customize per profile which dependency jars will be included in the final distribution war. 
+          
+        </para>
+        <para>
+            On the profile configurations we need to provide the agent topology, which Drools Grid nodes the agent will use. 
+            In order to deploy an Agent we need to be sure that the Drools Grid nodes that the agent will be using are up and 
+            running, if not the agent will create those nodes locally to the same JVM.
+        </para>
+        <figure>
+            <title>Deployment Infrastructure</title>
+        
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="images/05-droolsMAS-andGrid.png" format="PNG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>   
+    </section>
+    <section>
+        <title>Deployment Phases</title>
+        <para>
+            As soon as we deploy our agent into our Application Server or Servlet Container our agent will be instantiated by the
+            spring configuration and the CFX endpoints will be created. At that point the DroolsAgentFactory will, based on the
+            provided configuration: 
+        </para>
+        
+        <itemizedlist>        
+            <listitem>1) Create the Grid Peer Configuration</listitem>
+            <listitem>2) Configure the White Pages Service, in this version it will use the JPAWhitePages services to contact
+                         the configured database.</listitem>
+            <listitem>3) Create a Multiplex Socket Service to expose the grid node via Apache Mina using the port provided
+                         in the configuration</listitem>
+            <listitem>4) Create the mind session, usually in the local JVM. Most of the times we will want to do all the
+                         incoming message processing and the creation of the responses in the same JVM where the agent is being
+                         hosted in order to avoid doign remoting for basic operations</listitem>             
+            <listitem>5) For each sub session configured: </listitem>           
+            <listitem>  5.1) Create the session in the configured Grid Node  </listitem>           
+            <listitem>  5.2) Insert a reference to the mind session inside the sub session, to be able to locate the mind session back when is needed  </listitem>           
+            <listitem>  5.3) Insert a reference to itself inside the sub session, to know where the session is being hosted  </listitem> 
+            <listitem>  5.4) Insert a reference in the mind session of the SubSession that was created, to be able to route messages to it</listitem>           
+            <listitem>6) Insert inside the Mind session the configuration that was used to create the current topology, to be able to change it
+                         in the future if is needed</listitem>
+        </itemizedlist> 
+       <figure>
+            <title>Deployment Agents With Sub Sessions in different Grid Nodes</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="images/06-droolsMAS-AndGridSubSessions.png" format="PNG"/>
+                </imageobject>
+            </mediaobject>
+        </figure> 
+    </section>     
+    
 </chapter>

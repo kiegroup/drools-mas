@@ -61,12 +61,12 @@
             <artifactId>drools-grid-impl</artifactId>
             <version>${drools.version}</version>
         </dependency>
-       <dependency>
+       <!--dependency>
             <groupId>org.drools</groupId>
             <artifactId>drools-pmml-compiler</artifactId>
             <version>5.4.0-SNAPSHOT</version>
             <scope>test</scope>
-        </dependency>
+        </dependency-->
        
         <dependency>
             <groupId>commons-io</groupId>

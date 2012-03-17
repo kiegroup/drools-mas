@@ -71,29 +71,6 @@ public class DialogueHelper {
 
         asyncServicePort.tell(req);
         List<ACLMessage> answers = asyncServicePort.getResponses(req.getId());
-        System.out.println("^&*^&*(^&(*^(*&^&*(^&*(^&*(^*&(^*(^ ="+answers);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(DialogueHelper.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        answers = asyncServicePort.getResponses(req.getId());
-        System.out.println("^&*^&*(^&(*^(*&^&*(^&*(^&*(^*&(^*(^ ="+answers);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(DialogueHelper.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        answers = asyncServicePort.getResponses(req.getId());
-        System.out.println("^&*^&*(^&(*^(*&^&*(^&*(^&*(^*&(^*(^ ="+answers);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(DialogueHelper.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        answers = asyncServicePort.getResponses(req.getId());
-        System.out.println("^&*^&*(^&(*^(*&^&*(^&*(^&*(^*&(^*(^ ="+answers);
         
         ACLMessage answer = answers.get(0);
         if (!Act.AGREE.equals(answer.getPerformative())) {
@@ -108,7 +85,7 @@ public class DialogueHelper {
         return req.getId();
     }
 
-    public void invokeQueryIf(String sender, String receiver, Object proposition) {
+    public String invokeQueryIf(String sender, String receiver, Object proposition) {
         AsyncDroolsAgentService asyncServicePort = null;
         if (this.endpointURL == null || this.qname == null) {
             throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
@@ -123,9 +100,11 @@ public class DialogueHelper {
         System.out.println("AFTER CALLING TELL = " + answers);
 
         returnBody = ((InformIf) answers.get(0).getBody());
+        return qryif.getId();
+        
     }
 
-    public void invokeInform(String sender, String receiver, Object proposition) {
+    public String invokeInform(String sender, String receiver, Object proposition) {
         AsyncDroolsAgentService asyncServicePort = null;
         if (this.endpointURL == null || this.qname == null) {
             throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
@@ -141,6 +120,7 @@ public class DialogueHelper {
         //List<ACLMessage> answers = asyncServicePort.getResponses(newInformMessage.getId());
         //System.out.println("AFTER CALLING TELL = " + answers);
         // No Answer needed
+        return newInformMessage.getId();
 
 
     }
