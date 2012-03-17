@@ -55,10 +55,11 @@ salience -1
 when
     $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.JSON  )
     $patientId : String( this != null ) from InspectMessageHelper.inspect($msg,"$..name[0]")
-    mapSession( $patientId , $sessionId ; )
+//    mapSession( $patientId, $sessionId ; )
 then
-    LoggerHelper.debug(" ### Example CBR: Routing message " + $msgId + " to session " + $sessionId );
-    insertLogical( new Destination($msgId, $sessionId) );
+    LoggerHelper.debug(" ### Example CBR: Routing message J " + $msgId  );
+//    insertLogical( new Destination( $msgId, $sessionId ) );
+    insert( new MappingLookup( $msgId, $patientId ) );
 end
 
 rule "Route_Encoded_X"
@@ -66,10 +67,11 @@ salience -1
 when
     $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.XML )
     $patientId : String( this != null ) from InspectMessageHelper.inspect($msg,"//name") 
-    mapSession( $patientId , $sessionId ; )
+//    mapSession( $patientId , $sessionId ; )
 then
-    LoggerHelper.debug(" ### Example CBR: Routing message " + $msgId + " to session " + $sessionId );
-    insertLogical( new Destination($msgId, $sessionId) );
+    LoggerHelper.debug(" ### Example CBR: Routing message  X " + $msgId  );
+//    insertLogical( new Destination( $msgId, $sessionId ) );
+    insert( new MappingLookup( $msgId, $patientId ) );
 end
 
 
