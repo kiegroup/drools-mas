@@ -20,6 +20,7 @@ import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.ResourceType;
 import org.drools.conf.EventProcessingOption;
 import org.drools.grid.*;
+import org.drools.grid.api.ResourceDescriptor;
 import org.drools.io.Resource;
 import org.drools.io.impl.ByteArrayResource;
 import org.drools.io.impl.ChangeSetImpl;
@@ -202,7 +203,15 @@ public class SessionManager extends SessionTemplateManager {
         return kSession;
     }
 
-    public static void addResource(String nodeId, String sessionId, String id, Resource res) {
+    public static void addResource( String nodeId, String sessionId, ResourceDescriptor rd ) {
+
+        UrlResource res = new UrlResource( rd.getResourceURL() );
+        res.setResourceType( rd.getType() );
+        addResource( nodeId, sessionId, rd.getId(), res );
+
+    }
+
+    public static void addResource( String nodeId, String sessionId, String id, Resource res ) {
         try {
             if(logger.isDebugEnabled()){
                 logger.debug(" ### Session Manager: Add Resource -> nodeId: "+nodeId +" - sessionId: "+sessionId +" - id: "+id+" - res: "+((InternalResource)res).getURL().toString() +" -  type: "+((InternalResource)res).getResourceType().getName());

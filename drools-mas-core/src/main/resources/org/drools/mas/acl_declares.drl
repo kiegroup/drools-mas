@@ -55,6 +55,11 @@ declare SessionMapping
     sessionId : String
 end
 
+declare MappingLookup
+    msgId : String
+    key   : String
+end
+
 // association between a message and the session where its contents are to be processed
 declare Destination
     messageId : String

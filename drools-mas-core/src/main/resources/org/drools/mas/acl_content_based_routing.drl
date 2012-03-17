@@ -43,10 +43,30 @@ rule "log"
 end
 
 
-rule "generateSession"
+rule "Trigger Mapping"
+when
+    $ml : MappingLookup( $mid, $key; )
+    ?mapSession( $key, $target; )
+then
+    LoggerHelper.debug(" ### Agent CBR: Resolved routing destination for message " + $mid + " to session " + $target );
+end
+
+
+rule "Resolve Mapping"
+when
+    $ml : MappingLookup( $mid, $key; )
+    SessionMapping( $key, $target; )
+then
+    LoggerHelper.debug(" ### Agent CBR: Resolved routing destination for message " + $mid + " to session " + $target );
+
+    retract( $ml );
+    insert( new Destination( $mid, $target ) );
+end
+
+
+rule "Generate Session"
 salience 9999
 when
-    
     $qry : DroolsQuery(  name == "mapSession", $el : elements[0] )
     $key : String( this != "" ) from $el
     not SessionMapping( $key ;  )
@@ -55,8 +75,9 @@ when
 then
     String sid = $key;
     String targetLocation = $conf.getMindNodeLocation(); //apply load balancing policy here
+
     insert( new SessionMapping( $key, sid ) );
-    if(LoggerHelper.isDebugEnabled()){
+    if( LoggerHelper.isDebugEnabled() ){
         LoggerHelper.debug("  !#!@#!@#!@#!@#### Generating Session: " + sid + " with CS conf: "+ $conf.getDefaultSubsessionChangeSet() );
     }
     
@@ -70,8 +91,8 @@ then
     kSession.insert(new SessionLocator( targetLocation, sid , false, true) );
     kSession.insert( $sessionLocator );
     kSession.fireAllRules();
-        
-    
+
+
     insert( new SessionLocator( targetLocation, sid , false, true) );
     
 end

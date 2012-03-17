@@ -44,7 +44,7 @@ when
                        $sender : sender,
                        $receiver : receiver,
                        $content : body,
-                       performative == Act.INFORM || performative == Act.CONFIRM || performative == Act.DISCONFIRM)
+                       performative == Act.INFORM || performative == Act.CONFIRM || performative == Act.DISCONFIRM )
 then
     if (LoggerHelper.isTraceEnabled()) {
         LoggerHelper.trace(" ### PROTOCOL RULE: RECEIVED ONE-WAY MESSAGE " + $msg);
@@ -55,7 +55,7 @@ end
 rule "Inform_Resp"
 salience -100
 when
-    $msg : ACLMessage( $msgId : id, performative == Act.INFORM )
+    $msg : ACLMessage( $msgId : id, performative == Act.INFORM || == Act.CONFIRM )
     $cont : ResponseContent( messageId == $msgId )
 then
     if (LoggerHelper.isTraceEnabled()) {
