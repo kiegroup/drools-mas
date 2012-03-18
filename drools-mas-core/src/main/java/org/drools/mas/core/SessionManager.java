@@ -124,10 +124,10 @@ public class SessionManager extends SessionTemplateManager {
 
 
 
-    protected SessionManager(String id, KnowledgeBase kbase, GridNode node) {
+    protected SessionManager( String id, KnowledgeBase kbase, GridNode node ) {
         super();
         if (logger.isInfoEnabled()) {
-            logger.info(" ### SessionManager : CREATING session " + id);
+            logger.info(" ### SessionManager : CREATING session " + id + " using " + kbase );
         }
 //        KnowledgeAgentConfiguration kaConfig = KnowledgeAgentFactory.newKnowledgeAgentConfiguration();
 //        kaConfig.setProperty("drools.agent.newInstance", "false");
@@ -206,7 +206,7 @@ public class SessionManager extends SessionTemplateManager {
     public static void addResource( String nodeId, String sessionId, ResourceDescriptor rd ) {
 
         UrlResource res = new UrlResource( rd.getResourceURL() );
-        res.setResourceType( rd.getType() );
+        res.setResourceType(rd.getType());
         addResource( nodeId, sessionId, rd.getId(), res );
 
     }
@@ -223,7 +223,7 @@ public class SessionManager extends SessionTemplateManager {
                     + "</change-set>"
                     + "";
             Resource changeSetRes = new ByteArrayResource( changeSetString.getBytes() );
-            ((InternalResource) changeSetRes).setResourceType(ResourceType.CHANGE_SET );
+            ((InternalResource) changeSetRes).setResourceType( ResourceType.CHANGE_SET );
             //resources.put(id, res);
             KnowledgeAgent kAgent = GridHelper.getKnowledgeAgentRemoteClient( nodeId, sessionId );
             kAgent.applyChangeSet( changeSetRes );
@@ -232,28 +232,33 @@ public class SessionManager extends SessionTemplateManager {
         }
     }
 
-    public void addRule(String nodeId, String sessionId, String id, String drl) {
-        ByteArrayResource bar = new ByteArrayResource(drl.getBytes());
-        bar.setResourceType(ResourceType.DRL);
-        addResource(nodeId, sessionId, id, bar);
+    public static void addRule( String nodeId, String sessionId, String id, String drl ) {
+
+        Resource bar = new ByteArrayResource( drl.getBytes() );
+        ((InternalResource) bar).setResourceType( ResourceType.DRL );
+        ChangeSetImpl csImpl = new ChangeSetImpl();
+        csImpl.setResourcesAdded( Arrays.asList( (Resource) bar ) );
+
+        KnowledgeAgent kAgent = GridHelper.getKnowledgeAgentRemoteClient( nodeId, sessionId );
+        kAgent.applyChangeSet( csImpl );
     }
 
-    public void removeRule(String id) {
-        if (this.resources.containsKey(id)) {
-            ChangeSetImpl changeSet = new ChangeSetImpl();
-            changeSet.setResourcesRemoved(Arrays.asList((Resource) resources.get(id)));
-            //TODO: kAgent.applyChangeSet(changeSet);
-        }
+    public static void removeRule( String id ) {
+//        if ( this.resources.containsKey(id) ) {
+//            ChangeSetImpl changeSet = new ChangeSetImpl();
+//            changeSet.setResourcesRemoved(Arrays.asList((Resource) resources.get(id)));
+//            //TODO: kAgent.applyChangeSet(changeSet);
+//        }
     }
 
-    public void addRuleByTemplate(String nodeId, String sessionId,String id, String templateName, Object context) {
-        String drl = applyTemplate(templateName, context, null);
+    public static void addRuleByTemplate( String nodeId, String sessionId,String id, String templateName, Object context ) {
+        String drl = applyTemplate( templateName, context, null );
 
         if (logger.isDebugEnabled()) {
             logger.debug(" ### Session Manager: Adding rule \n" + drl);
         }
 
-        addRule(nodeId, sessionId, id, drl);
+        addRule( nodeId, sessionId, id, drl );
 
         if (logger.isDebugEnabled()) {
             logger.debug(" ### Session Manager: RULE ADDED ____________ \n");

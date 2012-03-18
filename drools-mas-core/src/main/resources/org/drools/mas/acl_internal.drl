@@ -315,21 +315,18 @@ when
     $msg : ACLMessage( $msgId : id, performative == Act.REQUEST_WHEN )
     $req : RequestWhen( $act : action, $actName : action.actionName, $condition : condition.drl ) from $msg.body
     $dst : Destination( $msgId , $sessionId ; )
-    SessionLocator($nodeId: nodeId, sessionId == $sessionId)
+    SessionLocator( $nodeId: nodeId, sessionId == $sessionId )
 then
     if (LoggerHelper.isDebugEnabled()) {
         LoggerHelper.debug(" ### INTERNAL: GENERATING COMMANDS FOR REQUEST WHEN " + $msgId + " " + $condition);
     }
-    ActionHolder holder = new ActionHolder($msgId, $act, $condition, false);
+    ActionHolder holder = new ActionHolder( $msgId, $act, $condition, false );
 
-    insert( new OneShotMessageCommand( $msgId,  CommandFactory.newInsert( holder ) ) );
-
-    java.util.List list = new ArrayList(1);
-              list.add(CommandFactory.newFireAllRules());
-    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl(list);
-    insert( new MessageCommands( $msgId, batch ) );
-
-
+    java.util.List list = new ArrayList( 2 );
+            list.add( CommandFactory.newInsert( holder ) );
+            list.add( CommandFactory.newFireAllRules() );
+    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl( list );
+    insert( new OneShotMessageCommand( $msgId,  batch ) );
 end
 
 
@@ -338,19 +335,18 @@ when
     $msg : ACLMessage( $msgId : id, performative == Act.REQUEST_WHENEVER )
     $req : RequestWhenever( $act : action, $actName : action.actionName, $condition : condition.drl ) from $msg.body
     $dst : Destination( $msgId , $sessionId ; )
-    SessionLocator($nodeId: nodeId, sessionId == $sessionId)
+    SessionLocator( $nodeId: nodeId, sessionId == $sessionId )
 then
     if (LoggerHelper.isTraceEnabled()) {
         LoggerHelper.trace(" ### INTERNAL: GENERATING COMMANDS FOR REQUEST WHENEVER " + $msgId + " " + $condition);
     }
-    ActionHolder holder = new ActionHolder($msgId, $act, $condition, true);
+    ActionHolder holder = new ActionHolder( $msgId, $act, $condition, true );
 
-    insert( new OneShotMessageCommand( $msgId,  CommandFactory.newInsert( holder ) ) );
-
-    java.util.List list = new ArrayList(1);
-              list.add(CommandFactory.newFireAllRules());
-    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl(list);
-    insert( new MessageCommands( $msgId, batch ) );
+    java.util.List list = new ArrayList( 2 );
+            list.add( CommandFactory.newInsert( holder ) );
+            list.add( CommandFactory.newFireAllRules() );
+    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl( list );
+    insert( new OneShotMessageCommand( $msgId,  batch ) );
 end
 
 
