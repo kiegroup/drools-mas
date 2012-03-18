@@ -253,7 +253,31 @@ then
         LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
    }
    //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
-    insert(new MessageAnswer($msg.getId(), ans));
+   insert( new MessageAnswer( $msg.getId(), ans ) );
+end
+
+rule "Request_When_Agree"
+salience 100
+when
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
+                       $msgId : id,
+                       $convoId : conversationId,
+                       $inReplyTo : inReplyTo,
+                       $sender : sender,
+                       $receiver : receiver,
+                       $content : body,
+                       performative == Act.REQUEST_WHEN )
+    exists Destination( messageId == $msgId )
+    $conf: DroolsAgentConfiguration()
+    $agentId: AgentID()
+then
+   Action action = MessageContentFactory.newActionContent( ( (RequestWhen) $content).getAction() );
+   ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithAgreeMessage( $msg, $agentId, action, new Rule() );
+   if ( LoggerHelper.isTraceEnabled() ) {
+        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+   }
+   //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
+   insert( new MessageAnswer( $msg.getId(), ans ) );
 end
 
 

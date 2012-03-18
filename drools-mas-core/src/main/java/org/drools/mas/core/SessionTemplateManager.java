@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class SessionTemplateManager {
 
-    private TemplateRegistry registry;
+    private static TemplateRegistry registry;
 
     public static final String[] NAMED_TEMPLATES = new String[] {
         "requestWhen.drlt"
@@ -50,12 +50,12 @@ public class SessionTemplateManager {
         return TEMPLATE_PATH;
     }
 
-    public TemplateRegistry getRegistry() {
+    public static TemplateRegistry getRegistry() {
         return registry;
     }
 
-    public void setRegistry(TemplateRegistry registry) {
-        this.registry = registry;
+    public static void setRegistry( TemplateRegistry reg ) {
+        registry = reg;
     }
 
     protected void buildRegistry(TemplateRegistry registry) {
@@ -72,7 +72,7 @@ public class SessionTemplateManager {
         }
     }
 
-    protected void applyTemplate(String templateName, Object context, Map vars, Formatter fmt) {
+    protected void applyTemplate( String templateName, Object context, Map vars, Formatter fmt ) {
         CompiledTemplate template = (CompiledTemplate) getRegistry().getNamedTemplate(templateName);
         try {
             fmt.out().append(TemplateRuntime.execute(template, context, vars).toString());
@@ -82,9 +82,9 @@ public class SessionTemplateManager {
     }
 
 
-    protected String applyTemplate(String templateName, Object context, Map vars) {
-        CompiledTemplate template = (CompiledTemplate) getRegistry().getNamedTemplate(templateName);
-        return (TemplateRuntime.execute(template, context, vars).toString());
+    protected static String applyTemplate( String templateName, Object context, Map vars ) {
+        CompiledTemplate template =  getRegistry().getNamedTemplate( templateName );
+        return ( TemplateRuntime.execute(template, context, vars).toString() );
     }
 
 }

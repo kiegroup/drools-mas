@@ -21,6 +21,7 @@
 package org.drools.mas.util;
 
 import com.jayway.jsonpath.JsonPath;
+import org.drools.mas.body.acts.*;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -36,26 +37,15 @@ import java.io.InputStream;
 import java.text.ParseException;
 import org.drools.mas.ACLMessage;
 import org.drools.mas.Act;
-import org.drools.mas.body.acts.Agree;
-import org.drools.mas.body.acts.Inform;
-import org.drools.mas.body.acts.InformRef;
-import org.drools.mas.body.acts.QueryIf;
-import org.drools.mas.body.acts.QueryRef;
-import org.drools.mas.body.acts.Request;
-import org.drools.mas.body.acts.RequestWhen;
-import org.drools.mas.body.acts.RequestWhenever;
 import org.drools.mas.body.content.AbstractMessageContent;
 
-/**
- *
- * @author salaboy
- */
+
 public class InspectMessageHelper {
 
     public static String inspect(ACLMessage message, String path) throws ParseException, XPathExpressionException, ParserConfigurationException, IOException, SAXException {
         AbstractMessageContent content = inspectContent(message);
       
-        if (content.getEncodedContent() != null || !content.getEncodedContent().equals("")) {
+        if ( content.getEncodedContent() != null || !content.getEncodedContent().equals("") ) {
             switch (message.getEncoding()) {
                 case JSON:
                     Object res = JsonPath.read(content.getEncodedContent(), path);
@@ -79,6 +69,12 @@ public class InspectMessageHelper {
         switch (act) {
             case INFORM:
                 return ((Inform) message.getBody()).getProposition();
+
+            case CONFIRM:
+                return ((Confirm) message.getBody()).getProposition();
+            case DISCONFIRM:
+                return ((Disconfirm) message.getBody()).getProposition();
+
 
             case QUERY_IF:
                 return ((QueryIf) message.getBody()).getProposition();

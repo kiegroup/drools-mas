@@ -4,17 +4,11 @@
  */
 package org.drools.mas.core.tests;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.persistence.Persistence;
 import mock.MockFact;
-import org.apache.commons.io.IOUtils;
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseConfiguration;
 import org.drools.KnowledgeBaseFactoryService;
@@ -41,10 +35,10 @@ import org.drools.grid.service.directory.impl.WhitePagesLocalConfiguration;
 import org.drools.grid.timer.impl.CoreServicesSchedulerConfiguration;
 import org.drools.io.Resource;
 import org.drools.io.impl.ByteArrayResource;
-import org.drools.io.impl.ChangeSetImpl;
-import org.drools.io.impl.ClassPathResource;
 import org.drools.io.internal.InternalResource;
 import org.drools.runtime.StatefulKnowledgeSession;
+import org.drools.runtime.rule.QueryResults;
+import org.drools.runtime.rule.Variable;
 import org.h2.tools.DeleteDbFiles;
 import org.h2.tools.Server;
 import org.junit.*;
@@ -211,42 +205,37 @@ public class GridTests {
     
     }
 
-   
-   
-    
-    
-      @Test
-    
-    public void remoteKAgentPMMLTest() throws InterruptedException {
+
+
+
+
+    @Test
+    public void remoteKAgentResourceLoadTest() throws InterruptedException {
         StatefulKnowledgeSession ksession = createSession();
         ksession.setGlobal("myGlobalObj", new MockFact("myglobalObj",10));
-        
 
         int fired = ksession.fireAllRules();
         Assert.assertEquals(0, fired);
 
-       
-        
-         String changeSetString = "<change-set xmlns='http://drools.org/drools-5.0/change-set'>"
+        String changeSetString = "<change-set xmlns='http://drools.org/drools-5.0/change-set'>"
                 + "<add>"
-                + "<resource type=\"PMML\" source=\"classpath:smartvent.xml\" />"
+                + "<resource type=\"DRL\" source=\"classpath:simpleTestRule.drl\" />"
                 + "</add>"
                 + "</change-set>"
                 + "";
         Resource changeSetRes = new ByteArrayResource(changeSetString.getBytes());
-        ((InternalResource) changeSetRes).setResourceType(ResourceType.CHANGE_SET);
-        
-        
-        KnowledgeAgent kAgent = GridHelper.getKnowledgeAgentRemoteClient(remoteN1.getId(), "ksession-rules");
-        kAgent.applyChangeSet(changeSetRes);
+        ((InternalResource) changeSetRes).setResourceType( ResourceType.CHANGE_SET );
 
-        Thread.sleep(25000);
 
-        
-        fired = ksession.fireAllRules();
-        
-        Assert.assertEquals(48, fired);
+        KnowledgeAgent kAgent = GridHelper.getKnowledgeAgentRemoteClient( remoteN1.getId(), "ksession-rules" );
+        kAgent.applyChangeSet( changeSetRes );
 
+        Thread.sleep( 1000 );
+
+        QueryResults result = ksession.getQueryResults( "beanQuery", Variable.v );
+        assertEquals( 1, result.size() );
+
+        assertEquals( "xyz", result.iterator().next().get( "$id" ) );
 
     }
 }

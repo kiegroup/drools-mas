@@ -27,6 +27,10 @@ import org.drools.mas.body.content.ActionHolder;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.util.LoggerHelper;
 
+import org.drools.mas.util.helper.SessionLocator;
+
+import org.drools.grid.api.impl.ResourceDescriptorImpl;
+import org.drools.grid.api.ResourceDescriptor;
 
 
 query queryIf( Object $o )
@@ -38,10 +42,28 @@ end
 rule "Delayed action"
 salience 9999
 when
-    $holder : ActionHolder( $id : refId, $act : action, $drl : condition)
+    $holder : ActionHolder( $id : refId, $act : action, $drl : condition )
+    SessionLocator( $nodeId: nodeId, $sessionId : sessionId, mind == false )
 then
-    LoggerHelper.info(" >>> Adding Rule By Template: "+"requestWhen.drlt" + "THE FOLLOWING LOGIC IS NOT WORKING CHECK!!!!");
-    //manager.addRuleByTemplate("FIPA_RWH_"+$id, "requestWhen.drlt", $holder);
+    ResourceDescriptorImpl rd = new ResourceDescriptorImpl( );
+        rd.setId( "FIPA_RWH_" + $id );
+        rd.setLoaded( true );
+    insert( rd );
+
+    LoggerHelper.error(" >>> Adding Rule By Template: "+"requestWhen.drlt" + "THE FOLLOWING LOGIC IS NOT WORKING CHECK!!!!  " + $nodeId + " >>> " + $sessionId );
+    SessionManager.addRuleByTemplate( $nodeId, $sessionId, rd.getId(), "requestWhen.drlt", $holder );
+end
+
+rule "CleanUp Request When"
+when
+    $rd : ResourceDescriptor( $id : id )
+    not   ActionHolder( refId == $id.replace( "FIPA_RWH_", "" ) )
+    SessionLocator( $nodeId: nodeId, $sessionId : sessionId, mind == false )
+then
+    retract( $rd );
+
+    LoggerHelper.error(" >>> Unload Request rule " + "THE FOLLOWING LOGIC IS NOT WORKING CHECK!!!!" );
+    // remove rule....
 end
 
 
