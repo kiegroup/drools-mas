@@ -1,0 +1,16 @@
+package org.test;
+
+declare SomeRemoteBean
+    id : String
+end
+
+query beanQuery( String $id )
+    SomeRemoteBean( $id ;)
+end
+
+rule "Init"
+when
+then
+    System.out.println( "Test Done" );
+    insert( new SomeRemoteBean( "xyz" ) );
+end

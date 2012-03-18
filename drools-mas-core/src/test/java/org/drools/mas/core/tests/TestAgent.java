@@ -303,6 +303,8 @@ public class TestAgent {
         ACLMessage info2 = factory.newInformMessage("me", "you", new String("actionTrigger2"));
         mainAgent.tell(info2);
 
+        waitForAnswers( req.getId(), 2, 1000, 50 );
+
 
         StatefulKnowledgeSession s2 = mainAgent.getInnerSession("session2");
         QueryResults ans = s2.getQueryResults("squareRoot", in, Variable.v);

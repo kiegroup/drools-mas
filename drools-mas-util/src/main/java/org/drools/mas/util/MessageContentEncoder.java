@@ -66,6 +66,22 @@ public class MessageContentEncoder {
                 ((Inform) body).getProposition().setData(decoded);
                 ((Inform) body).getProposition().setEncoded(false);
                 break;
+            case CONFIRM:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  DECODING DISCONFIRM: " + body);
+                }
+                decoded = MessageContentEncoder.decode(((Confirm) body).getProposition().getEncodedContent(), encoding);
+                ((Confirm) body).getProposition().setData(decoded);
+                ((Confirm) body).getProposition().setEncoded(false);
+                break;
+            case DISCONFIRM:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  DECODING DISCONFIRM: " + body);
+                }
+                decoded = MessageContentEncoder.decode(((Disconfirm) body).getProposition().getEncodedContent(), encoding);
+                ((Disconfirm) body).getProposition().setData(decoded);
+                ((Disconfirm) body).getProposition().setEncoded(false);
+                break;
             case INFORM_IF:
                 if (logger.isTraceEnabled()) {
                     logger.trace(" xxx  DECODING INFORM_IF: " + body);
@@ -199,6 +215,26 @@ public class MessageContentEncoder {
                 ((Inform) body).getProposition().setEncoded(true);
                 ((Inform) body).getProposition().setEncoding(encoding);
                 ((Inform) body).getProposition().setData(null);
+                break;
+            case CONFIRM:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  ENCODING INFORM: " + body);
+                }
+                encoded = MessageContentEncoder.encode(((Confirm) body).getProposition().getData(), encoding);
+                ((Confirm) body).getProposition().setEncodedContent(encoded);
+                ((Confirm) body).getProposition().setEncoded(true);
+                ((Confirm) body).getProposition().setEncoding(encoding);
+                ((Confirm) body).getProposition().setData(null);
+                break;
+            case DISCONFIRM:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  ENCODING INFORM: " + body);
+                }
+                encoded = MessageContentEncoder.encode(((Disconfirm) body).getProposition().getData(), encoding);
+                ((Disconfirm) body).getProposition().setEncodedContent(encoded);
+                ((Disconfirm) body).getProposition().setEncoded(true);
+                ((Disconfirm) body).getProposition().setEncoding(encoding);
+                ((Disconfirm) body).getProposition().setData(null);
                 break;
             case INFORM_IF:
                 if (logger.isTraceEnabled()) {
