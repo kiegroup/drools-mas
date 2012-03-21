@@ -27,7 +27,7 @@ import org.drools.mas.mappers.MyMapReferenceEntryType;
 @XmlSeeAlso(value={ Inform.class, QueryIf.class, InformIf.class, 
                     Agree.class, Failure.class, Action.class, Rule.class, 
                     QueryRef.class, Query.class, InformRef.class, Info.class,
-                    Act.class, Encodings.class,
+                    Act.class, Encodings.class, Confirm.class, Disconfirm.class,
                     Ref.class, InformRef.class, Request.class, RequestWhen.class,
                     MyMapReferenceEntryType.class, MyMapArgsEntryType.class})
 @XmlType(name = "AbstractMessageBody", namespace = "http://acts.body.mas.drools.org/")

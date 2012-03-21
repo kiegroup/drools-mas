@@ -279,6 +279,7 @@ public class TestAgent {
 
     //leave ignored until we fix the remoting kagent
     @Test
+    @Ignore
     public void testRequestWhen() {
 
         Double in = new Double(36);

@@ -26,7 +26,7 @@ import org.drools.mas.body.content.Info;
 @XmlType(name = "Confirm", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Confirm extends AbstractMessageBody {
-    @XmlElement()
+    @XmlElement(required = true)
     private Info proposition;
     
 

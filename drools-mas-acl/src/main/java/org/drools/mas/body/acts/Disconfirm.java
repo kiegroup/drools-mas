@@ -23,10 +23,10 @@ import javax.xml.bind.annotation.XmlType;
 import org.drools.mas.Act;
 import org.drools.mas.body.content.Info;
 
-@XmlType(name = "Cancel", namespace = "http://acts.body.mas.drools.org/")
+@XmlType(name = "Disconfirm", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Disconfirm extends AbstractMessageBody {
-    @XmlElement()
+    @XmlElement(required = true)
     private Info proposition;
     
 

@@ -117,10 +117,44 @@ public class DialogueHelper {
         System.out.println("QNAME = " + this.qname);
         System.out.println("BEFORE CALLING TELL = " + newInformMessage);
         asyncServicePort.tell(newInformMessage);
-        //List<ACLMessage> answers = asyncServicePort.getResponses(newInformMessage.getId());
-        //System.out.println("AFTER CALLING TELL = " + answers);
-        // No Answer needed
+        
         return newInformMessage.getId();
+
+
+    }
+    public String invokeConfirm(String sender, String receiver, Object proposition) {
+        AsyncDroolsAgentService asyncServicePort = null;
+        if (this.endpointURL == null || this.qname == null) {
+            throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
+        } else {
+            asyncServicePort = new AsyncAgentService(this.endpointURL, this.qname).getAsyncAgentServicePort();
+        }
+        ACLMessageFactory factory = new ACLMessageFactory(encode);
+        ACLMessage newConfirmMessage = factory.newConfirmMessage(sender, receiver, proposition);
+        System.out.println("ENDPOINT URL = " + this.endpointURL);
+        System.out.println("QNAME = " + this.qname);
+        System.out.println("BEFORE CALLING TELL = " + newConfirmMessage);
+        asyncServicePort.tell(newConfirmMessage);
+        
+        return newConfirmMessage.getId();
+
+
+    }
+    public String invokeDisconfirm(String sender, String receiver, Object proposition) {
+        AsyncDroolsAgentService asyncServicePort = null;
+        if (this.endpointURL == null || this.qname == null) {
+            throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
+        } else {
+            asyncServicePort = new AsyncAgentService(this.endpointURL, this.qname).getAsyncAgentServicePort();
+        }
+        ACLMessageFactory factory = new ACLMessageFactory(encode);
+        ACLMessage newDisconfirmMessage = factory.newDisconfirmMessage(sender, receiver, proposition);
+        System.out.println("ENDPOINT URL = " + this.endpointURL);
+        System.out.println("QNAME = " + this.qname);
+        System.out.println("BEFORE CALLING TELL = " + newDisconfirmMessage);
+        asyncServicePort.tell(newDisconfirmMessage);
+        
+        return newDisconfirmMessage.getId();
 
 
     }

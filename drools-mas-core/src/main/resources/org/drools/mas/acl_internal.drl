@@ -119,8 +119,8 @@ then
     }
     retract($cmd);
     
-    GridNode node = GridHelper.getGridNode($nodeId);
-    StatefulKnowledgeSession kSession = node.get($sessionId, StatefulKnowledgeSession.class);
+   
+    StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession($nodeId, $sessionId);
     kSession.execute($act);
     kSession.execute(CommandFactory.newFireAllRules());
 end
