@@ -54,20 +54,17 @@ then
     SessionManager.addRuleByTemplate( $nodeId, $sessionId, rd.getId(), "requestWhen.drlt", $holder );
 end
 
-rule "CleanUp Request When"
-when
-    $rd : ResourceDescriptor( $id : id )
-    not   ActionHolder( refId == $id.replace( "FIPA_RWH_", "" ) )
-    SessionLocator( $nodeId: nodeId, $sessionId : sessionId, mind == false )
-then
-    retract( $rd );
-
-    LoggerHelper.error(" >>> Unload Request rule " + "THE FOLLOWING LOGIC IS NOT WORKING CHECK!!!!" );
-    // remove rule....
-end
-
-
-
+//rule "CleanUp Request When"
+//when
+//    $rd : ResourceDescriptor( $id : id )
+//    not   ActionHolder( refId == $id.replace( "FIPA_RWH_", "" ) )
+//    SessionLocator( $nodeId: nodeId, $sessionId : sessionId, mind == false )
+//then
+//    retract( $rd );
+//
+//    LoggerHelper.error(" >>> Unload Request rule " + "THE FOLLOWING LOGIC IS NOT WORKING CHECK!!!!" );
+//    // remove rule....
+//end
 
 
 

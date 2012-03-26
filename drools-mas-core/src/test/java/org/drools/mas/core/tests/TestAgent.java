@@ -135,7 +135,6 @@ public class TestAgent {
     }
 
     @Test
-    @Ignore
     public void testSimpleConfirmAndDisconfirm() throws InterruptedException {
         MockFact fact = new MockFact( "patient1", 18 );
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
