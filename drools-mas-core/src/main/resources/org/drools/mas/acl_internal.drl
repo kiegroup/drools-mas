@@ -49,7 +49,7 @@ rule "Response content inserted"
     when
         $r: ResponseContent()
     then
-        System.out.println("CONTENT = "+$r);
+        LoggerHelper.debug("CONTENT = "+$r);
 end
 
 rule "Invoke"
@@ -59,7 +59,7 @@ when
     $cmd : MessageCommands( $msgId, $batch ; )
     SessionLocator($nodeId: nodeId, sessionId == $sessionId)
 then
-    System.out.println(" ### INTERNAL: INVOKE - EXECUTING msg commands for "+ $msgId + " in " + $sessionId);
+    LoggerHelper.debug(" ### INTERNAL: INVOKE - EXECUTING msg commands for "+ $msgId + " in " + $sessionId);
     if (LoggerHelper.isDebugEnabled()) {
         LoggerHelper.debug(" ### INTERNAL: INVOKE - EXECUTING msg commands for "+ $msgId + " in " + $sessionId);
         LoggerHelper.debug(" ### INTERNAL: \t commands " + $cmd);
@@ -74,7 +74,7 @@ then
             LoggerHelper.debug(" ### INTERNAL RULES: Trying to execute in = "+kSession);
         }
     Object retVal = null;
-    System.out.println(" ### INTERNAL RULES: Trying to execute in = "+kSession + " -  batch: "+$batch);
+    LoggerHelper.debug(" ### INTERNAL RULES: Trying to execute in = "+kSession + " -  batch: "+$batch);
     try {
         org.drools.runtime.impl.ExecutionResultImpl result = (org.drools.runtime.impl.ExecutionResultImpl) kSession.execute($batch);
         if(!($batch instanceof AsyncBatchExecutionCommandImpl)){
