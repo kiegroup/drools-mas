@@ -480,19 +480,17 @@ public class TestAgent {
         ACLMessage req = factory.newRequestMessage("me", "you", action);
         mainAgent.tell( req );
 
-        waitForAnswers( req.getId(), 0, 250, 50 );
+        waitForAnswers( req.getId(), 2, 250, 50 );
         
         assertEquals( 2, mainAgent.getAgentAnswers(req.getId()).size() );
         assertEquals( Act.AGREE, mainAgent.getAgentAnswers(req.getId()).get(0).getPerformative() );
         assertEquals( Act.FAILURE, mainAgent.getAgentAnswers(req.getId()).get(1).getPerformative() );
 
         Failure fail = (Failure) mainAgent.getAgentAnswers(req.getId()).get(1).getBody();
+        String msg = fail.getCause().getData().toString();
 
-        try {
-            throw (RuntimeException) fail.getCause().getData();
-        } catch ( RuntimeException re ) {
-            System.err.println(re.getMessage());
-        }
+        
+        assertTrue(  msg.contains( "can't extract the square root of -9" ) );
     }
 
        
