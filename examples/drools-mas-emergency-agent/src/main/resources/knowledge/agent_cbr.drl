@@ -19,8 +19,7 @@ import org.drools.mas.body.acts.Inform;
 import org.drools.mas.body.content.*;
 import org.drools.mas.util.InspectMessageHelper;
 
-// ACL message factory, to generate responses
-global ACLMessageFactory aclFactory;
+
 
 
 rule "Mapping"
@@ -34,20 +33,19 @@ end
 rule "Route_Encoded_JSON"
 when
     $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.JSON  )
-    ?mapSession( "agent-brain_hello-module" , $sessionId ; )
+    
 then
     System.err.println("Routing message " + $msgId + " (JSON)" );
-    insert( new Destination($msgId, $sessionId) );
+    insert( new MappingLookup($msgId, "agent-brain_hello-module" ) );
 end
 
 rule "Route_Encoded_XML"
 
 when
     $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.XML )
-    ?mapSession( "agent-brain_hello-module" , $sessionId ; )
 then
     System.err.println("Routing message " + $msgId + " (XML)"  );
-    insert( new Destination($msgId, $sessionId) );
+    insert( new MappingLookup($msgId, "agent-brain_hello-module") );
 end
 
 

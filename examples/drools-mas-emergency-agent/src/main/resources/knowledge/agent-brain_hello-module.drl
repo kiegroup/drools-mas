@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Date;
-
+import org.drools.mas.util.MessageContentEncoder;
+import org.drools.mas.action.helpers.*;
+import org.drools.mas.util.helper.*;
 import org.drools.mas.examples.emergency.*;
 
 
@@ -23,6 +25,7 @@ rule "Generic Knowledge Adquisition"
 end
 
 rule "Coordinate Emergency Action Processing"
+salience 1
 when
     $action: Action( actionName == "coordinateEmergency")
 then
@@ -31,10 +34,20 @@ then
 end
 
 
-query coordinateEmergency( Actions $return )
-      $return:= Actions()
+query coordinateEmergency( String $return )
+      $ret:= Actions()
+      $return:= String() from MessageContentEncoder.encode($ret, Encodings.XML)
 end
 
+rule " response collector - deliverMessage"
+    when
+        $s : SessionLocator($nodeId: nodeId, $sessionId: sessionId, mind == true)
+        $action: Action( actionName == "coordinateEmergency",  $msgId: msgId)
+        coordinateEmergency( $return; )
+    then
+        ResponseContent.deliverResponse($nodeId, $sessionId, $msgId, $return, null);
+        retract( $action );
+end
 
 
 
