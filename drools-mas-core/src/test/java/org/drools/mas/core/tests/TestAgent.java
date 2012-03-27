@@ -480,7 +480,7 @@ public class TestAgent {
         ACLMessage req = factory.newRequestMessage("me", "you", action);
         mainAgent.tell( req );
 
-        waitForAnswers( req.getId(), 0, 250, 50 );
+        waitForAnswers( req.getId(), 2, 250, 50 );
         
         assertEquals( 2, mainAgent.getAgentAnswers(req.getId()).size() );
         assertEquals( Act.AGREE, mainAgent.getAgentAnswers(req.getId()).get(0).getPerformative() );
