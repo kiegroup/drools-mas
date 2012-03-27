@@ -25,6 +25,7 @@ public class SyncDialogueHelper {
     private Encodings encode = Encodings.XML;
     private URL endpointURL;
     private QName qname;
+    private int maximumWaitTime = 3000;
 
     public SyncDialogueHelper(String url, Encodings enc) {
         try {
@@ -45,6 +46,15 @@ public class SyncDialogueHelper {
         this.qname = new QName("http://mas.drools.org/", "AsyncAgentService");
 
     }
+
+    public int getMaximumWaitTime() {
+        return maximumWaitTime;
+    }
+
+    public void setMaximumWaitTime(int maximumWaitTime) {
+        this.maximumWaitTime = maximumWaitTime;
+    }
+    
 
     public String invokeRequest(String methodName, LinkedHashMap<String, Object> args) throws UnsupportedOperationException {
         return invokeRequest("", "", methodName, args);
@@ -83,7 +93,7 @@ public class SyncDialogueHelper {
             answers = asyncServicePort.getResponses(req.getId());
 
             waitTime *= 2;
-        } while (answers.size() != 2 && waitTime < 3000);
+        } while (answers.size() != 2 && waitTime < this.maximumWaitTime);
 
         ACLMessage answer = answers.get(0);
         if (!Act.AGREE.equals(answer.getPerformative())) {
