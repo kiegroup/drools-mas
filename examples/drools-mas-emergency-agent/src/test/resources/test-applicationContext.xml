@@ -18,11 +18,11 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     </bean>  
    
     <bean id="agent1-configuration" class="org.drools.mas.core.DroolsAgentConfiguration">
-        <property name="agentId" value="Agent 1"/>
+        <property name="agentId" value="emergency-agent"/>
         <property name="changeset" value="agent_changeset.xml" />
         <!-- by default the mindNodeLocation is local --> 
         <property name="mindNodeLocation" value="local-agent1"/>
-        <property name="port" value="7000"/>
+        <property name="port" value="8800"/>
         <property name="subSessions">
             <list>
                 <ref local="agent1-session1"/>

@@ -48,7 +48,7 @@ public class KnowledgeResourcesCompilationTest {
 
         logger.info("Staring DB for white pages ...");
         try {
-            server = Server.createTcpServer(null).start();
+            server = Server.createTcpServer(new String[] {"-tcp","-tcpAllowOthers","-tcpDaemon","-trace"}).start(); 
         } catch (SQLException ex) {
             logger.error(ex.getMessage());
         }
@@ -70,7 +70,7 @@ public class KnowledgeResourcesCompilationTest {
     @Test
     public void compilationTest() {
         
-        ApplicationContext context = new ClassPathXmlApplicationContext("META-INF/applicationContext.xml");
+        ApplicationContext context = new ClassPathXmlApplicationContext("test-applicationContext.xml");
         DroolsAgent agent = (DroolsAgent) context.getBean("agent");
         
         assertNotNull(agent);
@@ -82,7 +82,7 @@ public class KnowledgeResourcesCompilationTest {
     @Test
     public void simpleInvokeTest() {
         
-        ApplicationContext context = new ClassPathXmlApplicationContext("META-INF/applicationContext.xml");
+        ApplicationContext context = new ClassPathXmlApplicationContext("test-applicationContext.xml");
         DroolsAgent agent = (DroolsAgent) context.getBean("agent");
         
         assertNotNull(agent);
@@ -103,7 +103,7 @@ public class KnowledgeResourcesCompilationTest {
     
     @Test
     public void simpleRequestTest(){
-        ApplicationContext context = new ClassPathXmlApplicationContext("META-INF/applicationContext.xml");
+        ApplicationContext context = new ClassPathXmlApplicationContext("test-applicationContext.xml");
         DroolsAgent agent = (DroolsAgent) context.getBean("agent");
         
         Emergency e = new Emergency("SecondEmergency", new Date(), "Fire", 10);

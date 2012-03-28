@@ -1,5 +1,6 @@
+package org.drools.mas.helpers;
 
-import org.drools.mas.helpers.*;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedHashMap;

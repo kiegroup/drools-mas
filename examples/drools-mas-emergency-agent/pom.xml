@@ -24,7 +24,26 @@
 
     <name>Drools MAS :: emergency-agent Agent Web</name>
     
-
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties> 
+                <db.driverClass>org.h2.Driver</db.driverClass> 
+                <db.connectionURL>jdbc:h2:tcp://localhost/~/mydb</db.connectionURL> 
+                <db.username>sa</db.username> 
+                <db.password>sasa</db.password> 
+                <db.dialect>org.hibernate.dialect.H2Dialect</db.dialect>
+                <agent.name>emergecy-agent</agent.name>
+                <agent.node>emergency-agent-localnode</agent.node>
+                <agent.port>7000</agent.port>
+                <agent.endpoint.ip>localhost</agent.endpoint.ip>
+                <agent.endpoint.port>9898</agent.endpoint.port>
+            </properties> 
+        </profile>
+    </profiles>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -81,7 +100,6 @@
             <artifactId>cxf-rt-transports-http</artifactId>
             <version>2.5.1</version>
         </dependency>
-        
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-http-jetty</artifactId>
@@ -97,9 +115,6 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.6.4</version>
         </dependency>
-     
-     
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -112,6 +127,79 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+          <!-- specify UTF-8, ISO-8859-1 or any other file encoding -->
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.1.1</version>
+                <executions>
+                    <execution>
+     
+                        <id>delefe-files</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            
+                            <mainClass>org.h2.tools.DeleteDbFiles</mainClass>
+                            <commandlineArgs>
+                                -dir ~
+                                
+                            </commandlineArgs>
+        
+                            
+                        </configuration>
+                    </execution>
+                    <execution>
+     
+                        <id>start-db</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            
+                            <mainClass>org.h2.tools.Server</mainClass>
+                            <arguments>
+                                <argument>-tcp</argument>
+                                <argument>-tcpAllowOthers</argument>
+                                <argument>-tcpDaemon</argument>
+                                <argument>-trace</argument>
+                                
+                            </arguments>
+        
+                            
+                        </configuration>
+                    </execution>
+                    
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>7.6.0.RC2</version>
+                <configuration>
+                  
+                    <webAppConfig>
+                        <contextPath>/emergency-agent</contextPath>
+                    </webAppConfig>
+                </configuration>
+               
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
@@ -120,5 +208,11 @@
                 </configuration>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 </project>

@@ -28,9 +28,108 @@
             This section of the documentation will be focused into explaining the agent provided by Drools MAS as 
             example. We will review the configurations and how we can set up a new agent from the scratch.
         </para>
-        
+        <para>
+            The first step is to define what exactly the agent will do. Once we decide which domain our agent will control
+            we will need to define the domain model classes that are going to be used by the agent to operate. The Emergency Agent
+            example contains a very simple logic which based on a request from a client to coordinate an emergency, it will 
+            decide the actions that needs to be executed based on the context. 
+            
+        </para>
+        <para>
+            The following section describe how to create and configure an agent from the technical perspective
+            and also from the logical perspective.
+        </para>
     </section>
-    
-    
+    <section>
+        <title>Creating the Emergency Agent</title>
+        <para>
+            As mentioned in the Archetype section, in order to create an agent template we can use the
+            archetype provided  by this project:
+        </para>
+        <programlisting>
+            mvn -DarchetypeGroupId=org.drools.mas -DarchetypeArtifactId=drools-mas-agent-web-archetype 
+            -DarchetypeVersion=1.0-SNAPSHOT -DarchetypeRepository=local -DgroupId=org.drools.mas 
+            -DartifactId=emergency-agent -Dversion=1.0-SNAPSHOT -Dpackage=org.drools.mas 
+            -Dbasedir=/my-agents-dir/ -Dagent-name=emergency-agent
+            
+        </programlisting>
+        <para>
+            The previous command was executed to create the template that was used to create
+            the emergency agent example. 
+        </para>
+        <para>
+            Some technical considerations needs to be made in order to be able to deploy and 
+            expose the agent correctly. In order to simplify our life, different maven profiles 
+            can be created to configure how the agent will create an expose the endpoints, which
+            database will be used by the agent, etc. 
+        </para>
+        <para>
+            The following xml snippet shows how a maven profile looks like and which parameters
+            can be configured nowadays:
+        </para>
+        <programlisting>
+            &lt;profiles&gt;
+        &lt;profile&gt;
+            &lt;id&gt;dev&lt;/id&gt;
+            &lt;activation&gt;
+                &lt;activeByDefault&gt;true&lt;/activeByDefault&gt;
+            &lt;/activation&gt;
+            &lt;properties&gt; 
+                &lt;db.driverClass&gt;org.h2.Driver&lt;/db.driverClass&gt; 
+                &lt;db.connectionURL&gt;jdbc:h2:tcp://localhost/~/mydb&lt;/db.connectionURL&gt; 
+                &lt;db.username&gt;sa&lt;/db.username&gt; 
+                &lt;db.password&gt;sasa&lt;/db.password&gt; 
+                &lt;db.dialect&gt;org.hibernate.dialect.H2Dialect&lt;/db.dialect&gt;
+                &lt;agent.name&gt;emergecy-agent&lt;/agent.name&gt;
+                &lt;agent.node&gt;emergency-agent-localnode&lt;/agent.node&gt;
+                &lt;agent.port&gt;7000&lt;/agent.port&gt;
+                &lt;agent.endpoint.ip&gt;localhost&lt;/agent.endpoint.ip&gt;
+                &lt;agent.endpoint.port&gt;9898&lt;/agent.endpoint.port&gt;
+            &lt;/properties&gt; 
+        &lt;/profile&gt;
+    &lt;/profiles&gt;
+        </programlisting>
+        <para>
+            If you have different configurations, new profiles can be added for packaging the
+            agents and configure them accordingly to your environment. 
+            The following list explains each of these properties and where are they replaced when
+            we are packaging our agent using one of these profiles.
+            In order to package the agent using an specific profile we need to run: mvn package -P&lt;profile name&gt; 
+            (example in this case : -Pdev)
+        </para>
+        <itemizedlist>        
+            <listitem>db.driverClass: Depending on the database that we want to use, we will need to include a reference to the appropriate driver. 
+                        This property make reference to the class inside the driver bundle which will be in charge of the connection to the database.</listitem>
+            <listitem>db.connectionURL: We need to provide to the agent the correct location of where our database is exposing its services. 
+                        Depending the database that we choose to use is how the URL will look like. Usually, if the database connection requires an
+                        specific parameter we can use this URL to add configuration parameters, such as connection timeout limits. </listitem>
+                        
+            <listitem>db.username &amp; db.password: self explained </listitem>
+            <listitem>db.dialect: because we are using Hibernate trhough JPA we need to provide the dialect that needs to be used by Hibernate to interact with the database. 
+                        For more information about Hibernate Dialects: <url>http://docs.jboss.org/hibernate/orm/3.6/javadocs/org/hibernate/dialect/package-summary.html</url></listitem>
+            <listitem>agent.name: the name of our agent</listitem>            
+            <listitem>agent.node: the name of the grid node where our agent will run</listitem>
+            <listitem>agent.port: the port which will be used for inter-agent communications</listitem>
+            <listitem>agent.endpoint.ip: the ip that will be used to bind the agent endpoint</listitem>
+            <listitem>agent.endpoint.port: the port that will be used to bind the agent endpoint</listitem>
+        </itemizedlist>  
+    </section>
+    <section>
+        <title> Internal Logic </title>
+        <para>
+            Once we have the template ready we will need to define the internal logic of the agent in the 
+            form of Rules and/or business processes. This example shows how to create a simple logic using 
+            Business Rules only, but there is not limitation to use business processes as well.
+        </para>    
+        <para>
+            The example Emergency Agent provides two DRL files called: agent-brain_hello-module.drl and
+            agent_cbr.drl .
+        </para>
+        <para>
+            The agent_cbr.drl defines the rules to route messages inside the agent structure. Depending on how many internal
+            knowledge session do we have for a particular agent is how many rules and how many routing policies we 
+            need to write to forward the right meessage to the right session. 
+        </para>
+    </section>
 
 </chapter>
