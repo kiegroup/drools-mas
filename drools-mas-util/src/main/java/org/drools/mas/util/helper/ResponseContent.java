@@ -39,9 +39,9 @@ public class ResponseContent implements Serializable{
                     String ret = MessageContentEncoder.encode( $return, Encodings.XML );
                     results.put( "?return", ret );
                 }
-            }
-            if ( logger.isDebugEnabled() ) {
-                logger.debug("(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper would like to return" + results.get("?return"));
+                if ( logger.isDebugEnabled() ) {
+                    logger.debug("(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper would like to return" + results.get("?return"));
+                }
             }
 
             ResponseContent response = new ResponseContent( $nodeId, $sessionId, $msgId, results );
