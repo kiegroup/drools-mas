@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.drools.mas.util.helper;
 
 import org.drools.command.CommandFactory;
@@ -10,6 +6,8 @@ import org.drools.grid.remote.command.AsyncBatchExecutionCommandImpl;
 import org.drools.mas.Encodings;
 import org.drools.mas.util.MessageContentEncoder;
 import org.drools.runtime.StatefulKnowledgeSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -17,41 +15,62 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- *
- * @author salaboy
- */
 public class ResponseContent implements Serializable{
     private String nodeId;
-    private String sessionId; 
+    private String sessionId;
     private String messageId;
     private Object data;
     private Fault fault;
 
+    private static Logger logger = LoggerFactory.getLogger( ResponseContent.class );
 
 
     public static void deliverResponse( String $nodeId, String $sessionId, String $msgId, Object $return, Fault $fault ) {
         try {
-        Map results = null;
-        if ( $return != null ) {
-            results = new HashMap();
-            if ( $return instanceof String ) {
-                results.put( "?return", $return );
-            } else {
-                String ret = MessageContentEncoder.encode( $return, Encodings.XML );
-                results.put( "?return", ret );
+            if ( logger.isDebugEnabled() ) {
+                logger.debug( "(" + Thread.currentThread().getId() + ")"+Thread.currentThread().getName() +"Content helper is now active" );
             }
-        }
+            Map results = null;
+            if ( $return != null ) {
+                results = new HashMap();
+                if ( $return instanceof String ) {
+                    results.put( "?return", $return );
+                } else {
+                    String ret = MessageContentEncoder.encode( $return, Encodings.XML );
+                    results.put( "?return", ret );
+                }
+            }
+            if ( logger.isDebugEnabled() ) {
+                logger.debug("(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper would like to return" + results.get("?return"));
+            }
 
-        ResponseContent response = new ResponseContent( $nodeId, $sessionId, $msgId, results );
-        response.setFault( $fault );
+            ResponseContent response = new ResponseContent( $nodeId, $sessionId, $msgId, results );
+            response.setFault( $fault );
 
-        StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession( $nodeId, $sessionId );
-        List list = new ArrayList(2);
+            if ( logger.isDebugEnabled() ) {
+                logger.debug("(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper fault is expected to be null " + $fault);
+            }
+
+            StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession( $nodeId, $sessionId );
+
+            if ( logger.isDebugEnabled() ) {
+                logger.debug( "(" + Thread.currentThread().getId() + ")"+Thread.currentThread().getName() +"Content helper ksession found!"  );
+            }
+
+            List list = new ArrayList(2);
             list.add( CommandFactory.newInsert(response) );
             list.add( CommandFactory.newFireAllRules() );
-        AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl( list );
-        kSession.execute( batch );
+            AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl( list );
+
+            if ( logger.isDebugEnabled() ) {
+                logger.debug( "(" + Thread.currentThread().getId() + ")"+Thread.currentThread().getName() +"Content helper batch is ready"  );
+            }
+
+            kSession.execute( batch );
+
+            if ( logger.isDebugEnabled() ) {
+                logger.debug("(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper batch dispatched");
+            }
         } catch (Exception e) { e.printStackTrace(); }
     }
 
@@ -63,7 +82,7 @@ public class ResponseContent implements Serializable{
         this.messageId = messageId;
         this.data = data;
     }
-    
+
     public Object getData() {
         return data;
     }
@@ -147,6 +166,6 @@ public class ResponseContent implements Serializable{
         return "ResponseContent{" + "nodeId=" + nodeId + ", sessionId=" + sessionId + ", messageId=" + messageId + ", data=" + data + ", fault=" + fault + '}';
     }
 
-    
-    
+
+
 }
