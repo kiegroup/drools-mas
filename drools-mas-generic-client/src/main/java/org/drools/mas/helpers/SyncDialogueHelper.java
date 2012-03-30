@@ -5,8 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Map;
 import javax.xml.namespace.QName;
 import org.drools.mas.*;
 import org.drools.mas.body.acts.AbstractMessageBody;
@@ -18,6 +17,8 @@ import org.drools.mas.util.ACLMessageFactory;
 import org.drools.mas.util.MessageContentEncoder;
 import org.drools.mas.util.MessageContentFactory;
 import org.drools.runtime.rule.Variable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SyncDialogueHelper {
 
@@ -26,13 +27,16 @@ public class SyncDialogueHelper {
     private Encodings encode = Encodings.XML;
     private URL endpointURL;
     private QName qname;
-    private int maximumWaitTime = 3000;
+    private int maximumWaitTime = 60000;
+    private int maxRetries = 1;
+
+    private static Logger logger = LoggerFactory.getLogger( SyncDialogueHelper.class.getName() );
 
     public SyncDialogueHelper(String url, Encodings enc) {
         try {
             this.endpointURL = new URL(AsyncAgentService.class.getResource("."), url);
         } catch (MalformedURLException ex) {
-            Logger.getLogger(DialogueHelper.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error( ex.getMessage() );
         }
         this.qname = new QName("http://mas.drools.org/", "AsyncAgentService");
         this.encode = enc;
@@ -42,7 +46,7 @@ public class SyncDialogueHelper {
         try {
             this.endpointURL = new URL(AsyncAgentService.class.getResource("."), url);
         } catch (MalformedURLException ex) {
-            Logger.getLogger(DialogueHelper.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex.getMessage());
         }
         this.qname = new QName("http://mas.drools.org/", "AsyncAgentService");
 
@@ -52,25 +56,42 @@ public class SyncDialogueHelper {
         return maximumWaitTime;
     }
 
-    public void setMaximumWaitTime(int maximumWaitTime) {
+    public void setMaximumWaitTime( int maximumWaitTime ) {
         this.maximumWaitTime = maximumWaitTime;
     }
-    
+
+    public int getMaxRetries() {
+        return maxRetries;
+    }
+
+    public void setMaxRetries( int maxRetries ) {
+        this.maxRetries = maxRetries;
+    }
 
     public String invokeRequest(String methodName, LinkedHashMap<String, Object> args) throws UnsupportedOperationException {
         return invokeRequest("", "", methodName, args);
     }
 
-    public String invokeRequest(String sender, String receiver, String methodName, LinkedHashMap<String, Object> args) throws UnsupportedOperationException {
+
+
+    public String invokeRequest( String sender, String receiver, String methodName, LinkedHashMap<String, Object> args ) 
+            throws UnsupportedOperationException, IllegalStateException {
+        
         multiReturnValue = false;
+
+        int numVars = 0;
         for ( Object o : args.values() ) {
             if ( o == Variable.v ) {
-                multiReturnValue = true;
-                break;
+                numVars++;
+                if ( numVars >= 2 ) {
+                    multiReturnValue = true;
+                    break;
+                }
             }
         }
 
         AsyncDroolsAgentService asyncServicePort = null;
+        
         if ( this.endpointURL == null || this.qname == null ) {
             throw new IllegalStateException( "A Web Service URL and a QName Must be Provided for the client to work!" );
         } else {
@@ -79,26 +100,38 @@ public class SyncDialogueHelper {
         ACLMessageFactory factory = new ACLMessageFactory( encode );
 
         Action action = MessageContentFactory.newActionContent( methodName, args );
-        ACLMessage req = factory.newRequestMessage( sender, receiver, action );
 
-        asyncServicePort.tell( req );
 
-        List<ACLMessage> answers;
-        int waitTime = 100;
+        int numTries = 0;
         do {
-            try {
-                System.out.println( " >>> Waiting for answers (" + waitTime + ") for: Request ->  " + methodName );
-                Thread.sleep( waitTime );
-            } catch ( InterruptedException ex ) {
-                Logger.getLogger( SyncDialogueHelper.class.getName() ).log( Level.SEVERE, null, ex );
+            ACLMessage req = factory.newRequestMessage( sender, receiver, action );
+            asyncServicePort.tell( req );
+
+            List<ACLMessage> answers = waitForAnswers( asyncServicePort, req.getId(), 2, maximumWaitTime, methodName );
+
+            if ( validateRequestResponses( answers, methodName, args ) ) {
+                if ( ! multiReturnValue ) {
+                    returnBody = answers.size() == 2 ? ( (Inform) answers.get( 1 ).getBody() ) : null;
+                } else {
+                    returnBody = answers.size() == 2 ? ( (InformRef) answers.get( 1 ).getBody() ) : null;
+                }
+
+                return req.getId();
             }
-            answers = asyncServicePort.getResponses( req.getId() );
+        } while ( numTries++ < maxRetries );
 
-            waitTime *= 2;
-        } while ( answers.size() != 2 && waitTime < this.maximumWaitTime );
-
-        ACLMessage answer = answers.get( 0 );
-        if ( ! Act.AGREE.equals(answer.getPerformative() ) ) {
+        throw new IllegalStateException(" Request " + methodName + " with args "
+                            + args + " did not return in time" );
+    }
+    
+    
+    private boolean validateRequestResponses( List<ACLMessage> answers, String methodName, Map<String,Object> args ) {
+        if ( answers.size() != 2 ) {
+            return false;
+        }
+        
+        ACLMessage answer1 = answers.get( 0 );
+        if ( ! Act.AGREE.equals( answer1.getPerformative() ) ) {
             throw new UnsupportedOperationException( " Request " + methodName + " was not agreed with args " + args );
         }
 
@@ -106,15 +139,10 @@ public class SyncDialogueHelper {
         Act act2 = answer2.getPerformative();
 
         if ( ! ( Act.INFORM.equals( act2 ) || Act.INFORM_REF.equals( act2 ) ) ) {
-            throw new IllegalStateException(" Request " + methodName + " with args " 
-                                        + args + "failed and returned this msg: " +answer2 );
-        }
-        if ( ! multiReturnValue ) {
-            returnBody = answers.size() == 2 ? ( (Inform) answers.get( 1 ).getBody() ) : null;
-        } else {
-            returnBody = answers.size() == 2 ? ( (InformRef) answers.get( 1 ).getBody() ) : null;
-        }
-        return req.getId();
+            throw new IllegalStateException(" Request " + methodName + " with args "
+                    + args + "failed and returned this msg: " + answer2 );
+        }        
+        return true;
     }
 
     public String invokeQueryIf(String sender, String receiver, Object proposition) {
@@ -128,27 +156,25 @@ public class SyncDialogueHelper {
 
         ACLMessage qryif = factory.newQueryIfMessage(sender, receiver, proposition);
         asyncServicePort.tell(qryif);
-        List<ACLMessage> answers = asyncServicePort.getResponses(qryif.getId());
-        System.out.println("AFTER CALLING TELL = " + answers);
 
-        returnBody = ((InformIf) answers.get(0).getBody());
+        List<ACLMessage> answers = waitForAnswers( asyncServicePort, qryif.getId(), 1, maximumWaitTime, proposition.toString() );
+
+        returnBody = answers.get(0).getBody();
         return qryif.getId();
 
     }
 
     public String invokeInform(String sender, String receiver, Object proposition) {
-        AsyncDroolsAgentService asyncServicePort = null;
-        if (this.endpointURL == null || this.qname == null) {
-            throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
+        AsyncDroolsAgentService asyncServicePort;
+        if ( this.endpointURL == null || this.qname == null ) {
+            throw new IllegalStateException( "A Web Service URL and a QName Must be Provided for the client to work!" );
         } else {
-            asyncServicePort = new AsyncAgentService(this.endpointURL, this.qname).getAsyncAgentServicePort();
+            asyncServicePort = new AsyncAgentService( this.endpointURL, this.qname ).getAsyncAgentServicePort();
         }
-        ACLMessageFactory factory = new ACLMessageFactory(encode);
-        ACLMessage newInformMessage = factory.newInformMessage(sender, receiver, proposition);
-        System.out.println("ENDPOINT URL = " + this.endpointURL);
-        System.out.println("QNAME = " + this.qname);
-        System.out.println("BEFORE CALLING TELL = " + newInformMessage);
-        asyncServicePort.tell(newInformMessage);
+        ACLMessageFactory factory = new ACLMessageFactory( encode );
+        ACLMessage newInformMessage = factory.newInformMessage( sender, receiver, proposition );
+
+        asyncServicePort.tell( newInformMessage );
 
         return newInformMessage.getId();
 
@@ -156,17 +182,15 @@ public class SyncDialogueHelper {
     }
 
     public String invokeConfirm(String sender, String receiver, Object proposition) {
-        AsyncDroolsAgentService asyncServicePort = null;
-        if (this.endpointURL == null || this.qname == null) {
+        AsyncDroolsAgentService asyncServicePort;
+        if ( this.endpointURL == null || this.qname == null ) {
             throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
         } else {
             asyncServicePort = new AsyncAgentService(this.endpointURL, this.qname).getAsyncAgentServicePort();
         }
-        ACLMessageFactory factory = new ACLMessageFactory(encode);
-        ACLMessage newConfirmMessage = factory.newConfirmMessage(sender, receiver, proposition);
-        System.out.println("ENDPOINT URL = " + this.endpointURL);
-        System.out.println("QNAME = " + this.qname);
-        System.out.println("BEFORE CALLING TELL = " + newConfirmMessage);
+        ACLMessageFactory factory = new ACLMessageFactory( encode );
+        ACLMessage newConfirmMessage = factory.newConfirmMessage( sender, receiver, proposition );
+
         asyncServicePort.tell(newConfirmMessage);
 
         return newConfirmMessage.getId();
@@ -175,54 +199,68 @@ public class SyncDialogueHelper {
     }
 
     public String invokeDisconfirm(String sender, String receiver, Object proposition) {
-        AsyncDroolsAgentService asyncServicePort = null;
-        if (this.endpointURL == null || this.qname == null) {
+        AsyncDroolsAgentService asyncServicePort;
+        if ( this.endpointURL == null || this.qname == null ) {
             throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
         } else {
-            asyncServicePort = new AsyncAgentService(this.endpointURL, this.qname).getAsyncAgentServicePort();
+            asyncServicePort = new AsyncAgentService( this.endpointURL, this.qname ).getAsyncAgentServicePort();
         }
-        ACLMessageFactory factory = new ACLMessageFactory(encode);
-        ACLMessage newDisconfirmMessage = factory.newDisconfirmMessage(sender, receiver, proposition);
-        System.out.println("ENDPOINT URL = " + this.endpointURL);
-        System.out.println("QNAME = " + this.qname);
-        System.out.println("BEFORE CALLING TELL = " + newDisconfirmMessage);
-        asyncServicePort.tell(newDisconfirmMessage);
+        ACLMessageFactory factory = new ACLMessageFactory( encode );
+        ACLMessage newDisconfirmMessage = factory.newDisconfirmMessage( sender, receiver, proposition );
+
+        asyncServicePort.tell( newDisconfirmMessage );
 
         return newDisconfirmMessage.getId();
 
-
     }
 
-    public Object getReturn(boolean decode) throws UnsupportedOperationException {
-        if (returnBody == null) {
+    private List<ACLMessage> waitForAnswers( AsyncDroolsAgentService asyncServicePort, String msgid, int numExpectedMessages, long maxTimeout, String msgRef ) {
+            List<ACLMessage> answers;
+            int waitTime = 100;
+            do {
+                try {
+                    logger.debug( " >>> Waiting for answers (" + waitTime + ") for: Message ->  " + msgRef );
+                    Thread.sleep( waitTime );
+                } catch ( InterruptedException ex ) {
+                    logger.error( ex.getMessage() );
+                }
+                answers = asyncServicePort.getResponses( msgid );
+
+                waitTime *= 2;
+            } while ( answers.size() != numExpectedMessages && waitTime < maxTimeout );
+            return answers;
+        }
+
+    public Object getReturn( boolean decode ) throws UnsupportedOperationException {
+        if ( returnBody == null ) {
             return null;
         }
-        if (decode) {
-            MessageContentEncoder.decodeBody(returnBody, encode);
-            if (returnBody instanceof Inform) {
-                return ((Inform) returnBody).getProposition().getData();
+        if ( decode ) {
+            MessageContentEncoder.decodeBody( returnBody, encode );
+            if ( returnBody instanceof Inform ) {
+                return ( (Inform) returnBody ).getProposition().getData();
             }
-            if (returnBody instanceof InformIf) {
-                return ((InformIf) returnBody).getProposition().getData();
+            if ( returnBody instanceof InformIf ) {
+                return ( (InformIf) returnBody ).getProposition().getData();
             }
         } else {
-            if (returnBody instanceof Inform) {
-                return ((Inform) returnBody).getProposition().getEncodedContent();
+            if ( returnBody instanceof Inform ) {
+                return ( (Inform) returnBody ).getProposition().getEncodedContent();
             }
-            if (returnBody instanceof InformIf) {
-                return ((InformIf) returnBody).getProposition().getData();
+            if ( returnBody instanceof InformIf ) {
+                return ( (InformIf) returnBody ).getProposition().getEncodedContent();
             }
         }
         return returnBody;
     }
 
-    public List<ACLMessage> getAgentAnswers(String reqId) {
-        AsyncDroolsAgentService asyncServicePort = null;
-        if (this.endpointURL == null || this.qname == null) {
-            throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
-        } else {
-            asyncServicePort = new AsyncAgentService(this.endpointURL, this.qname).getAsyncAgentServicePort();
-        }
-        return asyncServicePort.getResponses(reqId);
-    }
+//    public List<ACLMessage> getAgentAnswers(String reqId) {
+//        AsyncDroolsAgentService asyncServicePort = null;
+//        if (this.endpointURL == null || this.qname == null) {
+//            throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
+//        } else {
+//            asyncServicePort = new AsyncAgentService(this.endpointURL, this.qname).getAsyncAgentServicePort();
+//        }
+//        return asyncServicePort.getResponses(reqId);
+//    }
 }
