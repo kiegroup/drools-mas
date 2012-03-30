@@ -63,53 +63,56 @@ public class SyncDialogueHelper {
 
     public String invokeRequest(String sender, String receiver, String methodName, LinkedHashMap<String, Object> args) throws UnsupportedOperationException {
         multiReturnValue = false;
-        for (Object o : args.values()) {
-            if (o == Variable.v) {
+        for ( Object o : args.values() ) {
+            if ( o == Variable.v ) {
                 multiReturnValue = true;
                 break;
             }
         }
+
         AsyncDroolsAgentService asyncServicePort = null;
-        if (this.endpointURL == null || this.qname == null) {
-            throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
+        if ( this.endpointURL == null || this.qname == null ) {
+            throw new IllegalStateException( "A Web Service URL and a QName Must be Provided for the client to work!" );
         } else {
-            asyncServicePort = new AsyncAgentService(this.endpointURL, this.qname).getAsyncAgentServicePort();
+            asyncServicePort = new AsyncAgentService( this.endpointURL, this.qname ).getAsyncAgentServicePort();
         }
-        ACLMessageFactory factory = new ACLMessageFactory(encode);
+        ACLMessageFactory factory = new ACLMessageFactory( encode );
 
-        Action action = MessageContentFactory.newActionContent(methodName, args);
-        ACLMessage req = factory.newRequestMessage(sender, receiver, action);
+        Action action = MessageContentFactory.newActionContent( methodName, args );
+        ACLMessage req = factory.newRequestMessage( sender, receiver, action );
 
-        asyncServicePort.tell(req);
+        asyncServicePort.tell( req );
 
-        List<ACLMessage> answers = asyncServicePort.getResponses(req.getId());
+        List<ACLMessage> answers;
         int waitTime = 100;
         do {
             try {
-                System.out.println(" >>> Waiting for answers (" + waitTime + ") for: Request ->  " + methodName);
-                Thread.sleep(waitTime);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(SyncDialogueHelper.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println( " >>> Waiting for answers (" + waitTime + ") for: Request ->  " + methodName );
+                Thread.sleep( waitTime );
+            } catch ( InterruptedException ex ) {
+                Logger.getLogger( SyncDialogueHelper.class.getName() ).log( Level.SEVERE, null, ex );
             }
-            answers = asyncServicePort.getResponses(req.getId());
+            answers = asyncServicePort.getResponses( req.getId() );
 
             waitTime *= 2;
-        } while (answers.size() != 2 && waitTime < this.maximumWaitTime);
+        } while ( answers.size() != 2 && waitTime < this.maximumWaitTime );
 
-        ACLMessage answer = answers.get(0);
-        if (!Act.AGREE.equals(answer.getPerformative())) {
-            throw new UnsupportedOperationException(" Request " + methodName + " was not agreed with args " + args);
+        ACLMessage answer = answers.get( 0 );
+        if ( ! Act.AGREE.equals(answer.getPerformative() ) ) {
+            throw new UnsupportedOperationException( " Request " + methodName + " was not agreed with args " + args );
         }
 
-        ACLMessage answer2 = answers.get(1);
-        if (!Act.INFORM_IF.equals(answer.getPerformative()) && !Act.INFORM_REF.equals(answer.getPerformative())) {
+        ACLMessage answer2 = answers.get( 1 );
+        Act act2 = answer2.getPerformative();
+
+        if ( ! ( Act.INFORM.equals( act2 ) || Act.INFORM_REF.equals( act2 ) ) ) {
             throw new IllegalStateException(" Request " + methodName + " with args " 
-                                        + args + "failed and returned this msg: " +answer2);
+                                        + args + "failed and returned this msg: " +answer2 );
         }
-        if (!multiReturnValue) {
-            returnBody = answers.size() == 2 ? ((Inform) answers.get(1).getBody()) : null;
+        if ( ! multiReturnValue ) {
+            returnBody = answers.size() == 2 ? ( (Inform) answers.get( 1 ).getBody() ) : null;
         } else {
-            returnBody = answers.size() == 2 ? ((InformRef) answers.get(1).getBody()) : null;
+            returnBody = answers.size() == 2 ? ( (InformRef) answers.get( 1 ).getBody() ) : null;
         }
         return req.getId();
     }
