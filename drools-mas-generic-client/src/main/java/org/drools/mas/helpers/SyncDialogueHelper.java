@@ -27,7 +27,8 @@ public class SyncDialogueHelper {
     private Encodings encode = Encodings.XML;
     private URL endpointURL;
     private QName qname;
-    private int maximumWaitTime = 60000;
+    private long maximumWaitTime = 60000;
+    private long minWaitTime = 500;
     private int maxRetries = 1;
 
     private static Logger logger = LoggerFactory.getLogger( SyncDialogueHelper.class.getName() );
@@ -52,12 +53,20 @@ public class SyncDialogueHelper {
 
     }
 
-    public int getMaximumWaitTime() {
+    public long getMaximumWaitTime() {
         return maximumWaitTime;
     }
 
-    public void setMaximumWaitTime( int maximumWaitTime ) {
+    public void setMaximumWaitTime( long maximumWaitTime ) {
         this.maximumWaitTime = maximumWaitTime;
+    }
+
+    public long getMinWaitTime() {
+        return minWaitTime;
+    }
+
+    public void setMinWaitTime( long minWaitTime ) {
+        this.minWaitTime = minWaitTime;
     }
 
     public int getMaxRetries() {
@@ -118,7 +127,7 @@ public class SyncDialogueHelper {
 
                 return req.getId();
             }
-        } while ( numTries++ < maxRetries );
+        } while ( ++numTries < maxRetries );
 
         throw new IllegalStateException(" Request " + methodName + " with args "
                             + args + " did not return in time" );
@@ -216,7 +225,7 @@ public class SyncDialogueHelper {
 
     private List<ACLMessage> waitForAnswers( AsyncDroolsAgentService asyncServicePort, String msgid, int numExpectedMessages, long maxTimeout, String msgRef ) {
             List<ACLMessage> answers;
-            int waitTime = 100;
+            long waitTime = minWaitTime;
             do {
                 try {
                     logger.debug( " >>> Waiting for answers (" + waitTime + ") for: Message ->  " + msgRef );
