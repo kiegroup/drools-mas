@@ -514,11 +514,9 @@ public class TestAgent {
         assertEquals( Act.FAILURE, mainAgent.getAgentAnswers(req.getId()).get(1).getPerformative() );
 
         Failure fail = (Failure) mainAgent.getAgentAnswers( req.getId() ).get(1).getBody();
-        try {
-            throw (RuntimeException) fail.getCause().getData();
-        } catch (RuntimeException re) {
-            System.err.println(re.getMessage());
-        }
+        String msg = fail.getCause().getData().toString();
+
+        assertTrue( msg.contains( "can't extract the square root of -9" ) );
 
     }
 
