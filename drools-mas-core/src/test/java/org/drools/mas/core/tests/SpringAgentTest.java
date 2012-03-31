@@ -14,6 +14,7 @@ import org.drools.grid.GridServiceDescription;
 import org.drools.grid.SocketService;
 import org.drools.grid.conf.GridPeerServiceConfiguration;
 import org.drools.grid.conf.impl.GridPeerConfiguration;
+import org.drools.grid.helper.GridHelper;
 import org.drools.grid.impl.GridImpl;
 import org.drools.grid.impl.MultiplexSocketServerImpl;
 import org.drools.grid.io.impl.MultiplexSocketServiceCongifuration;
@@ -43,20 +44,15 @@ public class SpringAgentTest {
     private static int port1 = 8000;
     private static int port2 = 8010;
     private static Logger logger = LoggerFactory.getLogger(SpringAgentTest.class);
-    private Server server;
+    private static Server server;
+    private DroolsAgent agent;
+
     public SpringAgentTest() {
+
     }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @Before
-    public void setUp() {
         DeleteDbFiles.execute("~", "mydb", false);
         
         logger.info("Staring DB for white pages ...");
@@ -66,25 +62,40 @@ public class SpringAgentTest {
             logger.error(ex.getMessage());
         }
         logger.info("DB for white pages started! ");
+
+        GridHelper.reset();
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+        logger.info("Stopping DB ...");
+        try {
+            Server.shutdownTcpServer( server.getURL(), "", false, false);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            fail ( e.getMessage() );
+        }
+        logger.info("DB Stopped!");
+
+    }
+
+    @Before
+    public void setUp() {
     }
 
     @After
     public void tearDown() {
-        
-        logger.info("Stopping DB ...");
-        server.stop();
-        logger.info("DB Stopped!");
+        agent.dispose();
     }
 
     @Test
     public void helloAgentSmith() {
         ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
 
-        DroolsAgent agent = (DroolsAgent) context.getBean("agent");
+        agent = (DroolsAgent) context.getBean("agent");
 
-        assertNotNull(agent);
 
-        agent.dispose();
+
 
     }
 
@@ -103,13 +114,11 @@ public class SpringAgentTest {
 
         ApplicationContext context = new ClassPathXmlApplicationContext("applicationContextGrid.xml");
 
-        DroolsAgent agent = (DroolsAgent) context.getBean("agent");
+        agent = (DroolsAgent) context.getBean("agent");
 
         assertNotNull(agent);
 
         agent.tell(ACLMessageFactory.getInstance().newInformMessage("", "", new mock.MockFact("asdasd", 12)));
-
-        agent.dispose();
 
 
         n1.dispose();
