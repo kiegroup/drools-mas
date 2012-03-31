@@ -138,6 +138,10 @@ public class SyncDialogueHelper {
         if ( answers.size() != 2 ) {
             return false;
         }
+
+        if ( Act.AGREE.equals( answers.get( 1 ).getPerformative() ) ) {
+            throw new IllegalStateException( " TODO : Agree was collected after its response, check rules" );
+        }
         
         ACLMessage answer1 = answers.get( 0 );
         if ( ! Act.AGREE.equals( answer1.getPerformative() ) ) {

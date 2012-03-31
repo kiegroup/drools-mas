@@ -16,6 +16,7 @@
 package org.drools.mas.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.drools.grid.*;
@@ -28,6 +29,7 @@ import org.drools.mas.AgentID;
 import org.drools.mas.util.helper.SessionLocator;
 import org.drools.runtime.rule.QueryResults;
 import org.drools.runtime.rule.QueryResultsRow;
+import org.drools.runtime.rule.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,13 +172,15 @@ public class DroolsAgent {
     }
 
     public List<ACLMessage> getAgentAnswers(String msgId){
-        List<ACLMessage> answers = new ArrayList<ACLMessage>();
-        QueryResults results = mind.getQueryResults("getAnswers",new Object[]{msgId});
+
+        QueryResults results = mind.getQueryResults( "getAnswers", new Object[] { msgId, Variable.v } );
         Iterator<QueryResultsRow> iterator = results.iterator();
-        while(iterator.hasNext()){
-            QueryResultsRow row = iterator.next();
-            answers.add((ACLMessage)row.get("$ans"));
+
+        if ( iterator.hasNext() ) {
+            return ( (List<ACLMessage>) iterator.next().get( "$list" ) );
+        } else {
+            return Collections.emptyList();    
         }
-        return answers;
+        
     }
 }
