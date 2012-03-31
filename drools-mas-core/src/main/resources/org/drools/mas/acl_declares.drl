@@ -82,6 +82,7 @@ declare MessageAnswer
 end
 
 
-query getAnswers(String msgId)
-    MessageAnswer(messageId == msgId, $ans: answer)
+query getAnswers( String $msgId, java.util.List $list )
+    accumulate( MessageAnswer( messageId == $msgId, $ans: answer ),
+                $list : collectList( $ans ) )
 end
