@@ -55,32 +55,42 @@ public class GridTests {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+        DeleteDbFiles.execute("~", "mydb", false);
+
+        System.out.println("Staring DB for white pages ...");
+
+        try {
+
+            server = Server.createTcpServer(new String[] {"-tcp","-tcpAllowOthers","-tcpDaemon","-trace"}).start();
+        } catch (SQLException ex) {
+            System.out.println("ERROR: "+ex.getMessage());
+
+        }
+        System.out.println("DB for white pages started! ");
+
+        GridHelper.reset();
     }
 
     @AfterClass
-    public static void tearDownClass() throws Exception {
+    public static void tearDownClass() {
+        try {
+            Server.shutdownTcpServer(server.getURL(), "", false, false);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            fail ( e.getMessage() );
+        }
     }
     
-     private Map<String, GridServiceDescription> coreServicesMap;
+    private Map<String, GridServiceDescription> coreServicesMap;
     protected Grid grid1;
     
     protected GridNode remoteN1;
-    private Server server;
-    
+    private static Server server;
+
+
+
     @Before
     public void setUp() {
-         DeleteDbFiles.execute("~", "mydb", false);
-
-        System.out.println("Staring DB for white pages ...");
-        
-        try {
-            
-            server = Server.createTcpServer(new String[] {"-tcp","-tcpAllowOthers","-tcpDaemon","-trace"}).start(); 
-        } catch (SQLException ex) {
-            System.out.println("ERROR: "+ex.getMessage());
-            
-        }
-        System.out.println("DB for white pages started! ");
 
         this.coreServicesMap = new HashMap();
         createRemoteNode();
@@ -90,8 +100,6 @@ public class GridTests {
     public void tearDown() {
         remoteN1.dispose();
         grid1.get(SocketService.class).close();
-        server.stop();
-        
     }
     
     private void createRemoteNode(){
@@ -112,8 +120,7 @@ public class GridTests {
         GridConnection<GridNode> conn = grid2.get( ConnectionFactoryService.class ).createConnection( n1Gsd );
         remoteN1 = conn.connect();
         
-        
-    
+
     }
     
     private void configureGrid1(Grid grid,

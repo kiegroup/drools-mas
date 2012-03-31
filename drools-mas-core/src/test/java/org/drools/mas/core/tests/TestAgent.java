@@ -16,6 +16,8 @@ package org.drools.mas.core.tests;
  */
 
 import java.sql.SQLException;
+
+import org.drools.grid.helper.GridHelper;
 import org.drools.mas.body.acts.Failure;
 import org.drools.mas.body.content.Query;
 import org.drools.mas.body.acts.InformIf;
@@ -49,22 +51,28 @@ public class TestAgent {
 
     private static DroolsAgent mainAgent;
     private static Logger logger = LoggerFactory.getLogger(TestAgent.class);
-    private Server server;
+    private static Server server;
 
-    @Before
-    public void createAgents() {
 
+    @BeforeClass
+    public static void setupDB() {
         DeleteDbFiles.execute("~", "mydb", false);
 
         logger.info("Staring DB for white pages ...");
         try {
-            
-            server = Server.createTcpServer(new String[] {"-tcp","-tcpAllowOthers","-tcpDaemon","-trace"}).start(); 
+
+            server = Server.createTcpServer(new String[] {"-tcp","-tcpAllowOthers","-tcpDaemon","-trace"}).start();
         } catch (SQLException ex) {
             logger.error(ex.getMessage());
         }
         logger.info("DB for white pages started! ");
 
+        // force DB initialization
+        GridHelper.reset();
+    }
+
+    @Before
+    public void createAgents() {
 
         DroolsAgentConfiguration mainConfig = new DroolsAgentConfiguration();
         mainConfig.setAgentId("Mock Test Agent");
@@ -86,17 +94,26 @@ public class TestAgent {
 
     @After
     public void cleanUp() {
-        
+
         if (mainAgent != null) {
             mainAgent.dispose();
         }
 
-        logger.info("Stopping DB ...");
-        server.stop();
-        logger.info("DB Stopped!");
     }
 
-    
+    @AfterClass
+    public static void cleanDB() {
+        logger.info("Stopping DB ...");
+        try {
+            Server.shutdownTcpServer(server.getURL(), "", false, false);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        logger.info("DB Stopped!");
+
+    }
+
+
     private void waitForAnswers( String id, int expectedSize, long sleep, int maxIters ) {
         int counter = 0;
         do {
@@ -113,9 +130,9 @@ public class TestAgent {
         }
 
     }
-    
-    
-    
+
+
+
     @Test
     public void testSimpleInform() throws InterruptedException {
         MockFact fact = new MockFact( "patient1", 18 );
@@ -123,10 +140,10 @@ public class TestAgent {
 
         ACLMessage info = factory.newInformMessage( "me", "you", fact );
         mainAgent.tell( info );
-        
+
         //Now this is also async
         waitForAnswers( info.getId(), 0, 250, 50 );
-        
+
         assertNotNull( mainAgent.getAgentAnswers( info.getId() ) );
         StatefulKnowledgeSession target = mainAgent.getInnerSession( "session1" );
         assertTrue( target.getObjects().contains( fact ) );
@@ -174,22 +191,22 @@ public class TestAgent {
         ACLMessage info = factory.newInformMessage("me", "you", fact);
         mainAgent.tell(info);
 
-        
+
         waitForAnswers( info.getId(), 0, 250, 50 );
-          
-        
+
+
         assertNotNull( mainAgent.getAgentAnswers(info.getId() ) );
         StatefulKnowledgeSession target = mainAgent.getInnerSession("session2");
-        
+
         for (Object o : target.getObjects()) {
             System.err.println("\t Inform-Trigger test : " + o);
         }
-        
+
         assertTrue(target.getObjects().contains(new Double(22.0)));
         assertTrue(target.getObjects().contains(new Integer(484)));
     }
 
-    
+
 
     @Test
     public void testQueryIf() throws InterruptedException {
@@ -259,7 +276,7 @@ public class TestAgent {
         mainAgent.tell(req);
 
         waitForAnswers( req.getId(), 2, 250, 50 );
-        
+
         assertNotNull( mainAgent.getAgentAnswers(req.getId() ) );
 
         assertEquals( 2, mainAgent.getAgentAnswers( req.getId() ).size() );
@@ -369,15 +386,15 @@ public class TestAgent {
 
 
         Action action = MessageContentFactory.newActionContent("randomSum", args);
-        
+
         ACLMessage req = factory.newRequestMessage("me", "you", action);
 
 
 
         mainAgent.tell(req);
-        
+
         Thread.sleep(5000);
-        
+
         assertNotNull(mainAgent.getAgentAnswers(req.getId()));
         assertEquals(2, mainAgent.getAgentAnswers(req.getId()).size());
 
@@ -425,7 +442,7 @@ public class TestAgent {
         ACLMessageFactory factory = new ACLMessageFactory( Encodings.XML );
 
         ACLMessage info = factory.newInformMessage( "me", "you", fact );
-        
+
         mainAgent.tell(info);
 
         waitForAnswers( info.getId(), 0, 2000, 10 );
@@ -438,7 +455,7 @@ public class TestAgent {
         assertTrue( target.getObjects().contains( fact ) );
 
         ACLMessage info2 = factory.newInformMessage( "me", "you", fact2 );
-        
+
         mainAgent.tell( info2 );
         //Now this is also async
         waitForAnswers( info.getId(), 0, 250, 50 );
@@ -461,7 +478,7 @@ public class TestAgent {
         mainAgent.tell(notUnd);
 
         waitForAnswers( notUnd.getId(), 0, 250, 50 );
-        
+
         assertEquals(Act.NOT_UNDERSTOOD, mainAgent.getAgentAnswers(notUnd.getId()).get(0).getPerformative());
 
     }
@@ -481,7 +498,7 @@ public class TestAgent {
         mainAgent.tell( req );
 
         waitForAnswers( req.getId(), 2, 250, 50 );
-        
+
         assertEquals( 2, mainAgent.getAgentAnswers(req.getId()).size() );
         assertEquals( Act.AGREE, mainAgent.getAgentAnswers(req.getId()).get(0).getPerformative() );
         assertEquals( Act.FAILURE, mainAgent.getAgentAnswers(req.getId()).get(1).getPerformative() );
@@ -489,11 +506,11 @@ public class TestAgent {
         Failure fail = (Failure) mainAgent.getAgentAnswers(req.getId()).get(1).getBody();
         String msg = fail.getCause().getData().toString();
 
-        
+
         assertTrue(  msg.contains( "can't extract the square root of -9" ) );
     }
 
-       
+
     @Test
     public void testExplicitRequestFailure() throws InterruptedException {
 
@@ -502,14 +519,14 @@ public class TestAgent {
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
 
         Map<String, Object> args = new LinkedHashMap<String, Object>();
-            args.put( "x", in );
+        args.put( "x", in );
 
         Action action = MessageContentFactory.newActionContent( "squareRoot", args );
         ACLMessage req = factory.newRequestMessage( "me", "you", action );
         mainAgent.tell( req );
 
         waitForAnswers( req.getId(), 2, 250, 50 );
-        
+
         assertEquals( Act.AGREE, mainAgent.getAgentAnswers(req.getId()).get(0).getPerformative() );
         assertEquals( Act.FAILURE, mainAgent.getAgentAnswers(req.getId()).get(1).getPerformative() );
 
@@ -546,7 +563,7 @@ public class TestAgent {
         mainAgent.tell( qryref );
         //Now this is also async
         waitForAnswers( qryref.getId(), 0, 250, 50 );
-        
+
         assertEquals( 2, mainAgent.getAgentAnswers(qryref.getId()).size() );
         assertEquals( Act.AGREE, mainAgent.getAgentAnswers(qryref.getId()).get(0).getPerformative() );
         assertEquals( Act.FAILURE, mainAgent.getAgentAnswers(qryref.getId()).get(1).getPerformative() );
