@@ -171,16 +171,46 @@ public class DroolsAgent {
         return mind;
     }
 
-    public List<ACLMessage> getAgentAnswers(String msgId){
 
-        QueryResults results = mind.getQueryResults( "getAnswers", new Object[] { msgId, Variable.v } );
+    public List<ACLMessage> getAgentAnswers( String msgId ) {
+        return extractAgentAnswers( msgId );
+    }
+
+
+    public List<ACLMessage> extractAgentAnswers( String msgId ) {
+
+        QueryResults results = mind.getQueryResults( "getAnswers", new Object[] { msgId, Variable.v, Variable.v } );
         Iterator<QueryResultsRow> iterator = results.iterator();
 
         if ( iterator.hasNext() ) {
-            return ( (List<ACLMessage>) iterator.next().get( "$list" ) );
+            QueryResultsRow row = iterator.next();
+
+            List holders = (List) row.get( "$refList" );
+            for ( Object holder : holders ) {
+                mind.retract( mind.getFactHandle( holder ) );
+            }
+
+            List<ACLMessage> answers = (List<ACLMessage>) row.get( "$list" );
+            return ( answers );
         } else {
-            return Collections.emptyList();    
+            return Collections.emptyList();
         }
-        
+
+    }
+
+
+    public List<ACLMessage> peekAgentAnswers( String msgId ) {
+
+        QueryResults results = mind.getQueryResults( "getAnswers", new Object[] { msgId, Variable.v, Variable.v } );
+        Iterator<QueryResultsRow> iterator = results.iterator();
+
+        if ( iterator.hasNext() ) {
+            QueryResultsRow row = iterator.next();
+            List<ACLMessage> answers = (List<ACLMessage>) row.get( "$list" );
+            return ( answers );
+        } else {
+            return Collections.emptyList();
+        }
+
     }
 }

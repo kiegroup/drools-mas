@@ -124,7 +124,7 @@ public class TestAgent {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        } while ( mainAgent.getAgentAnswers( id ).size() < expectedSize && counter < maxIters );
+        } while ( mainAgent.peekAgentAnswers( id ).size() < expectedSize && counter < maxIters );
         if ( counter == maxIters ) {
             fail( "Timeout waiting for an answer to msg " + id );
         }
@@ -144,7 +144,7 @@ public class TestAgent {
         //Now this is also async
         waitForAnswers( info.getId(), 0, 250, 50 );
 
-        assertNotNull( mainAgent.getAgentAnswers( info.getId() ) );
+        assertNotNull( mainAgent.extractAgentAnswers( info.getId() ) );
         StatefulKnowledgeSession target = mainAgent.getInnerSession( "session1" );
         assertTrue( target.getObjects().contains( fact ) );
 
@@ -162,7 +162,7 @@ public class TestAgent {
         //Now this is also async
         waitForAnswers( info.getId(), 0, 250, 50 );
 
-        assertNotNull( mainAgent.getAgentAnswers( info.getId() ) );
+        assertNotNull( mainAgent.extractAgentAnswers( info.getId() ) );
         StatefulKnowledgeSession target = mainAgent.getInnerSession( "session1" );
         assertTrue( target.getObjects().contains( fact ) );
 
@@ -175,7 +175,7 @@ public class TestAgent {
         //Now this is also async
         waitForAnswers( info2.getId(), 0, 250, 50 );
 
-        assertNotNull( mainAgent.getAgentAnswers( info2.getId() ) );
+        assertNotNull( mainAgent.extractAgentAnswers( info2.getId() ) );
         assertFalse( target.getObjects().contains( fact ) );
 
 
@@ -195,7 +195,7 @@ public class TestAgent {
         waitForAnswers( info.getId(), 0, 250, 50 );
 
 
-        assertNotNull( mainAgent.getAgentAnswers(info.getId() ) );
+        assertNotNull( mainAgent.extractAgentAnswers(info.getId() ) );
         StatefulKnowledgeSession target = mainAgent.getInnerSession("session2");
 
         for (Object o : target.getObjects()) {
@@ -220,17 +220,19 @@ public class TestAgent {
 
 
         ACLMessage qryif = factory.newQueryIfMessage("me", "you", fact);
-        assertEquals(0, mainAgent.getAgentAnswers(qryif.getId()).size());
+        assertEquals(0, mainAgent.extractAgentAnswers( qryif.getId()).size());
 
 
         mainAgent.tell( qryif );
 
         waitForAnswers( qryif.getId(), 1, 250, 50 );
 
-        assertNotNull( mainAgent.getAgentAnswers( qryif.getId() ) );
-        assertEquals( 1, mainAgent.getAgentAnswers( qryif.getId() ).size() );
+        List<ACLMessage> ans = mainAgent.extractAgentAnswers( qryif.getId() ); 
+        
+        assertNotNull( ans );
+        assertEquals( 1, ans.size() );
 
-        ACLMessage answer = mainAgent.getAgentAnswers( qryif.getId() ).get(0);
+        ACLMessage answer = ans.get(0);
         MessageContentEncoder.decodeBody( answer.getBody(), answer.getEncoding() );
         assertEquals( Act.INFORM_IF, answer.getPerformative() );
         assertEquals( ((InformIf) answer.getBody() ).getProposition().getData(), fact );
@@ -251,12 +253,14 @@ public class TestAgent {
 
         waitForAnswers( qryref.getId(), 2, 250, 50 );
 
-        assertNotNull( mainAgent.getAgentAnswers(qryref.getId() ) );
-        assertEquals( 2, mainAgent.getAgentAnswers(qryref.getId() ).size() );
+        List<ACLMessage> ans = mainAgent.extractAgentAnswers( qryref.getId() ); 
+                
+        assertNotNull( ans );
+        assertEquals( 2, ans.size() );
 
-        ACLMessage answer = mainAgent.getAgentAnswers( qryref.getId() ).get(0);
+        ACLMessage answer = ans.get(0);
         assertEquals( Act.AGREE, answer.getPerformative() );
-        ACLMessage answer2 = mainAgent.getAgentAnswers( qryref.getId() ).get(1);
+        ACLMessage answer2 = ans.get(1);
         assertEquals( Act.INFORM_REF, answer2.getPerformative() );
     }
 
@@ -273,17 +277,19 @@ public class TestAgent {
 
 
 
-        mainAgent.tell(req);
+        mainAgent.tell( req );
 
         waitForAnswers( req.getId(), 2, 250, 50 );
+        
+        List<ACLMessage> ans = mainAgent.extractAgentAnswers( req.getId() );
 
-        assertNotNull( mainAgent.getAgentAnswers(req.getId() ) );
+        assertNotNull( ans );
 
-        assertEquals( 2, mainAgent.getAgentAnswers( req.getId() ).size() );
+        assertEquals( 2, ans.size() );
 
-        ACLMessage answer = mainAgent.getAgentAnswers( req.getId() ).get(0);
+        ACLMessage answer = ans.get(0);
         assertEquals( Act.AGREE, answer.getPerformative() );
-        ACLMessage answer2 = mainAgent.getAgentAnswers( req.getId() ).get(1);
+        ACLMessage answer2 = ans.get(1);
         assertEquals( Act.INFORM, answer2.getPerformative() );
 
         assertTrue( ( (Inform) answer2.getBody() ).getProposition().getEncodedContent().contains( "6.0" ) );
@@ -391,16 +397,18 @@ public class TestAgent {
 
 
 
-        mainAgent.tell(req);
+        mainAgent.tell( req );
 
-        Thread.sleep(5000);
+        waitForAnswers( req.getId(), 2, 1000, 50 );
+        
+        List<ACLMessage> ans = mainAgent.extractAgentAnswers( req.getId() );
+        
+        assertNotNull(ans);
+        assertEquals(2, ans.size());
 
-        assertNotNull(mainAgent.getAgentAnswers(req.getId()));
-        assertEquals(2, mainAgent.getAgentAnswers(req.getId()).size());
-
-        ACLMessage answer = mainAgent.getAgentAnswers(req.getId()).get(0);
+        ACLMessage answer = ans.get(0);
         assertEquals(Act.AGREE, answer.getPerformative());
-        ACLMessage answer2 = mainAgent.getAgentAnswers(req.getId()).get(1);
+        ACLMessage answer2 = ans.get(1);
         assertEquals(Act.INFORM_REF, answer2.getPerformative());
 
 //        answer2.getBody().decode(answer2.getEncoding());
@@ -447,8 +455,8 @@ public class TestAgent {
 
         waitForAnswers( info.getId(), 0, 2000, 10 );
 
-        System.out.println(" answers: " + mainAgent.getAgentAnswers( info.getId() ) );
-        assertEquals( 0, mainAgent.getAgentAnswers( info.getId() ).size() );
+        System.out.println(" answers: " + mainAgent.peekAgentAnswers( info.getId() ) );
+        assertEquals( 0, mainAgent.extractAgentAnswers( info.getId() ).size() );
 
         StatefulKnowledgeSession target = mainAgent.getInnerSession( "patient3" );
         assertNotNull( target );
@@ -479,7 +487,7 @@ public class TestAgent {
 
         waitForAnswers( notUnd.getId(), 0, 250, 50 );
 
-        assertEquals(Act.NOT_UNDERSTOOD, mainAgent.getAgentAnswers(notUnd.getId()).get(0).getPerformative());
+        assertEquals(Act.NOT_UNDERSTOOD, mainAgent.extractAgentAnswers(notUnd.getId()).get(0).getPerformative());
 
     }
 
@@ -498,12 +506,14 @@ public class TestAgent {
         mainAgent.tell( req );
 
         waitForAnswers( req.getId(), 2, 250, 50 );
+        
+        List<ACLMessage> ans = mainAgent.extractAgentAnswers(req.getId());
 
-        assertEquals( 2, mainAgent.getAgentAnswers(req.getId()).size() );
-        assertEquals( Act.AGREE, mainAgent.getAgentAnswers(req.getId()).get(0).getPerformative() );
-        assertEquals( Act.FAILURE, mainAgent.getAgentAnswers(req.getId()).get(1).getPerformative() );
+        assertEquals( 2, ans.size() );
+        assertEquals( Act.AGREE, ans.get(0).getPerformative() );
+        assertEquals( Act.FAILURE, ans.get(1).getPerformative() );
 
-        Failure fail = (Failure) mainAgent.getAgentAnswers(req.getId()).get(1).getBody();
+        Failure fail = (Failure) ans.get(1).getBody();
         String msg = fail.getCause().getData().toString();
 
 
@@ -527,10 +537,12 @@ public class TestAgent {
 
         waitForAnswers( req.getId(), 2, 250, 50 );
 
-        assertEquals( Act.AGREE, mainAgent.getAgentAnswers(req.getId()).get(0).getPerformative() );
-        assertEquals( Act.FAILURE, mainAgent.getAgentAnswers(req.getId()).get(1).getPerformative() );
+        List<ACLMessage> ans = mainAgent.extractAgentAnswers(req.getId());
 
-        Failure fail = (Failure) mainAgent.getAgentAnswers( req.getId() ).get(1).getBody();
+        assertEquals( Act.AGREE, ans.get( 0 ).getPerformative() );
+        assertEquals( Act.FAILURE, ans.get(1).getPerformative() );
+
+        Failure fail = (Failure) ans.get(1).getBody();
         String msg = fail.getCause().getData().toString();
 
         assertTrue( msg.contains( "can't extract the square root of -9" ) );
@@ -548,8 +560,10 @@ public class TestAgent {
         //Now this is also async
         waitForAnswers( qryref.getId(), 1, 250, 50 );
 
-        assertEquals( 1, mainAgent.getAgentAnswers( qryref.getId()).size() );
-        assertEquals( Act.NOT_UNDERSTOOD, mainAgent.getAgentAnswers( qryref.getId()).get(0).getPerformative() );
+        List<ACLMessage> ans = mainAgent.extractAgentAnswers(qryref.getId());
+
+        assertEquals( 1, ans.size() );
+        assertEquals( Act.NOT_UNDERSTOOD, ans.get(0).getPerformative() );
 
     }
 
@@ -564,9 +578,11 @@ public class TestAgent {
         //Now this is also async
         waitForAnswers( qryref.getId(), 0, 250, 50 );
 
-        assertEquals( 2, mainAgent.getAgentAnswers(qryref.getId()).size() );
-        assertEquals( Act.AGREE, mainAgent.getAgentAnswers(qryref.getId()).get(0).getPerformative() );
-        assertEquals( Act.FAILURE, mainAgent.getAgentAnswers(qryref.getId()).get(1).getPerformative() );
+        List<ACLMessage> ans = mainAgent.extractAgentAnswers(qryref.getId());
+
+        assertEquals( 2, ans.size() );
+        assertEquals( Act.AGREE, ans.get(0).getPerformative() );
+        assertEquals( Act.FAILURE, ans.get(1).getPerformative() );
 
     }
 }

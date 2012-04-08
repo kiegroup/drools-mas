@@ -94,24 +94,27 @@ public class ACLMessageFactory implements Serializable {
     }
 
     public ACLMessage newMessage() {
-        return new ACLMessage(newId());
+        return new ACLMessage( newId() );
     }
 
-    protected ACLMessage newMessage(String sender, String receiver) {
+    protected ACLMessage newMessage( String sender, String receiver ) {
 
         ACLMessage msg = new ACLMessage();
-        msg.setId(newId());
-        msg.setConversationId(newConversationId());
+
+        msg.setConversationId( newConversationId() );
+
         AgentID senderAgent = new AgentID();
-        senderAgent.setName(sender);
-        msg.setSender(senderAgent);
+        senderAgent.setName( sender );
+        msg.setSender( senderAgent );
+
+        msg.setId( newId() + senderAgent.toString() );
 
         List<AgentID> recSet = msg.getReceiver();
         AgentID receiverAgent = new AgentID();
-        receiverAgent.setName(receiver);
-        recSet.add(receiverAgent);
+        receiverAgent.setName( receiver );
+        recSet.add( receiverAgent );
 
-        msg.setEncoding(getDefaultEncoding());
+        msg.setEncoding( getDefaultEncoding() );
 
         return msg;
     }

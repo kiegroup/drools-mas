@@ -3,9 +3,7 @@ package org.drools.mas.helpers;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.xml.namespace.QName;
 import org.drools.mas.*;
 import org.drools.mas.body.acts.AbstractMessageBody;
@@ -77,10 +75,14 @@ public class SyncDialogueHelper {
         this.maxRetries = maxRetries;
     }
 
-    public String invokeRequest(String methodName, LinkedHashMap<String, Object> args) throws UnsupportedOperationException {
-        return invokeRequest("", "", methodName, args);
+    public String invokeRequest( String sender, String methodName, LinkedHashMap<String, Object> args ) throws UnsupportedOperationException {
+        return invokeRequest( sender, "", methodName, args);
     }
 
+
+    public String invokeRequest( String methodName, LinkedHashMap<String, Object> args ) throws UnsupportedOperationException {
+        return invokeRequest( UUID.randomUUID().toString(), "", methodName, args );
+    }
 
 
     public String invokeRequest( String sender, String receiver, String methodName, LinkedHashMap<String, Object> args ) 
@@ -158,7 +160,7 @@ public class SyncDialogueHelper {
         return true;
     }
 
-    public String invokeQueryIf(String sender, String receiver, Object proposition) {
+    public String invokeQueryIf( String sender, String receiver, Object proposition ) {
         AsyncDroolsAgentService asyncServicePort = null;
         if (this.endpointURL == null || this.qname == null) {
             throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
@@ -177,7 +179,7 @@ public class SyncDialogueHelper {
 
     }
 
-    public String invokeInform(String sender, String receiver, Object proposition) {
+    public String invokeInform( String sender, String receiver, Object proposition ) {
         AsyncDroolsAgentService asyncServicePort;
         if ( this.endpointURL == null || this.qname == null ) {
             throw new IllegalStateException( "A Web Service URL and a QName Must be Provided for the client to work!" );
@@ -194,7 +196,7 @@ public class SyncDialogueHelper {
 
     }
 
-    public String invokeConfirm(String sender, String receiver, Object proposition) {
+    public String invokeConfirm( String sender, String receiver, Object proposition ) {
         AsyncDroolsAgentService asyncServicePort;
         if ( this.endpointURL == null || this.qname == null ) {
             throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
@@ -204,14 +206,14 @@ public class SyncDialogueHelper {
         ACLMessageFactory factory = new ACLMessageFactory( encode );
         ACLMessage newConfirmMessage = factory.newConfirmMessage( sender, receiver, proposition );
 
-        asyncServicePort.tell(newConfirmMessage);
+        asyncServicePort.tell( newConfirmMessage );
 
         return newConfirmMessage.getId();
 
 
     }
 
-    public String invokeDisconfirm(String sender, String receiver, Object proposition) {
+    public String invokeDisconfirm( String sender, String receiver, Object proposition ) {
         AsyncDroolsAgentService asyncServicePort;
         if ( this.endpointURL == null || this.qname == null ) {
             throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
@@ -228,7 +230,7 @@ public class SyncDialogueHelper {
     }
 
     private List<ACLMessage> waitForAnswers( AsyncDroolsAgentService asyncServicePort, String msgid, int numExpectedMessages, long maxTimeout, String msgRef ) {
-            List<ACLMessage> answers;
+            List<ACLMessage> answers = new ArrayList<ACLMessage>();
             long waitTime = minWaitTime;
             do {
                 try {
@@ -237,7 +239,8 @@ public class SyncDialogueHelper {
                 } catch ( InterruptedException ex ) {
                     logger.error( ex.getMessage() );
                 }
-                answers = asyncServicePort.getResponses( msgid );
+                List<ACLMessage> incomingAnswers = asyncServicePort.getResponses(msgid);
+                answers.addAll( incomingAnswers );
 
                 waitTime *= 2;
             } while ( answers.size() != numExpectedMessages && waitTime < maxTimeout );
