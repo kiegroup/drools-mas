@@ -64,6 +64,10 @@ then
 end
 
 
+query subLocation( String $target )
+  SessionLocator( mind == false, $target := nodeId )
+end
+
 rule "Generate Session"
 salience 9999
 when
@@ -71,10 +75,11 @@ when
     $key : String( this != "" ) from $el
     not SessionMapping( $key ;  )
     $conf: DroolsAgentConfiguration()
-    $sessionLocator: SessionLocator(mind == true)
+    $sessionLocator: SessionLocator( mind == true )
+    ?subLocation( $target ; )
 then
     String sid = $key;
-    String targetLocation = $conf.getMindNodeLocation(); //apply load balancing policy here
+    String targetLocation = $target; // $conf.getMindNodeLocation(); //apply load balancing policy here
 
     insert( new SessionMapping( $key, sid ) );
     if( LoggerHelper.isDebugEnabled() ){
@@ -88,7 +93,7 @@ then
                                                                                   null, // use default changeset
                                                                                   targetLocation ),
                                GridHelper.getGrid() ).getStatefulKnowledgeSession();
-    kSession.insert(new SessionLocator( targetLocation, sid , false, true) );
+    kSession.insert( new SessionLocator( targetLocation, sid , false, true) );
     kSession.insert( $sessionLocator );
     kSession.fireAllRules();
 
