@@ -80,7 +80,8 @@ public class KnowledgeResourcesCompilationTest {
     }
     
     @Test
-    public void simpleInvokeTest() {
+    @Ignore
+    public void simpleInvokeTest() throws InterruptedException {
         
         ApplicationContext context = new ClassPathXmlApplicationContext("test-applicationContext.xml");
         DroolsAgent agent = (DroolsAgent) context.getBean("agent");
@@ -95,6 +96,7 @@ public class KnowledgeResourcesCompilationTest {
         
         agent.tell(newInformMessage);
         
+        Thread.sleep(1000);
         
         agent.dispose();
         
@@ -102,6 +104,7 @@ public class KnowledgeResourcesCompilationTest {
     }
     
     @Test
+    @Ignore
     public void simpleRequestTest(){
         ApplicationContext context = new ClassPathXmlApplicationContext("test-applicationContext.xml");
         DroolsAgent agent = (DroolsAgent) context.getBean("agent");

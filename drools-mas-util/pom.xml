@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.drools</groupId>
             <artifactId>drools-grid-impl</artifactId>
-            <version>5.4.0-SNAPSHOT</version>
+            <version>${drools.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
