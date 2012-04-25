@@ -30,7 +30,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +65,7 @@ public class SynchronousDroolsAgentServiceServiceTest {
     }
 
     @Test
+    @Ignore("Needs upgrade to use latest version of components")
     public void testSimpleInformWithHelper() {
         SynchronousRequestHelper agentHelper = new SynchronousRequestHelper(endpoint);
 
@@ -79,6 +82,7 @@ public class SynchronousDroolsAgentServiceServiceTest {
     }
 
     @Test
+    @Ignore("Needs upgrade to use latest version of components")
     public void informAgentAboutEmergency() {
 
         SynchronousRequestHelper helper = new SynchronousRequestHelper(endpoint);
@@ -100,6 +104,7 @@ public class SynchronousDroolsAgentServiceServiceTest {
     }
 
     @Test
+    @Ignore("Needs upgrade to use latest version of components")
     public void helpMeWithMyEmergency() {
         SynchronousRequestHelper helper = new SynchronousRequestHelper(endpoint);
 
@@ -123,6 +128,7 @@ public class SynchronousDroolsAgentServiceServiceTest {
     }
 
     @Test
+    @Ignore("Needs upgrade to use latest version of components")
     public void multiThreadTest() throws InterruptedException {
         final SynchronousRequestHelper helper = new SynchronousRequestHelper(endpoint);
         final int EMERGENCY_COUNT = 45;

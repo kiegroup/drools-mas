@@ -40,7 +40,7 @@
                 <agent.node>emergency-agent-localnode</agent.node>
                 <agent.port>7000</agent.port>
                 <agent.endpoint.ip>localhost</agent.endpoint.ip>
-                <agent.endpoint.port>9898</agent.endpoint.port>
+                <agent.endpoint.port>8080</agent.endpoint.port>
             </properties> 
         </profile>
     </profiles>
@@ -119,7 +119,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.8.1</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -190,12 +189,12 @@
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>7.6.0.RC2</version>
-                <configuration>
+                <!--configuration>
                   
                     <webAppConfig>
                         <contextPath>/emergency-agent</contextPath>
                     </webAppConfig>
-                </configuration>
+                </configuration-->
                
             </plugin>
             <plugin>
