@@ -208,7 +208,7 @@ when
     $cont : ResponseContent( $nodeId: nodeId, $sessionId: sessionId,  messageId == $msgId, $data : data != null )
             QueryResults( size > 0 ) from $data
 then
-    if (LoggerHelper.isDebugEnabled()) {
+    if ( LoggerHelper.isDebugEnabled() ) {
         LoggerHelper.debug(" ### INTERNAL: FIXING QUERYIF RESULTS " + $msgId );
         LoggerHelper.debug(" ### INTERNAL: FIXING QUERYIF RESULTS " + $nodeId );
         LoggerHelper.debug(" ### INTERNAL: FIXING QUERYIF RESULTS " + $sessionId );
@@ -217,8 +217,9 @@ then
         $data = GridHelper.getQueryResultRemoteClient( grid, $nodeId, $sessionId,
                 ( (QueryResultsDescriptor) $data ).getQueryName(), ( (QueryResultsDescriptor) $data ).getQueryId() );
     }
-    $cont.setData( ( (QueryResults) $data ).iterator().next().get( "$queryIf" ) );
-    update( $cont );
+    modify ( $cont ) {
+        setData( ( (QueryResults) $data ).iterator().next().get( "$queryIf" ) );
+    }
 end
 
 
@@ -251,19 +252,20 @@ when
     QueryRef( $query : query ) from $msg.body
     $cont : ResponseContent($nodeId: nodeId, $sessionId: sessionId, messageId == $msgId, $data : data != null )
 then
-    if (LoggerHelper.isDebugEnabled()) {
+    if ( LoggerHelper.isDebugEnabled() ) {
         LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $msgId);
         LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $nodeId);
         LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $sessionId);
         LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $data);
     }
-    if($data instanceof QueryResultsDescriptor){
+    if( $data instanceof QueryResultsDescriptor ) {
         $data = GridHelper.getQueryResultRemoteClient( grid, $nodeId, $sessionId,
                 ( (QueryResultsDescriptor) $data ).getQueryName(), ( (QueryResultsDescriptor) $data ).getQueryId() );
     }
-    
-    $cont.setData( MessageContentHelper.getQueryReferences( $query, (QueryResults) $data ) );
-    update( $cont );
+
+    modify ( $cont ) {
+        setData( MessageContentHelper.getQueryReferences( $query, (QueryResults) $data ) );
+    }
 end
 
 
@@ -294,17 +296,17 @@ when
     $req : Request( $act : action, $actName : action.actionName ) from $msg.body
     $cont : ResponseContent($nodeId: nodeId, $sessionId: sessionId, messageId == $msgId, $data : data != null )
 then
-    if (LoggerHelper.isDebugEnabled()) {
-        LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR REQUEST " + $msgId);
-        LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR REQUEST " + $sessionId);
-        LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR REQUEST " + $nodeId);
-        LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR REQUEST " + $data);
+    if ( LoggerHelper.isDebugEnabled() ) {
+        LoggerHelper.debug( " ### INTERNAL: FIXING RESULTS FOR REQUEST " + $msgId );
+        LoggerHelper.debug( " ### INTERNAL: FIXING RESULTS FOR REQUEST " + $sessionId );
+        LoggerHelper.debug( " ### INTERNAL: FIXING RESULTS FOR REQUEST " + $nodeId );
+        LoggerHelper.debug( " ### INTERNAL: FIXING RESULTS FOR REQUEST " + $data );
         
     }
-    
-    $cont.setData( MessageContentHelper.getActionReferences( $act, (Map) $data ) );
-    
-    update( $cont );
+
+    modify ( $cont ) {
+        setData( MessageContentHelper.getActionReferences( $act, (Map) $data ) );
+    }
 end
 
 
