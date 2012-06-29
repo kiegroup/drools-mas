@@ -9,19 +9,19 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     <import resource="classpath:META-INF/cxf/cxf.xml" />
     <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
-    <jaxws:endpoint id="agent-ws" address="http://${agent.endpoint.ip}:${agent.endpoint.port}/emergency-agent/services/SyncAgentService"
+    <jaxws:endpoint id="agent-ws"
+                    address="http://${agent.endpoint.ip}:${agent.endpoint.port}/emergency-agent/services/SyncAgentService"
                     implementor="#agent-service">
-    </jaxws:endpoint> 
-  
-    <jaxws:endpoint id="async-agent-ws" address="http://${agent.endpoint.ip}:${agent.endpoint.port}/emergency-agent/services/AsyncAgentService"
+    </jaxws:endpoint>
+    <jaxws:endpoint id="async-agent-ws"
+                    address="http://${agent.endpoint.ip}:${agent.endpoint.port}/emergency-agent/services/AsyncAgentService"
                     implementor="#async-agent-service">
     </jaxws:endpoint> 
-   
-    
-    <bean id="async-agent-service" class="org.drools.mas.AsyncDroolsAgentServiceImpl">
+
+    <bean id="async-agent-service" class="org.drools.mas.AsyncDroolsAgentServiceImpl" destroy-method="dispose">
         <property name="agent" ref="agent"/>
     </bean>  
-    <bean id="agent-service" class="org.drools.mas.SynchronousDroolsAgentServiceImpl">
+    <bean id="agent-service" class="org.drools.mas.SynchronousDroolsAgentServiceImpl" destroy-method="dispose">
         <property name="agent" ref="agent"/>
     </bean>  
     

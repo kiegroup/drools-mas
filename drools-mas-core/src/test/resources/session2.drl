@@ -74,9 +74,9 @@ when
     $a : Action( actionName == "squareRoot",
                  keySet contains "x", $x : this["x"] >= 0 )
 then
-    System.out.println(" SESSION 2: EXAMPLE RULES (session 2): Executing square root");
-    LoggerHelper.info("EXAMPLE RULES (session 2): Executing square root");
-    insert( new MathResponse((Double) $x, Math.sqrt( (Double) $x), 0.0) );
+    System.out.println( " SESSION 2: EXAMPLE RULES (session 2): Executing square root" );
+    LoggerHelper.info( "EXAMPLE RULES (session 2): Executing square root" );
+    insert( new MathResponse( (Double) $x, Math.sqrt( (Double) $x ), 0.0 ) );
 end
 
 
@@ -96,10 +96,10 @@ end
 rule "Action_Request : no logic to deal with this kind request"
     salience -1000
 when
-    $s : SessionLocator($nodeId: nodeId, $sessionId: sessionId, mind == true)
+    $s : SessionLocator( $nodeId: nodeId, $sessionId: sessionId, mind == true )
     $a : Action( $msgId: msgId, $actName : actionName )
 then
-    retract($a);
+    retract( $a );
     Fault fault = new NoHandlerFault( $msgId, "No known way to process a request " + $actName );
     ResponseContent.deliverResponse( $nodeId, $sessionId, $msgId, null, fault );
 end
@@ -107,19 +107,19 @@ end
 
 rule "Action_Request : squareRoot_error"
 when
-    $s : SessionLocator($nodeId: nodeId, $sessionId: sessionId, mind == true)
+    $s : SessionLocator( $nodeId: nodeId, $sessionId: sessionId, mind == true )
     $a : Action( actionName == "squareRoot", $msgId: msgId ,
                  keySet contains "x", $x : this["x"] < 0 )
 then
-    retract($a);
-    Fault fault = new ExecutionFault($msgId,"can't extract the square root of " + $x );
+    retract( $a );
+    Fault fault = new ExecutionFault( $msgId,"can't extract the square root of " + $x );
     ResponseContent.deliverResponse( $nodeId, $sessionId, $msgId, null, fault );
 end
 
 
 
 query randomSum( Double $x, Double $return, Double $z  )
-    MathResponse( $x, $return, $z;)
+    MathResponse( $x, $return, $z; )
 end
 
 

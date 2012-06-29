@@ -29,9 +29,11 @@ import org.drools.mas.util.LoggerHelper;
 
 import org.drools.mas.util.helper.SessionLocator;
 
+import org.drools.grid.Grid;
 import org.drools.grid.api.impl.ResourceDescriptorImpl;
 import org.drools.grid.api.ResourceDescriptor;
 
+global Grid grid;
 
 query queryIf( Object $o )
     $queryIf : Object( this == $o )
@@ -39,20 +41,20 @@ end
 
 
 
-rule "Delayed action"
-salience 9999
-when
-    $holder : ActionHolder( $id : refId, $act : action, $drl : condition )
-    SessionLocator( $nodeId: nodeId, $sessionId : sessionId, mind == false )
-then
-    ResourceDescriptorImpl rd = new ResourceDescriptorImpl( );
-        rd.setId( "FIPA_RWH_" + $id );
-        rd.setLoaded( true );
-    insert( rd );
-
-    LoggerHelper.error(" >>> Adding Rule By Template: "+"requestWhen.drlt" + "THE FOLLOWING LOGIC IS NOT WORKING CHECK!!!!  " + $nodeId + " >>> " + $sessionId );
-    SessionManager.addRuleByTemplate( $nodeId, $sessionId, rd.getId(), "requestWhen.drlt", $holder );
-end
+//rule "Delayed action"
+//salience 9999
+//when
+//    $holder : ActionHolder( $id : refId, $act : action, $drl : condition )
+//    SessionLocator( $nodeId: nodeId, $sessionId : sessionId, mind == false )
+//then
+//    ResourceDescriptorImpl rd = new ResourceDescriptorImpl( );
+//        rd.setId( "FIPA_RWH_" + $id );
+//        rd.setLoaded( true );
+//    insert( rd );
+//
+//    LoggerHelper.error(" >>> Adding Rule By Template: "+"requestWhen.drlt" + "THE FOLLOWING LOGIC IS NOT WORKING CHECK!!!!  " + $nodeId + " >>> " + $sessionId );
+//    SessionManager.addRuleByTemplate( grid, $nodeId, $sessionId, rd.getId(), "requestWhen.drlt", $holder );
+//end
 
 //rule "CleanUp Request When"
 //when

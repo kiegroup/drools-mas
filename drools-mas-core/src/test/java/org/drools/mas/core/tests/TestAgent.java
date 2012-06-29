@@ -50,20 +50,20 @@ import org.slf4j.LoggerFactory;
 public class TestAgent {
 
     private static DroolsAgent mainAgent;
-    private static Logger logger = LoggerFactory.getLogger(TestAgent.class);
+    private static Logger logger = LoggerFactory.getLogger( TestAgent.class );
     private static Server server;
 
 
     @BeforeClass
     public static void setupDB() {
-        DeleteDbFiles.execute("~", "mydb", false);
+        DeleteDbFiles.execute( "~", "mydb", false );
 
-        logger.info("Staring DB for white pages ...");
+        logger.info( "Staring DB for white pages ..." );
         try {
 
-            server = Server.createTcpServer(new String[] {"-tcp","-tcpAllowOthers","-tcpDaemon","-trace"}).start();
-        } catch (SQLException ex) {
-            logger.error(ex.getMessage());
+            server = Server.createTcpServer( new String[] { "-tcp","-tcpAllowOthers","-tcpDaemon","-trace" } ).start();
+        } catch ( SQLException ex ) {
+            logger.error( ex.getMessage() );
         }
         logger.info("DB for white pages started! ");
 
@@ -75,27 +75,27 @@ public class TestAgent {
     public void createAgents() {
 
         DroolsAgentConfiguration mainConfig = new DroolsAgentConfiguration();
-        mainConfig.setAgentId("Mock Test Agent");
-        mainConfig.setChangeset("mainTestAgent_changeset.xml");
-        DroolsAgentConfiguration.SubSessionDescriptor subDescr1 = new DroolsAgentConfiguration.SubSessionDescriptor("session1", "sub1.xml", "local-mock-test-agent");
-        mainConfig.addSubSession(subDescr1);
-        DroolsAgentConfiguration.SubSessionDescriptor subDescr2 = new DroolsAgentConfiguration.SubSessionDescriptor("session2", "sub2.xml", "local-mock-test-agent");
-        mainConfig.addSubSession(subDescr2);
-        mainConfig.setMindNodeLocation("local-mock-test-agent");
-        mainConfig.setPort(7000);
-        mainAgent = DroolsAgentFactory.getInstance().spawn(mainConfig);
-        assertNotNull(mainAgent);
+        mainConfig.setAgentId( "Mock Test Agent" );
+        mainConfig.setChangeset( "mainTestAgent_changeset.xml" );
+        DroolsAgentConfiguration.SubSessionDescriptor subDescr1 = new DroolsAgentConfiguration.SubSessionDescriptor( "session1", "sub1.xml", "local-mock-test-agent" );
+        mainConfig.addSubSession( subDescr1 );
+        DroolsAgentConfiguration.SubSessionDescriptor subDescr2 = new DroolsAgentConfiguration.SubSessionDescriptor( "session2", "sub2.xml", "local-mock-test-agent" );
+        mainConfig.addSubSession( subDescr2 );
+        mainConfig.setMindNodeLocation( "local-mock-test-agent" );
+        mainConfig.setPort( 7000 );
 
-        assertNotNull(mainAgent.getInnerSession("session1"));
-        assertNotNull(mainAgent.getInnerSession("session2"));
+        mainAgent = DroolsAgentFactory.getInstance().spawn( mainConfig );
+        assertNotNull( mainAgent );
 
+        assertNotNull( mainAgent.getInnerSession( "session1" ) );
+        assertNotNull( mainAgent.getInnerSession( "session2" ) );
 
     }
 
     @After
     public void cleanUp() {
 
-        if (mainAgent != null) {
+        if ( mainAgent != null ) {
             mainAgent.dispose();
         }
 
@@ -148,13 +148,12 @@ public class TestAgent {
         StatefulKnowledgeSession target = mainAgent.getInnerSession( "session1" );
         assertTrue( target.getObjects().contains( fact ) );
 
-
     }
 
     @Test
     public void testSimpleConfirmAndDisconfirm() throws InterruptedException {
         MockFact fact = new MockFact( "patient1", 18 );
-        ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
+        ACLMessageFactory factory = new ACLMessageFactory( Encodings.XML );
 
         ACLMessage info = factory.newConfirmMessage( "me", "you", fact );
         mainAgent.tell( info );
@@ -177,7 +176,6 @@ public class TestAgent {
 
         assertNotNull( mainAgent.extractAgentAnswers( info2.getId() ) );
         assertFalse( target.getObjects().contains( fact ) );
-
 
     }
 
@@ -202,33 +200,33 @@ public class TestAgent {
             System.err.println("\t Inform-Trigger test : " + o);
         }
 
-        assertTrue(target.getObjects().contains(new Double(22.0)));
-        assertTrue(target.getObjects().contains(new Integer(484)));
+        assertTrue( target.getObjects().contains( new Double( 22.0 ) ) );
+        assertTrue( target.getObjects().contains( new Integer( 484 ) ) );
     }
 
 
 
     @Test
     public void testQueryIf() throws InterruptedException {
-        MockFact fact = new MockFact("patient1", 18);
-        ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
+        MockFact fact = new MockFact( "patient1", 18 );
+        ACLMessageFactory factory = new ACLMessageFactory( Encodings.XML );
 
-        ACLMessage info = factory.newInformMessage("me", "you", fact);
-        mainAgent.tell(info);
+        ACLMessage info = factory.newInformMessage( "me", "you", fact );
+        mainAgent.tell( info );
 
         waitForAnswers( info.getId(), 0, 250, 50 );
 
 
         ACLMessage qryif = factory.newQueryIfMessage("me", "you", fact);
-        assertEquals(0, mainAgent.extractAgentAnswers( qryif.getId()).size());
+        assertEquals( 0, mainAgent.extractAgentAnswers( qryif.getId() ).size() );
 
 
         mainAgent.tell( qryif );
 
         waitForAnswers( qryif.getId(), 1, 250, 50 );
 
-        List<ACLMessage> ans = mainAgent.extractAgentAnswers( qryif.getId() ); 
-        
+        List<ACLMessage> ans = mainAgent.extractAgentAnswers( qryif.getId() );
+
         assertNotNull( ans );
         assertEquals( 1, ans.size() );
 
@@ -240,21 +238,22 @@ public class TestAgent {
 
     @Test
     public void testQueryRef() throws InterruptedException {
-        MockFact fact = new MockFact("patient1", 18);
-        ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
+        MockFact fact = new MockFact( "patient1", 18 );
+        ACLMessageFactory factory = new ACLMessageFactory( Encodings.XML );
 
-        ACLMessage info = factory.newInformMessage("me", "you", fact);
+        ACLMessage info = factory.newInformMessage( "me", "you", fact );
         mainAgent.tell( info );
         waitForAnswers( info.getId(), 0, 250, 50 );
 
-        Query query = MessageContentFactory.newQueryContent("ageOfPatient", new Object[]{MessageContentHelper.variable("?mock"), "patient1", MessageContentHelper.variable("?age")});
-        ACLMessage qryref = factory.newQueryRefMessage("me", "you", query);
+        Query query = MessageContentFactory.newQueryContent( "ageOfPatient",
+                new Object[] { MessageContentHelper.variable( "?mock" ), "patient1", MessageContentHelper.variable( "?age" ) } );
+        ACLMessage qryref = factory.newQueryRefMessage( "me", "you", query );
         mainAgent.tell( qryref );
 
         waitForAnswers( qryref.getId(), 2, 250, 50 );
 
-        List<ACLMessage> ans = mainAgent.extractAgentAnswers( qryref.getId() ); 
-                
+        List<ACLMessage> ans = mainAgent.extractAgentAnswers( qryref.getId() );
+
         assertNotNull( ans );
         assertEquals( 2, ans.size() );
 
@@ -272,15 +271,15 @@ public class TestAgent {
         Map<String, Object> args = new LinkedHashMap<String, Object>();
         args.put("x", new Double(36));
 
-        Action action = MessageContentFactory.newActionContent("squareRoot", args);
-        ACLMessage req = factory.newRequestMessage("me", "you", action);
+        Action action = MessageContentFactory.newActionContent( "squareRoot", args );
+        ACLMessage req = factory.newRequestMessage( "me", "you", action );
 
 
 
         mainAgent.tell( req );
 
         waitForAnswers( req.getId(), 2, 250, 50 );
-        
+
         List<ACLMessage> ans = mainAgent.extractAgentAnswers( req.getId() );
 
         assertNotNull( ans );
@@ -400,9 +399,9 @@ public class TestAgent {
         mainAgent.tell( req );
 
         waitForAnswers( req.getId(), 2, 1000, 50 );
-        
+
         List<ACLMessage> ans = mainAgent.extractAgentAnswers( req.getId() );
-        
+
         assertNotNull(ans);
         assertEquals(2, ans.size());
 
@@ -506,7 +505,7 @@ public class TestAgent {
         mainAgent.tell( req );
 
         waitForAnswers( req.getId(), 2, 250, 50 );
-        
+
         List<ACLMessage> ans = mainAgent.extractAgentAnswers(req.getId());
 
         assertEquals( 2, ans.size() );

@@ -9,21 +9,19 @@ import java.util.HashMap;
 import javax.persistence.Persistence;
 import org.drools.SystemEventListenerFactory;
 import org.drools.grid.Grid;
-import org.drools.grid.GridNode;
 import org.drools.grid.GridServiceDescription;
-import org.drools.grid.SocketService;
 import org.drools.grid.conf.GridPeerServiceConfiguration;
 import org.drools.grid.conf.impl.GridPeerConfiguration;
 import org.drools.grid.helper.GridHelper;
-import org.drools.grid.impl.GridImpl;
 import org.drools.grid.impl.MultiplexSocketServerImpl;
-import org.drools.grid.io.impl.MultiplexSocketServiceCongifuration;
+import org.drools.grid.io.impl.MultiplexSocketServiceConfiguration;
 import org.drools.grid.remote.mina.MinaAcceptorFactoryService;
 import org.drools.grid.service.directory.WhitePages;
 import org.drools.grid.service.directory.impl.CoreServicesLookupConfiguration;
 import org.drools.grid.service.directory.impl.JpaWhitePages;
 import org.drools.grid.service.directory.impl.WhitePagesLocalConfiguration;
 import org.drools.grid.timer.impl.CoreServicesSchedulerConfiguration;
+import org.drools.mas.ACLMessage;
 import org.drools.mas.core.DroolsAgent;
 import org.drools.mas.util.ACLMessageFactory;
 import org.h2.tools.DeleteDbFiles;
@@ -43,9 +41,8 @@ public class SpringAgentTest {
 
     private static int port1 = 8000;
     private static int port2 = 8010;
-    private static Logger logger = LoggerFactory.getLogger(SpringAgentTest.class);
+    private static Logger logger = LoggerFactory.getLogger( SpringAgentTest.class );
     private static Server server;
-    private DroolsAgent agent;
 
     public SpringAgentTest() {
 
@@ -64,19 +61,25 @@ public class SpringAgentTest {
         logger.info("DB for white pages started! ");
 
         GridHelper.reset();
+        
+        logger.info( "----------------------------------------------------------------------------------------------" );
+        logger.info( "PRE-Setup Complete \n\n\n\n\n" );
     }
 
     @AfterClass
     public static void tearDownClass() {
+                
         logger.info("Stopping DB ...");
         try {
-            Server.shutdownTcpServer( server.getURL(), "", false, false);
+            Server.shutdownTcpServer( server.getURL(), "", false, false );
         } catch (SQLException e) {
             e.printStackTrace();
             fail ( e.getMessage() );
         }
         logger.info("DB Stopped!");
-
+        
+        logger.info( "----------------------------------------------------------------------------------------------" );
+        logger.info( "\n\n\n\n\n Context TORN DOWN" );
     }
 
     @Before
@@ -85,82 +88,154 @@ public class SpringAgentTest {
 
     @After
     public void tearDown() {
+    }
+
+    @Test
+    public void helloAgentSmithOneNode() {
+        spawnAgentSmithAndLayHimToRest( "applicationContextOneNode.xml" );
+    }
+
+    @Test
+    public void helloAgentSmithManyNodes() {
+        spawnAgentSmithAndLayHimToRest( "applicationContextGrid.xml" );
+    }
+
+
+    
+    @Test
+    public void helloAgentSmithManyNodesRespawn() {
+
+        System.out.println( "Create agent" );
+        spawnAgentSmithAndLayHimToRest( "applicationContextGrid.xml" );
+
+        System.out.println( "Recreate agent in same context" );
+        spawnAgentSmithAndLayHimToRest( "applicationContextGrid.xml" );
+
+        System.out.println( "Recreate same agent for the third time" );
+        spawnAgentSmithAndLayHimToRest( "applicationContextGrid.xml" );
+
+    }
+
+    @Test
+    public void helloAgentsSmiths() {
+        ApplicationContext context;
+        DroolsAgent a1;
+        DroolsAgent a2;
+
+        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        a1 = (DroolsAgent) context.getBean( "agent" );
+        a1.dispose();
+
+        context = new ClassPathXmlApplicationContext( "applicationContextOneNode.xml" );
+        a2 = (DroolsAgent) context.getBean( "agent" );
+        a2.dispose();
+
+    }
+
+
+    @Test
+    public void helloAgentsSmithsTogether() {
+        ApplicationContext context;
+        DroolsAgent a1;
+        DroolsAgent a2;
+
+        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        a1 = (DroolsAgent) context.getBean( "agent" );
+
+        context = new ClassPathXmlApplicationContext( "applicationContextOneNode.xml" );
+        a2 = (DroolsAgent) context.getBean( "agent" );
+
+        a1.dispose();
+        a2.dispose();
+    }
+
+
+
+    @Test
+    public void helloAgentsSmithsUpAndDown() {
+        ApplicationContext context;
+        DroolsAgent a1;
+        DroolsAgent a2;
+
+        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        a1 = (DroolsAgent) context.getBean( "agent" );
+
+        context = new ClassPathXmlApplicationContext( "applicationContextOneNode.xml" );
+        a2 = (DroolsAgent) context.getBean( "agent" );
+
+        a1.dispose();
+
+        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        a1 = (DroolsAgent) context.getBean( "agent" );
+
+        a1.dispose();
+        a2.dispose();
+
+        context = new ClassPathXmlApplicationContext( "applicationContextOneNode.xml" );
+        a2 = (DroolsAgent) context.getBean( "agent" );
+
+        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        a1 = (DroolsAgent) context.getBean( "agent" );
+
+        a2.dispose();
+        a1.dispose();
+
+    }
+
+
+    @Test
+    public void testNodeSessionSharedHosting() {
+        ApplicationContext context;
+        DroolsAgent a1;
+        DroolsAgent a2;
+
+        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        a1 = (DroolsAgent) context.getBean( "agent" );
+
+        context = new ClassPathXmlApplicationContext( "applicationContextSharing.xml" );
+        a2 = (DroolsAgent) context.getBean( "agent" );
+
+
+        a2.dispose();
+
+        a1.dispose();
+    }
+
+
+
+
+    protected void spawnAgentSmithAndLayHimToRest( String contextFile ) {
+
+        ApplicationContext context = new ClassPathXmlApplicationContext( contextFile );
+
+        logger.info( "\n\n\n\n\n\n\n\n\n**********************************************************************************************" );
+        DroolsAgent agent = (DroolsAgent) context.getBean( "agent" );
+
+        assertNotNull( agent );
+
+        ACLMessage imsg = ACLMessageFactory.getInstance().newInformMessage( "", "", new mock.MockFact( "asdasd", 12 ) );
+        agent.tell( imsg );
+
+        waitForAnswers( agent, imsg.getId(), 0, 100, 1 );
+
         agent.dispose();
+
+        logger.info( "**********************************************************************************************\n\n\n\n\n\n\n\n\n" );
+    }
+    
+    
+    
+    private void waitForAnswers( DroolsAgent agent, String id, int expectedSize, long sleep, int maxIters ) {
+        int counter = 0;
+        do {
+            System.out.println( "Answer for " + id + " is not ready, wait... " );
+            try {
+                Thread.sleep( sleep );
+                counter++;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } while ( agent.peekAgentAnswers( id ).size() < expectedSize && counter < maxIters );
     }
 
-    @Test
-    public void helloAgentSmith() {
-        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
-
-        agent = (DroolsAgent) context.getBean("agent");
-
-
-
-
-    }
-
-    @Test
-    public void helloAgentSmithGrid() {
-
-
-        Grid grid1 = configureGrid(new GridImpl("peer1",new HashMap<String, Object>()), port1);
-        final GridNode n1 = grid1.createGridNode("node1");
-        grid1.get(SocketService.class).addService("node1", port1, n1);
-
-
-        Grid grid2 = configureGrid(new GridImpl("peer2",new HashMap<String, Object>()), port2);
-        final GridNode n2 = grid2.createGridNode("node2");
-        grid2.get(SocketService.class).addService("node2", port2, n2);
-
-        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContextGrid.xml");
-
-        agent = (DroolsAgent) context.getBean("agent");
-
-        assertNotNull(agent);
-
-        agent.tell(ACLMessageFactory.getInstance().newInformMessage("", "", new mock.MockFact("asdasd", 12)));
-
-
-        n1.dispose();
-        grid1.get(SocketService.class).close();
-
-        n2.dispose();
-        grid2.get(SocketService.class).close();
-
-        
-
-    }
-
-    private Grid configureGrid(Grid grid, int port) {
-
-        //Local Grid Configuration, for our client
-        GridPeerConfiguration conf = new GridPeerConfiguration();
-
-        //Configuring the Core Services White Pages
-        GridPeerServiceConfiguration coreSeviceWPConf = new CoreServicesLookupConfiguration(new HashMap<String, GridServiceDescription>());
-        conf.addConfiguration(coreSeviceWPConf);
-
-        //Configuring the Core Services Scheduler
-        GridPeerServiceConfiguration coreSeviceSchedulerConf = new CoreServicesSchedulerConfiguration();
-        conf.addConfiguration(coreSeviceSchedulerConf);
-
-        //Configuring the a local WhitePages service
-        WhitePagesLocalConfiguration wplConf = new WhitePagesLocalConfiguration();
-        wplConf.setWhitePages(new JpaWhitePages(Persistence.createEntityManagerFactory("org.drools.grid")));
-        conf.addConfiguration(wplConf);
-
-        if (port >= 0) {
-            //Configuring the SocketService
-            MultiplexSocketServiceCongifuration socketConf = new MultiplexSocketServiceCongifuration(new MultiplexSocketServerImpl("127.0.0.1",
-                    new MinaAcceptorFactoryService(),
-                    SystemEventListenerFactory.getSystemEventListener(),
-                    grid));
-            socketConf.addService(WhitePages.class.getName(), wplConf.getWhitePages(), port);
-
-            conf.addConfiguration(socketConf);
-        }
-        conf.configure(grid);
-
-        return grid;
-    }
 }

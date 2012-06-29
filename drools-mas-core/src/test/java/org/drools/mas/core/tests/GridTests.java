@@ -26,7 +26,7 @@ import org.drools.grid.conf.impl.GridPeerConfiguration;
 import org.drools.grid.helper.GridHelper;
 import org.drools.grid.impl.GridImpl;
 import org.drools.grid.impl.MultiplexSocketServerImpl;
-import org.drools.grid.io.impl.MultiplexSocketServiceCongifuration;
+import org.drools.grid.io.impl.MultiplexSocketServiceConfiguration;
 import org.drools.grid.remote.mina.MinaAcceptorFactoryService;
 import org.drools.grid.service.directory.WhitePages;
 import org.drools.grid.service.directory.impl.CoreServicesLookupConfiguration;
@@ -91,38 +91,48 @@ public class GridTests {
 
     @Before
     public void setUp() {
-
         this.coreServicesMap = new HashMap();
         createRemoteNode();
     }
 
     @After
     public void tearDown() {
-        remoteN1.dispose();
-        grid1.get(SocketService.class).close();
+        disposeRemoteNode();
+        grid1.get( SocketService.class ).close();
     }
     
     private void createRemoteNode(){
         grid1 = new GridImpl("peer1", new HashMap<String, Object>() );
         configureGrid1( grid1,
                         8000,
-                        new JpaWhitePages(Persistence.createEntityManagerFactory("org.drools.grid")) );
+                        new JpaWhitePages( Persistence.createEntityManagerFactory( "org.drools.grid" ) ) );
 
         Grid grid2 = new GridImpl("peer2", new HashMap<String, Object>() );
         configureGrid1( grid2,
                         -1,
                         grid1.get( WhitePages.class ) );
 
-        GridNode n1 = grid1.createGridNode( "n1" );
+
+        GridNode n1;
+        GridServiceDescription<GridNode> n1Gsd = grid1.get( WhitePages.class ).lookup( "n1" );
+        if ( n1Gsd != null ) {
+            n1 = grid1.claimGridNode( "n1" );
+        } else {
+            n1 = grid1.createGridNode( "n1" );
+        }
         grid1.get( SocketService.class ).addService( "n1", 8000, n1 );
                
-        GridServiceDescription<GridNode> n1Gsd = grid2.get( WhitePages.class ).lookup( "n1" );
+        n1Gsd = grid2.get( WhitePages.class ).lookup( "n1" );
         GridConnection<GridNode> conn = grid2.get( ConnectionFactoryService.class ).createConnection( n1Gsd );
         remoteN1 = conn.connect();
-        
 
     }
-    
+
+    private void disposeRemoteNode() {
+        remoteN1.dispose();
+        grid1.removeGridNode( "n1" );
+    }
+
     private void configureGrid1(Grid grid,
                                 int port,
                                 WhitePages wp) {
@@ -149,7 +159,7 @@ public class GridTests {
         
         if ( port >= 0 ) {
             //Configuring the SocketService
-            MultiplexSocketServiceCongifuration socketConf = new MultiplexSocketServiceCongifuration( new MultiplexSocketServerImpl( "127.0.0.1",
+            MultiplexSocketServiceConfiguration socketConf = new MultiplexSocketServiceConfiguration( new MultiplexSocketServerImpl( "127.0.0.1",
                                                                                                                               new MinaAcceptorFactoryService(),
                                                                                                                               SystemEventListenerFactory.getSystemEventListener(),
                                                                                                                               grid) );
@@ -234,7 +244,7 @@ public class GridTests {
         ((InternalResource) changeSetRes).setResourceType( ResourceType.CHANGE_SET );
 
 
-        KnowledgeAgent kAgent = GridHelper.getKnowledgeAgentRemoteClient( remoteN1.getId(), "ksession-rules" );
+        KnowledgeAgent kAgent = GridHelper.getKnowledgeAgentRemoteClient( GridHelper.createGrid(), remoteN1.getId(), "ksession-rules" );
         kAgent.applyChangeSet( changeSetRes );
 
         Thread.sleep( 1000 );

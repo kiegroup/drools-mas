@@ -181,7 +181,7 @@ public class DialogueHelper {
     }
     
     
-    public Object getReturn( ACLMessage msg, boolean decode ) throws UnsupportedOperationException {
+    public Object extractReturn( ACLMessage msg, boolean decode ) throws UnsupportedOperationException {
 
         if ( msg == null  ) {
             return null;
@@ -213,10 +213,10 @@ public class DialogueHelper {
 
     public List<ACLMessage> getAgentAnswers( String reqId ) {
         AsyncDroolsAgentService asyncServicePort = null;
-        if (this.endpointURL == null || this.qname == null) {
-            throw new IllegalStateException("A Web Service URL and a QName Must be Provided for the client to work!");
+        if ( this.endpointURL == null || this.qname == null ) {
+            throw new IllegalStateException( "A Web Service URL and a QName Must be Provided for the client to work!" );
         } else {
-            asyncServicePort = new AsyncAgentService(this.endpointURL, this.qname).getAsyncAgentServicePort();
+            asyncServicePort = new AsyncAgentService( this.endpointURL, this.qname ).getAsyncAgentServicePort();
         }
         return asyncServicePort.getResponses( reqId );
     }
