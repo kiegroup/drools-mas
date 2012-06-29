@@ -20,10 +20,10 @@
     <modelVersion>4.0.0</modelVersion>
    
     <groupId>org.drools.mas.example</groupId>
-    <artifactId>new-emergency-agent-client</artifactId>
+    <artifactId>emergency-agent-client</artifactId>
     <version>1.0-SNAPSHOT</version>
     
-    <name>Drools MAS :: emergency-agent Client</name>
+    <name>Drools MAS :: Emergency Agent Client</name>
     <url>http://maven.apache.org</url>
     <build>
         <resources>
@@ -134,8 +134,8 @@
                         </goals>
                         <configuration>
                             <wsdlUrls>
-                                <wsdlUrl>http://localhost:8080/emergency-agent/services/AsyncAgentService?WSDL</wsdlUrl>
-                                <wsdlUrl>http://localhost:8080/emergency-agent/services/SyncAgentService?WSDL</wsdlUrl>    
+                                <wsdlUrl>http://localhost:8084/emergency-agent/services/AsyncAgentService?WSDL</wsdlUrl>
+                                <wsdlUrl>http://localhost:8084/emergency-agent/services/SyncAgentService?WSDL</wsdlUrl>
                             </wsdlUrls>
                             <staleFile>${project.build.directory}/jaxws/stale/.wsdl.stale</staleFile>
                         </configuration>
@@ -157,6 +157,7 @@
                     <verbose>true</verbose>
                     <extension>true</extension>
                     <catalog>${basedir}/src/jax-ws-catalog.xml</catalog>
+                    <sei/>
                 </configuration>
             </plugin>
             
@@ -205,6 +206,11 @@
         <dependency>
             <groupId>org.drools.mas</groupId>
             <artifactId>drools-mas-util</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.drools.mas</groupId>
+            <artifactId>drools-mas-generic-client</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>

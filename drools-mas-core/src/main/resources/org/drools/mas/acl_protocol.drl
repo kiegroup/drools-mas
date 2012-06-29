@@ -373,18 +373,18 @@ rule "Not Understood I - because of internal ExecutionFault"
     when
         $msg : ACLMessage( performative == Act.REQUEST || == Act.REQUEST_WHEN || == Act.REQUEST_WHENEVER,
                        $msgId : id, $sender : sender, $body : body )  
-        ResponseContent(messageId == $msgId, $fault: fault) 
-        ExecutionFault($faultString: faultString) from $fault
+        ResponseContent( messageId == $msgId, $fault: fault )
+        ExecutionFault( $faultString: faultString ) from $fault
         $conf: DroolsAgentConfiguration()
     then
         ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithNotUnderstoodMessage( $msg,
                                             $sender,
                                             ((Request) $body).getAction(),
                                             $faultString  );
-    if (LoggerHelper.isTraceEnabled()) { 
-        LoggerHelper.trace(" ### PROTOCOL RULES: NOT UNDERSTOOD I - Internal Fault" + $conf.getAgentId() + " >>>> " + ans);
+    if ( LoggerHelper.isDebugEnabled() ) {
+        LoggerHelper.debug( " ### PROTOCOL RULES: NOT UNDERSTOOD I - Internal Fault" + $conf.getAgentId() + " >>>> " + ans );
     }
-    insert(new MessageAnswer($msg.getId(), ans));
+    insert( new MessageAnswer( $msg.getId(), ans ) );
     retract( $msg );
 end
 
@@ -393,18 +393,18 @@ rule "Not Understood II - because of NoHandlerFault"
     when
         $msg : ACLMessage( performative == Act.REQUEST || == Act.REQUEST_WHEN || == Act.REQUEST_WHENEVER,
                        $msgId : id, $sender : sender, $body : body )  
-        ResponseContent(messageId == $msgId, $fault: fault) 
-        NoHandlerFault($faultString: faultString) from $fault
+        ResponseContent( messageId == $msgId, $fault: fault )
+        NoHandlerFault( $faultString: faultString ) from $fault
         $conf: DroolsAgentConfiguration()
     then
         ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithNotUnderstoodMessage( $msg,
                                             $sender,
                                             ((Request) $body).getAction(),
                                             $faultString  );
-    if (LoggerHelper.isTraceEnabled()) { 
-        LoggerHelper.trace(" ### PROTOCOL RULES: NOT UNDERSTOOD II - NoHandlerFault" + $conf.getAgentId() + " >>>> " + ans);
+    if ( LoggerHelper.isDebugEnabled() ) {
+        LoggerHelper.debug( " ### PROTOCOL RULES: NOT UNDERSTOOD II - NoHandlerFault" + $conf.getAgentId() + " >>>> " + ans );
     }
-    insert(new MessageAnswer($msg.getId(), ans));
+    insert( new MessageAnswer( $msg.getId(), ans ) );
     retract( $msg );
 end
 
@@ -420,11 +420,11 @@ then
                                             $sender,
                                             null,
                                             "Routing error : No dedicated session" );
-    if (LoggerHelper.isTraceEnabled()) { 
-        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+    if ( LoggerHelper.isDebugEnabled() ) {
+        LoggerHelper.debug( " ### PROTOCOL RULES: NOT UNDERSTOOD III (NO DEDICATED SESSION) " + $conf.getAgentId() + " >>>> " + ans );
     }
 
-    insert(new MessageAnswer($msg.getId(), ans));
+    insert( new MessageAnswer( $msg.getId(), ans ) );
     retract( $msg );
 end
 

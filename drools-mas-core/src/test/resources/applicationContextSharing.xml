@@ -4,8 +4,8 @@
 	xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
-    <bean id="agent1-session1" class="org.drools.mas.core.DroolsAgentConfiguration$SubSessionDescriptor">
-        <constructor-arg value="session1"/>
+    <bean id="agent2-session1" class="org.drools.mas.core.DroolsAgentConfiguration$SubSessionDescriptor">
+        <constructor-arg value="session2"/>
         <constructor-arg value="sub1.xml"/>
         <constructor-arg value="node1"/>
     </bean>  
@@ -17,15 +17,15 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     </bean-->  
     
 
-    <bean id="agent1-configuration" class="org.drools.mas.core.DroolsAgentConfiguration">
-        <property name="agentId" value="Agent 1"/>
+    <bean id="agent2-configuration" class="org.drools.mas.core.DroolsAgentConfiguration">
+        <property name="agentId" value="Agent 2"/>
         <property name="changeset" value="mainTestAgent_changeset.xml" />
         <property name="responseInformer" value="org.drools.mas.mock.MockResponseInformer"/>
-        <property name="mindNodeLocation" value="local-agent1"/>
-        <property name="port" value="7000"/>
+        <property name="mindNodeLocation" value="local-agent2"/>
+        <property name="port" value="7005"/>
         <property name="subSessions">
             <list>
-                <ref local="agent1-session1"/>
+                <ref local="agent2-session1"/>
                 <!--ref local="agent1-session2"/-->
             </list>
         </property>
@@ -34,7 +34,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <bean id="agent-factory" class="org.drools.mas.core.DroolsAgentFactory" factory-method="getInstance"/>
   
     <bean id="agent" class="org.drools.mas.core.DroolsAgent" factory-bean="agent-factory" factory-method="spawn" destroy-method="dispose">
-        <constructor-arg ref="agent1-configuration"/>
+        <constructor-arg ref="agent2-configuration"/>
     </bean>
 
 </beans>

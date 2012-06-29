@@ -1,6 +1,7 @@
 package org.drools.mas.util.helper;
 
 import org.drools.command.CommandFactory;
+import org.drools.grid.Grid;
 import org.drools.grid.helper.GridHelper;
 import org.drools.grid.remote.command.AsyncBatchExecutionCommandImpl;
 import org.drools.mas.Encodings;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ResponseContent implements Serializable{
+
     private String nodeId;
     private String sessionId;
     private String messageId;
@@ -24,11 +26,15 @@ public class ResponseContent implements Serializable{
 
     private static Logger logger = LoggerFactory.getLogger( ResponseContent.class );
 
-
     public static void deliverResponse( String $nodeId, String $sessionId, String $msgId, Object $return, Fault $fault ) {
+        deliverResponse( $nodeId, $sessionId, $msgId, $return, $fault, false );
+    }
+
+    public static void deliverResponse( String $nodeId, String $sessionId, String $msgId, Object $return, Fault $fault, boolean needEncoding ) {
+        Grid grid = GridHelper.createGrid();
         try {
             if ( logger.isDebugEnabled() ) {
-                logger.debug( "(" + Thread.currentThread().getId() + ")"+Thread.currentThread().getName() +"Content helper is now active" );
+                logger.debug( "(" + Thread.currentThread().getId() + ")"+Thread.currentThread().getName() + "Content helper is now active" );
             }
             Map results = null;
             if ( $return != null ) {
@@ -36,8 +42,10 @@ public class ResponseContent implements Serializable{
                 if ( $return instanceof String ) {
                     results.put( "?return", $return );
                 } else {
-                    String ret = MessageContentEncoder.encode( $return, Encodings.XML );
-                    results.put( "?return", ret );
+                    if ( needEncoding ) {
+                        $return = MessageContentEncoder.encode( $return, Encodings.XML );
+                    }
+                    results.put( "?return", $return );
                 }
                 if ( logger.isDebugEnabled() ) {
                     logger.debug("(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper would like to return" + results.get("?return"));
@@ -48,10 +56,10 @@ public class ResponseContent implements Serializable{
             response.setFault( $fault );
 
             if ( logger.isDebugEnabled() ) {
-                logger.debug("(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper fault is expected to be null " + $fault);
+                logger.debug( "(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper fault is expected to be null " + $fault );
             }
 
-            StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession( $nodeId, $sessionId );
+            StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession( grid, $nodeId, $sessionId, true );
 
             if ( logger.isDebugEnabled() ) {
                 logger.debug( "(" + Thread.currentThread().getId() + ")"+Thread.currentThread().getName() +"Content helper ksession found!"  );
@@ -69,7 +77,7 @@ public class ResponseContent implements Serializable{
             kSession.execute( batch );
 
             if ( logger.isDebugEnabled() ) {
-                logger.debug("(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper batch dispatched");
+                logger.debug("(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper batch dispatched" );
             }
         } catch (Exception e) { e.printStackTrace(); }
     }

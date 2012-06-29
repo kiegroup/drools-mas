@@ -22,7 +22,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>Drools MAS :: emergency-agent Agent Web</name>
+    <name>Drools MAS :: Emergency Agent Agent Web</name>
     
     <profiles>
         <profile>
@@ -38,9 +38,9 @@
                 <db.dialect>org.hibernate.dialect.H2Dialect</db.dialect>
                 <agent.name>emergecy-agent</agent.name>
                 <agent.node>emergency-agent-localnode</agent.node>
-                <agent.port>7000</agent.port>
+                <agent.port>7043</agent.port>
                 <agent.endpoint.ip>localhost</agent.endpoint.ip>
-                <agent.endpoint.port>8080</agent.endpoint.port>
+                <agent.endpoint.port>8084</agent.endpoint.port>
             </properties> 
         </profile>
     </profiles>
@@ -53,18 +53,18 @@
         <dependency>
             <groupId>org.drools.mas.examples</groupId>
             <artifactId>emergency-agent-model</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         <!-- Drools MAS Dependencies --> 
         <dependency>
             <groupId>org.drools.mas</groupId>
             <artifactId>drools-mas-core</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.drools.mas</groupId>
             <artifactId>drools-mas-acl</artifactId>
-            <version>${project.version}</version>   
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         
         <dependency>

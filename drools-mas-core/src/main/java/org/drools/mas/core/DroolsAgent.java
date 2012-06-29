@@ -15,10 +15,11 @@
  */
 package org.drools.mas.core;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.drools.grid.*;
 import org.drools.mas.util.MessageContentEncoder;
 import org.drools.runtime.StatefulKnowledgeSession;
@@ -81,13 +82,19 @@ public class DroolsAgent {
      *
      * @param msg
      */
-    public void tell(ACLMessage msg) {
-        if (logger.isTraceEnabled()) {
-            logger.trace(" +++ Message Inside Tell -> " + msg);
+    public void tell( ACLMessage msg ) {
+        try {
+            if ( logger.isTraceEnabled() ) {
+                logger.trace( " +++ Message Inside Tell -> " + msg );
+            }
+            MessageContentEncoder.decodeBody( msg.getBody(), msg.getEncoding() );
+            this.mind.insert( msg );
+            this.mind.fireAllRules();
+        } catch ( Exception e ) {
+            // Should not happen, but in case...
+            logger.error( " FATAL -> Agent " + getAgentId() + " can not survive ", e );
+            dispose();
         }
-        MessageContentEncoder.decodeBody(msg.getBody(), msg.getEncoding());
-        this.mind.insert(msg);
-        this.mind.fireAllRules();
     }
     
     
@@ -96,39 +103,43 @@ public class DroolsAgent {
      * Destructor
      */
     public void dispose() {
-        if (logger.isInfoEnabled()) {
-            logger.info(" >>> Disposing Agent " + agentId.getName());
-        }
-        QueryResults queryResults = mind.getQueryResults("getSessions", new Object[]{});
-        Iterator<QueryResultsRow> iterator = queryResults.iterator();
-        while (iterator.hasNext()) {
+        //TODO : what if another agent is using this grid's nodes?
+        try {
+            if ( logger.isInfoEnabled() ) {
+                logger.info( " >>> Disposing Agent " + agentId.getName() );
+            }
+            QueryResults queryResults = mind.getQueryResults( "getSessions", new Object[] {} );
+            Iterator<QueryResultsRow> iterator = queryResults.iterator();
+            while ( iterator.hasNext() ) {
 
-            SessionLocator sessionLoc = (SessionLocator) iterator.next().get("$sessionLocator");
-            if (logger.isDebugEnabled()) {
-                logger.debug(" ### \t Disposing Agent Session :" + sessionLoc);
+                SessionLocator sessionLoc = (SessionLocator) iterator.next().get( "$sessionLocator" );
+                if ( logger.isDebugEnabled() ) {
+                    logger.debug(" ### \t Disposing Agent Session :" + sessionLoc );
+                }
+                GridNode node = grid.getGridNode( sessionLoc.getNodeId() );
+                GridServiceDescription<GridNode> nGsd = null;
+                if ( node == null ) {
+                    nGsd = grid.get( WhitePages.class ).lookup( sessionLoc.getNodeId() );
+                    GridConnection<GridNode> conn = grid.get( ConnectionFactoryService.class ).createConnection( nGsd );
+                    node = conn.connect();
+
+                    StatefulKnowledgeSession ksession = node.get( sessionLoc.getSessionId(), StatefulKnowledgeSession.class );
+                    ksession.dispose();
+                    node.dispose();
+
+                } else {
+                    // it's a local node ( triple check! ), so we just shut the KS down. The node will be disposed later
+                    StatefulKnowledgeSession ksession = node.get( sessionLoc.getSessionId(), StatefulKnowledgeSession.class );
+                    ksession.dispose();
+                }
             }
-            GridNode node = grid.getGridNode(sessionLoc.getNodeId());
-            GridServiceDescription<GridNode> nGsd = null;
-            if (node == null) {
-                nGsd = grid.get(WhitePages.class).lookup(sessionLoc.getNodeId());
-                GridConnection<GridNode> conn = grid.get(ConnectionFactoryService.class).createConnection(nGsd);
-                node = conn.connect();
-            }
-            StatefulKnowledgeSession ksession = node.get(sessionLoc.getSessionId(), StatefulKnowledgeSession.class);
-            ksession.dispose();
-            //@TODO: We need to check if there are no more sessions in the remote node to dispose it completely
-            if( nGsd != null ){
-                grid.removeGridNode( nGsd.getId() );
-            }
-            if( node != null){
-                node.dispose();
-            }
-            
+
+        } finally {
+            grid.dispose();
         }
-        
-        grid.get(SocketService.class).close();
-        mind.dispose();
     }
+
+
 
     public StatefulKnowledgeSession getInnerSession(String sessionId) {
         if (logger.isDebugEnabled()) {

@@ -45,7 +45,7 @@
         <module>examples/drools-mas-emergency-agent</module>
         <module>examples/drools-mas-emergency-agent-client</module>
     </modules>
-  
+
     <repositories>
         <repository>
             <id>jboss</id>

@@ -4,8 +4,12 @@
  */
 package org.drools.mas;
 
-import java.util.List;
+
+import org.drools.mas.ACLMessage;
+
 import javax.jws.WebService;
+import java.util.List;
+
 
 /**
  *
@@ -15,4 +19,5 @@ import javax.jws.WebService;
 public interface AsyncDroolsAgentService {
     void tell(ACLMessage message);
     List<ACLMessage> getResponses(String msgId);
+    void dispose();
 }
