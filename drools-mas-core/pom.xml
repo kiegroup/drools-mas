@@ -26,20 +26,27 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>drools-mas-core</artifactId>
-  
+
     <name>Drools :: MAS Core</name>
-  
+
 
     <dependencies>
         <dependency>
+        	<groupId>mysql</groupId>
+        	<artifactId>mysql-connector-java</artifactId>
+        	<version>5.1.18</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>org.drools.mas</groupId>
             <artifactId>drools-mas-acl</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.drools.mas</groupId>
             <artifactId>drools-mas-util</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.drools</groupId>
@@ -61,7 +68,7 @@
             <artifactId>drools-grid-impl</artifactId>
             <version>${drools.version}</version>
         </dependency>
-       
+
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -142,7 +149,7 @@
                     <manifestLocation>META-INF</manifestLocation>
                     <instructions>
                         <_removeheaders>Ignore-Package</_removeheaders>
-                        <Require-Bundle>org.drools.api;org.drools.core;org.drools.compiler;visibility:=reexport;bundle-version="${drools.osgi.version}"</Require-Bundle>
+                        <Require-Bundle>org.drools.api;org.drools.core;org.drools.compiler;visibility:=reexport;bundle-version="5.5.0-SNAPSHOT"</Require-Bundle>
                         <Import-Package>!org.drools.*, *,org.osgi.util.tracker</Import-Package>
                         <Export-Package>org.drools.mas.core.*</Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>

@@ -1,31 +1,20 @@
-/*
+package org.drools.mas;/*
  * To change this template, choose Tools | Templates and open the template in
  * the editor.
  */
 
-package org.drools.mas;
-import java.util.List;
-import javax.jws.WebMethod;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import org.apache.cxf.feature.Features;
-
-
-
-
 import org.drools.mas.body.acts.*;
-import org.drools.mas.body.content.Action;
-import org.drools.mas.body.content.Info;
-import org.drools.mas.body.content.Query;
-import org.drools.mas.body.content.Ref;
-import org.drools.mas.body.content.Rule;
+import org.drools.mas.body.content.*;
 import org.drools.mas.core.DroolsAgent;
 import org.drools.mas.mappers.MyMapArgsEntryType;
 import org.drools.mas.mappers.MyMapReferenceEntryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jws.WebService;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import java.util.List;
 
 
 /**
@@ -36,7 +25,7 @@ import org.slf4j.LoggerFactory;
             portName="SyncAgentServicePort", endpointInterface="org.drools.mas.SynchronousDroolsAgentService"
            )
 @XmlSeeAlso(value = {ACLMessage.class, AbstractMessageBody.class, Inform.class, Info.class, QueryIf.class, InformIf.class,
-    Agree.class, Failure.class, Action.class, Rule.class, InformRef.class, Act.class,
+    Agree.class, Failure.class, Action.class, Rule.class, InformRef.class, Act.class, Disconfirm.class, Confirm.class,
     QueryRef.class, Query.class, Ref.class, Encodings.class,
     Ref.class, InformRef.class, Request.class, RequestWhen.class,
     MyMapReferenceEntryType.class, MyMapArgsEntryType.class})
@@ -82,5 +71,10 @@ public class SynchronousDroolsAgentServiceImpl implements SynchronousDroolsAgent
             }
         }
         return retrieveResponses;
+    }
+    
+    public void dispose(){
+        logger.debug(" XXX Disposing Agent -> " + agent.getAgentId());
+        agent.dispose();
     }
 }

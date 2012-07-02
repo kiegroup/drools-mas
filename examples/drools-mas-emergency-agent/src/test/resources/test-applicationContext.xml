@@ -22,7 +22,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
         <property name="changeset" value="agent_changeset.xml" />
         <!-- by default the mindNodeLocation is local --> 
         <property name="mindNodeLocation" value="local-agent1"/>
-        <property name="port" value="8800"/>
+        <property name="port" value="8234"/>
         <property name="subSessions">
             <list>
                 <ref local="agent1-session1"/>
@@ -32,7 +32,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
     <bean id="agent-factory" class="org.drools.mas.core.DroolsAgentFactory" factory-method="getInstance"/>
   
-    <bean id="agent" class="org.drools.mas.core.DroolsAgent" factory-bean="agent-factory" factory-method="spawn">
+    <bean id="agent" class="org.drools.mas.core.DroolsAgent" factory-bean="agent-factory" factory-method="spawn" destroy-method="dispose">
         <constructor-arg ref="agent1-configuration"/>
     </bean>
 

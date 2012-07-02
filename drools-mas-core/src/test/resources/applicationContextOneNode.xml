@@ -4,37 +4,36 @@
 	xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
-    <bean id="agent1-session1" class="org.drools.mas.core.DroolsAgentConfiguration$SubSessionDescriptor">
-        <constructor-arg value="session1"/>
+    <bean id="agent0-session1" class="org.drools.mas.core.DroolsAgentConfiguration$SubSessionDescriptor">
+        <constructor-arg value="session47"/>
         <constructor-arg value="sub1.xml"/>
         <constructor-arg value="local"/>
     </bean>  
     
-    <bean id="agent1-session2" class="org.drools.mas.core.DroolsAgentConfiguration$SubSessionDescriptor">
-        <constructor-arg value="session2"/>
+    <bean id="agent0-session2" class="org.drools.mas.core.DroolsAgentConfiguration$SubSessionDescriptor">
+        <constructor-arg value="session83"/>
         <constructor-arg value="sub2.xml"/>
         <constructor-arg value="local"/>
     </bean>  
     
 
     <bean id="agent1-configuration" class="org.drools.mas.core.DroolsAgentConfiguration">
-        <property name="agentId" value="Agent 1"/>
+        <property name="agentId" value="Agent 0"/>
         <property name="changeset" value="mainTestAgent_changeset.xml" />
         <property name="responseInformer" value="org.drools.mas.mock.MockResponseInformer"/>
-        <!-- by default the mindNodeLocation is local --> 
         <property name="mindNodeLocation" value="local"/>
-        <property name="port" value="7000"/>
+        <property name="port" value="7001"/>
         <property name="subSessions">
             <list>
-                <ref local="agent1-session1"/>
-                <ref local="agent1-session2"/>
+                <ref local="agent0-session1"/>
+                <ref local="agent0-session2"/>
             </list>
         </property>
     </bean>
   
-    <bean id="agent-factory" class="org.drools.mas.core.DroolsAgentFactory" factory-method="getInstance"/>
+    <bean id="agent-factory" class="org.drools.mas.core.DroolsAgentFactory" factory-method="getInstance" />
   
-    <bean id="agent" class="org.drools.mas.core.DroolsAgent" factory-bean="agent-factory" factory-method="spawn">
+    <bean id="agent" class="org.drools.mas.core.DroolsAgent" factory-bean="agent-factory" factory-method="spawn" destroy-method="dispose">
         <constructor-arg ref="agent1-configuration"/>
     </bean>
 

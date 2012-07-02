@@ -66,35 +66,34 @@ then
     }
     
     retract($cmd);
-    
-    
-    
-    StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession($nodeId, $sessionId);
-    if (LoggerHelper.isDebugEnabled()) {
-            LoggerHelper.debug(" ### INTERNAL RULES: Trying to execute in = "+kSession);
+
+    StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession( grid, $nodeId, $sessionId, true );
+    if ( LoggerHelper.isDebugEnabled() ) {
+            LoggerHelper.debug( " ### INTERNAL RULES: Trying to execute in = " + kSession );
         }
     Object retVal = null;
-    LoggerHelper.debug(" ### INTERNAL RULES: Trying to execute in = "+kSession + " -  batch: "+$batch);
+    LoggerHelper.debug( " ### INTERNAL RULES: Trying to execute in = " + kSession + " -  batch: " + $batch );
     try {
-        org.drools.runtime.impl.ExecutionResultImpl result = (org.drools.runtime.impl.ExecutionResultImpl) kSession.execute($batch);
-        if(!($batch instanceof AsyncBatchExecutionCommandImpl)){
-            if (LoggerHelper.isDebugEnabled()) {
-                LoggerHelper.debug(" ### INTERNAL RULES: Executing Synchronous Batch, waiting for results ... ");
+        org.drools.runtime.impl.ExecutionResultImpl result = (org.drools.runtime.impl.ExecutionResultImpl) kSession.execute( $batch );
+        if( ! ( $batch instanceof AsyncBatchExecutionCommandImpl ) ) {
+            if ( LoggerHelper.isDebugEnabled() ) {
+                LoggerHelper.debug( " ### INTERNAL RULES: Executing Synchronous Batch, waiting for results ... " );
             }
-            retVal = result.getValue("$out_"+$msgId);
-            if (LoggerHelper.isDebugEnabled()) {
-                LoggerHelper.debug(" ### INTERNAL RULES: Remote Execution return = "+retVal);
+            retVal = result.getValue( "$out_" + $msgId );
+            if ( LoggerHelper.isDebugEnabled() ) {
+                LoggerHelper.debug( " ### INTERNAL RULES: Remote Execution return = " + retVal );
             }
-            ResponseContent response = new ResponseContent($nodeId, $sessionId, $msgId, retVal );
+            ResponseContent response = new ResponseContent( $nodeId, $sessionId, $msgId, retVal );
             insert( response );
-        }else{
-             if (LoggerHelper.isDebugEnabled()) {
-                LoggerHelper.debug(" ### INTERNAL RULES: Executing Asynchronous Batch, results will come later ... ");
+        } else {
+            if ( LoggerHelper.isDebugEnabled() ) {
+                LoggerHelper.debug( " ### INTERNAL RULES: Executing Asynchronous Batch, results will come later ... " );
             }
         }
     } catch ( Exception e ) {
-        if (LoggerHelper.isDebugEnabled()) {
-            LoggerHelper.debug(" ### INTERNAL RULES: Remote Execution fails = "+e.getMessage());
+        e.printStackTrace();
+        if ( LoggerHelper.isDebugEnabled() ) {
+            LoggerHelper.debug(" ### INTERNAL RULES: Remote Execution fails = " + e.getMessage() );
         }
         insert( new PerformativeFail( $msgId, e.getMessage() ) );
     }
@@ -111,18 +110,18 @@ when
     $msg : ACLMessage( $msgId : id )
     $dst : Destination( $msgId , $sessionId ; )
     $cmd : OneShotMessageCommand( $msgId, $act ; )
-    SessionLocator($nodeId: nodeId, sessionId == $sessionId)
+    SessionLocator( $nodeId: nodeId, sessionId == $sessionId )
 then
-    if (LoggerHelper.isDebugEnabled()) {
-        LoggerHelper.debug(" ### INTERNAL: EXECUTING msg command ONE for "+ $msgId + " in " + $sessionId);
-        LoggerHelper.debug(" ### INTERNAL: \t commands " + $cmd);
+    if ( LoggerHelper.isDebugEnabled() ) {
+        LoggerHelper.debug( " ### INTERNAL: EXECUTING msg command ONE for "+ $msgId + " in " + $sessionId );
+        LoggerHelper.debug( " ### INTERNAL: \t commands " + $cmd );
     }
-    retract($cmd);
+    retract( $cmd );
     
    
-    StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession($nodeId, $sessionId);
-    kSession.execute($act);
-    kSession.execute(CommandFactory.newFireAllRules());
+    StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession( grid, $nodeId, $sessionId, true );
+    kSession.execute( $act );
+    kSession.execute( CommandFactory.newFireAllRules() );
 end
 
 
@@ -189,14 +188,14 @@ when
     $msg : ACLMessage( $msgId : id, performative == Act.QUERY_IF )
     QueryIf( $info : proposition ) from $msg.body
     $dst : Destination( $msgId , $sessionId ; )
-    SessionLocator($nodeId: nodeId, sessionId == $sessionId)
+    SessionLocator( $nodeId: nodeId, sessionId == $sessionId )
 then
-    if (LoggerHelper.isTraceEnabled()) {
+    if ( LoggerHelper.isTraceEnabled() ) {
         LoggerHelper.trace(" ### INTERNAL: GENERATING COMMANDS FOR QUERYIF " + $msgId );
     }
-    List list = new ArrayList(1);
-    list.add(new QueryRemoteCommand("$out_"+$msgId, "queryIf", true, new Object[] {$info.getData()} ));
-    BatchExecutionCommand batch = CommandFactory.newBatchExecution(list);
+    List list = new ArrayList( 1 );
+    list.add( new QueryRemoteCommand( "$out_" + $msgId, "queryIf", true, new Object[] { $info.getData() } ) );
+    BatchExecutionCommand batch = CommandFactory.newBatchExecution( list );
     insert( new MessageCommands( $msgId, batch ) );
 end
 
@@ -206,20 +205,21 @@ salience 9999
 no-loop
 when
     $msg :  ACLMessage( $msgId : id, performative == Act.QUERY_IF )
-    $cont : ResponseContent($nodeId: nodeId, $sessionId: sessionId,  messageId == $msgId, $data : data != null )
+    $cont : ResponseContent( $nodeId: nodeId, $sessionId: sessionId,  messageId == $msgId, $data : data != null )
             QueryResults( size > 0 ) from $data
 then
-    if (LoggerHelper.isDebugEnabled()) {
+    if ( LoggerHelper.isDebugEnabled() ) {
         LoggerHelper.debug(" ### INTERNAL: FIXING QUERYIF RESULTS " + $msgId );
         LoggerHelper.debug(" ### INTERNAL: FIXING QUERYIF RESULTS " + $nodeId );
         LoggerHelper.debug(" ### INTERNAL: FIXING QUERYIF RESULTS " + $sessionId );
     }
-    if($data instanceof QueryResultsDescriptor){
-        $data = GridHelper.getQueryResultRemoteClient($nodeId, $sessionId, 
-                ((QueryResultsDescriptor)$data).getQueryName(), ((QueryResultsDescriptor)$data).getQueryId());
+    if( $data instanceof QueryResultsDescriptor ) {
+        $data = GridHelper.getQueryResultRemoteClient( grid, $nodeId, $sessionId,
+                ( (QueryResultsDescriptor) $data ).getQueryName(), ( (QueryResultsDescriptor) $data ).getQueryId() );
     }
-    $cont.setData(((QueryResults) $data).iterator().next().get("$queryIf"));
-    update($cont);
+    modify ( $cont ) {
+        setData( ( (QueryResults) $data ).iterator().next().get( "$queryIf" ) );
+    }
 end
 
 
@@ -252,19 +252,20 @@ when
     QueryRef( $query : query ) from $msg.body
     $cont : ResponseContent($nodeId: nodeId, $sessionId: sessionId, messageId == $msgId, $data : data != null )
 then
-    if (LoggerHelper.isDebugEnabled()) {
+    if ( LoggerHelper.isDebugEnabled() ) {
         LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $msgId);
         LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $nodeId);
         LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $sessionId);
         LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $data);
     }
-    if($data instanceof QueryResultsDescriptor){
-        $data = GridHelper.getQueryResultRemoteClient($nodeId, $sessionId, 
-                ((QueryResultsDescriptor)$data).getQueryName(), ((QueryResultsDescriptor)$data).getQueryId());
+    if( $data instanceof QueryResultsDescriptor ) {
+        $data = GridHelper.getQueryResultRemoteClient( grid, $nodeId, $sessionId,
+                ( (QueryResultsDescriptor) $data ).getQueryName(), ( (QueryResultsDescriptor) $data ).getQueryId() );
     }
-    
-    $cont.setData(MessageContentHelper.getQueryReferences($query, (QueryResults) $data));
-    update($cont);
+
+    modify ( $cont ) {
+        setData( MessageContentHelper.getQueryReferences( $query, (QueryResults) $data ) );
+    }
 end
 
 
@@ -295,18 +296,17 @@ when
     $req : Request( $act : action, $actName : action.actionName ) from $msg.body
     $cont : ResponseContent($nodeId: nodeId, $sessionId: sessionId, messageId == $msgId, $data : data != null )
 then
-    if (LoggerHelper.isDebugEnabled()) {
-        LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR REQUEST " + $msgId);
-        LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR REQUEST " + $sessionId);
-        LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR REQUEST " + $nodeId);
-        LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR REQUEST " + $data);
+    if ( LoggerHelper.isDebugEnabled() ) {
+        LoggerHelper.debug( " ### INTERNAL: FIXING RESULTS FOR REQUEST " + $msgId );
+        LoggerHelper.debug( " ### INTERNAL: FIXING RESULTS FOR REQUEST " + $sessionId );
+        LoggerHelper.debug( " ### INTERNAL: FIXING RESULTS FOR REQUEST " + $nodeId );
+        LoggerHelper.debug( " ### INTERNAL: FIXING RESULTS FOR REQUEST " + $data );
         
     }
-    
-    $cont.setData( MessageContentHelper.getActionReferences($act, (Map) $data));
-    
-    
-    update($cont);
+
+    modify ( $cont ) {
+        setData( MessageContentHelper.getActionReferences( $act, (Map) $data ) );
+    }
 end
 
 

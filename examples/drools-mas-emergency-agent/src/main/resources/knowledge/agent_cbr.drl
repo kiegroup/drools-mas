@@ -25,10 +25,9 @@ import org.drools.mas.util.InspectMessageHelper;
 rule "Mapping"
 when
 then
-    insert( new SessionMapping("agent-brain_hello-module","session1") );
+    insert( new SessionMapping( "agent-brain_hello-module", "session1" ) );
     
 end
-
 
 rule "Route_Encoded_JSON"
 when
@@ -36,7 +35,7 @@ when
     
 then
     System.err.println("Routing message " + $msgId + " (JSON)" );
-    insert( new MappingLookup($msgId, "agent-brain_hello-module" ) );
+    insert( new MappingLookup( $msgId, "agent-brain_hello-module" ) );
 end
 
 rule "Route_Encoded_XML"
@@ -44,8 +43,8 @@ rule "Route_Encoded_XML"
 when
     $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.XML )
 then
-    System.err.println("Routing message " + $msgId + " (XML)"  );
-    insert( new MappingLookup($msgId, "agent-brain_hello-module") );
+    System.err.println( "Routing message " + $msgId + " (XML)"  );
+    insert( new MappingLookup( $msgId, "agent-brain_hello-module" ) );
 end
 
 

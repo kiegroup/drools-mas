@@ -22,6 +22,7 @@
 */
 
 package org.drools.mas;
+
 import org.drools.mas.core.SessionManager;
 import org.drools.runtime.StatefulKnowledgeSession;
 import java.util.Map;
@@ -31,15 +32,16 @@ import org.drools.mas.util.helper.SessionLocator;
 import org.drools.grid.helper.GridHelper;
 import org.drools.mas.util.helper.NoHandlerFault;
 
+
 query mapSession( String $key, String $sid )
     SessionMapping( $key, $sid; )
 end
 
 rule "log"
-    when
-       $s: SessionMapping()
-    then
-        LoggerHelper.debug("  !#!@#!@#!@#!@####  Session Mapping: " + $s);
+when
+    $s: SessionMapping()
+then
+    LoggerHelper.debug( "  !#!@#!@#!@#!@####  Session Mapping: " + $s );
 end
 
 
@@ -65,7 +67,7 @@ end
 
 
 query subLocation( String $target )
-  SessionLocator( mind == false, $target := nodeId )
+    SessionLocator( mind == false, $target := nodeId )
 end
 
 rule "Generate Session"
@@ -92,14 +94,14 @@ then
                                new DroolsAgentConfiguration.SubSessionDescriptor( sid,
                                                                                   null, // use default changeset
                                                                                   targetLocation ),
-                               GridHelper.getGrid() ).getStatefulKnowledgeSession();
+                               grid,
+                               true // force nodes to be considered remote
+                               ).getStatefulKnowledgeSession();
     kSession.insert( new SessionLocator( targetLocation, sid , false, true) );
     kSession.insert( $sessionLocator );
     kSession.fireAllRules();
 
-
     insert( new SessionLocator( targetLocation, sid , false, true) );
-    
 end
 
 
@@ -111,9 +113,9 @@ rule "No session of this kind of message"
         ACLMessage( $msgId : id  )
         not Destination($msgId;)
     then
-        ResponseContent response = new ResponseContent($nodeId, $sessionId, $msgId, null);
-        response.setFault( new NoHandlerFault( $msgId, "CRITICAL : No Internal Routing Rule for this Message! " ) );
-        insert(response);
+        ResponseContent response = new ResponseContent( $nodeId, $sessionId, $msgId, null );
+            response.setFault( new NoHandlerFault( $msgId, "CRITICAL : No Internal Routing Rule for this Message! " ) );
+        insert( response );
 end
 
 

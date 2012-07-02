@@ -17,36 +17,34 @@ import org.drools.mas.examples.emergency.*;
 
 
 rule "Generic Knowledge Adquisition"
-    when
-        $o: Object()
-    then
-        System.out.println("Now I know about this: >>> " + $o );
-        
+when
+    $o: Object()
+then
+    System.out.println( "Now I know about this: >>> " + $o );
 end
 
 rule "Coordinate Emergency Action Processing"
 salience 1
 when
-    $action: Action( actionName == "coordinateEmergency")
+    $action: Action( actionName == "coordinateEmergency" )
 then
-    System.out.println("Coordinating Emergency ->"+$action);
-    insert(new Actions("Sending Ambulances", "Sending Firefigthers"));
+    System.out.println( "Coordinating Emergency ->"+$action );
+    insert( new Actions( "Sending Ambulances", "Sending Firefigthers" ) );
 end
 
 
-query coordinateEmergency( String $return )
-      $ret:= Actions()
-      $return:= String() from MessageContentEncoder.encode($ret, Encodings.XML)
+query coordinateEmergency( Actions $ret )
+    $ret:= Actions()
 end
 
-rule " response collector - deliverMessage"
-    when
-        $s : SessionLocator($nodeId: nodeId, $sessionId: sessionId, mind == true)
-        $action: Action( actionName == "coordinateEmergency",  $msgId: msgId)
-        coordinateEmergency( $return; )
-    then
-        ResponseContent.deliverResponse($nodeId, $sessionId, $msgId, $return, null);
-        retract( $action );
+rule "Response collector - deliverMessage"
+when
+    $s : SessionLocator( $nodeId: nodeId, $sessionId: sessionId, mind == true )
+    $action: Action( actionName == "coordinateEmergency",  $msgId: msgId )
+    coordinateEmergency( $return; )
+then
+    retract( $action );
+    ResponseContent.deliverResponse( $nodeId, $sessionId, $msgId, $return, null );
 end
 
 
