@@ -38,6 +38,7 @@ import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.management.DroolsManagementAgent;
 import org.drools.mas.AgentID;
 import org.drools.mas.util.helper.SessionLocator;
+import org.drools.runtime.Globals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,7 +102,7 @@ public class DroolsAgentFactory {
                 logger.debug( "  ### Creating Agent Sub-Sessions " );
             }
 
-
+            mind.setGlobal( "grid", grid );
             for ( DroolsAgentConfiguration.SubSessionDescriptor descr : config.getSubSessions() ) {
                 if ( logger.isDebugEnabled() ) {
                     logger.debug( "  ### Creating Agent Sub-Session: " + descr.getSessionId() + "- CS: " + descr.getChangeset() + " - on node: " + descr.getNodeId() );
@@ -109,9 +110,15 @@ public class DroolsAgentFactory {
                 SessionManager sm = SessionManager.create( config, descr, grid, true );
                 StatefulKnowledgeSession mindSet = sm.getStatefulKnowledgeSession();
 
+                try{
+                    mindSet.setGlobal( "grid", grid );
+                } catch (Exception e){
+                    //maybe 'grid' is not even defined in subsession
+                    logger.debug("Global 'grid' not set on session '"+descr.getSessionId()+"' due to "+e.getMessage());
+                }
+                
                 mindSet.fireAllRules();
-
-                mind.setGlobal( "grid", grid );
+                
                 mindSet.insert( new SessionLocator( config.getMindNodeLocation(), config.getAgentId(), true, false ) );
                 mindSet.insert( new SessionLocator( descr.getNodeId(), descr.getSessionId(), false, true ) );
                 mind.insert( new SessionLocator( descr.getNodeId(), descr.getSessionId(), false, true ) );
@@ -125,7 +132,11 @@ public class DroolsAgentFactory {
 
             return new DroolsAgent( grid, aid, mind );
         } catch ( Throwable t ) {
-            logger.error( "SOMETHING BAD HAPPENED WHILE TRYING TO CREATE AN AGENT " + t.getMessage() + ", due to " + t.getCause().getMessage() );
+            if (t.getCause() != null){
+                logger.error( "SOMETHING BAD HAPPENED WHILE TRYING TO CREATE AN AGENT " + t.getMessage() + ", due to " + t.getCause().getMessage() );
+            }else{
+                logger.error( "SOMETHING BAD HAPPENED WHILE TRYING TO CREATE AN AGENT " + t.getMessage());
+            }
             if ( logger.isDebugEnabled() ) {
                 t.printStackTrace();
             }

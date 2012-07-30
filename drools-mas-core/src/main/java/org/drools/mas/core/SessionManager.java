@@ -33,10 +33,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.Iterator;
 import org.apache.commons.io.IOUtils;
 import org.drools.conf.AssertBehaviorOption;
+import org.drools.definition.KnowledgePackage;
+import org.drools.definitions.impl.KnowledgePackageImp;
 import org.drools.grid.helper.GridHelper;
 import org.drools.grid.service.directory.WhitePages;
+import org.drools.io.ResourceFactory;
 import org.drools.io.impl.UrlResource;
 import org.drools.io.internal.InternalResource;
 import org.drools.xml.ChangeSetSemanticModule;
@@ -258,6 +262,7 @@ public class SessionManager extends SessionTemplateManager {
                     + "</add>"
                     + "</change-set>"
                     + "";
+             
             Resource changeSetRes = new ByteArrayResource( changeSetString.getBytes() );
             ((InternalResource) changeSetRes).setResourceType( ResourceType.CHANGE_SET );
             //resources.put(id, res);
@@ -310,5 +315,27 @@ public class SessionManager extends SessionTemplateManager {
         }
         GridNode localNode = grid.createGridNode( nodeName );
         return localNode;
+    }
+    
+    public static void addResource( WorkingMemory ksession, ResourceDescriptor rd){
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        kbuilder.add(ResourceFactory.newUrlResource(rd.getResourceURL()), rd.getType());
+        
+        if (kbuilder.hasErrors()){
+            Iterator<KnowledgeBuilderError> iterator = kbuilder.getErrors().iterator();
+            while (iterator.hasNext()) {
+                KnowledgeBuilderError knowledgeBuilderError = iterator.next();
+                logger.debug( " ### Session Manager: Error compiling resource '"+rd.getResourceURL()+"': " + knowledgeBuilderError.getMessage() );
+            }
+        }
+        
+        org.drools.rule.Package[] packages = new org.drools.rule.Package[kbuilder.getKnowledgePackages().size()];
+        int i=0;
+        for (KnowledgePackage knowledgePackage : kbuilder.getKnowledgePackages()) {
+            packages[i++] = ((KnowledgePackageImp)knowledgePackage).pkg;
+        }
+        
+        ksession.getRuleBase().addPackages(packages);
+        
     }
 }

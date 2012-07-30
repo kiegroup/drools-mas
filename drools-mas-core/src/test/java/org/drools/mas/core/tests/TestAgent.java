@@ -35,6 +35,8 @@ import org.drools.runtime.rule.Variable;
 import org.junit.*;
 
 import java.util.*;
+import mock.ClasspathURLResourceLocator;
+import org.drools.builder.ResourceType;
 import org.drools.mas.ACLMessage;
 import org.drools.mas.Act;
 import org.drools.mas.Encodings;
@@ -584,4 +586,43 @@ public class TestAgent {
         assertEquals( Act.FAILURE, ans.get(1).getPerformative() );
 
     }
+    
+    @Test
+    public void testDynamicResourceAddition() throws Exception{
+
+        StatefulKnowledgeSession target = mainAgent.getInnerSession("session1");
+
+        for (Object o : target.getObjects()) {
+            System.err.println("\t Assets BEFORE the inform : " + o);
+        }
+        
+        Assert.assertFalse(target.getObjects().contains("--------@@   It's alive!!   @@--------------"));
+        
+        Assert.assertNull(target.getKnowledgeBase().getRule("org.drools.mas.test", "Test this"));
+        
+        ClasspathURLResourceLocator uRLResourceLocator = new ClasspathURLResourceLocator(
+            "classpath:newResource.drl", 
+            ResourceType.DRL
+        );
+        uRLResourceLocator.setName("patient1");
+        
+        ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
+        ACLMessage info = factory.newInformMessage("me", "you", uRLResourceLocator);
+        mainAgent.tell(info);
+        
+        waitForAnswers( info.getId(), 0, 250, 50 );
+        
+        for (Object o : target.getObjects()) {
+            System.err.println("\t Assets AFTER the inform : " + o);
+        }
+        
+        //This string comes from newResource.drl
+        Assert.assertTrue(target.getObjects().contains("--------@@   It's alive!!   @@--------------"));
+        Assert.assertNotNull(target.getKnowledgeBase().getRule("org.drools.mas.test", "Test this"));
+        
+        
+        
+    }
+    
+    
 }

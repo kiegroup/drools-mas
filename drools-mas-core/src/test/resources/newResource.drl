@@ -1,0 +1,9 @@
+package org.drools.mas.test
+
+rule "Test this"
+when
+then
+    String s = "--------@@   It's alive!!   @@--------------";
+    System.out.println("\n\n\t\t"+s+"\n\n");
+    insert(s);
+end
