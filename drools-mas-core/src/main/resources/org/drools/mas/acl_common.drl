@@ -33,7 +33,15 @@ import org.drools.grid.Grid;
 import org.drools.grid.api.impl.ResourceDescriptorImpl;
 import org.drools.grid.api.ResourceDescriptor;
 
+import java.net.URL;
+import org.drools.builder.ResourceType;
+
 global Grid grid;
+
+declare ResourceAdditionRequest
+    URL: URL
+    type: ResourceType
+end
 
 query queryIf( Object $o )
     $queryIf : Object( this == $o )
@@ -69,5 +77,21 @@ end
 //end
 
 
+rule "Add Resource"
+when
+    $rar: ResourceAdditionRequest($url: URL, $type: type)
+    SessionLocator( $nodeId: nodeId, $sessionId : sessionId, mind == false )
+then
+    LoggerHelper.error("Loading resource '" + $rar.getURL() +"' in session '"+$sessionId+"' of grid '"+grid+"'");
+    
+    ResourceDescriptorImpl rd = new ResourceDescriptorImpl( );
+    rd.setResourceURL($url);
+    rd.setType($type);
 
+    //SessionManager.addResource(grid, $nodeId, $sessionId, rd);
+    
+    SessionManager.addResource(drools.getWorkingMemory(), rd);
+    
 
+    retract($rar);
+end

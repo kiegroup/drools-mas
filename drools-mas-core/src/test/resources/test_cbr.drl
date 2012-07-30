@@ -66,7 +66,7 @@ rule "Route_Encoded_X"
 salience -1
 when
     $msg : ACLMessage( $msgId : id, $b : body, encoding == Encodings.XML )
-    $patientId : String( this != null ) from InspectMessageHelper.inspect($msg,"//name") 
+    $patientId : String( this != null ) from InspectMessageHelper.inspect($msg,"//name[1]") 
 //    mapSession( $patientId , $sessionId ; )
 then
     LoggerHelper.debug(" ### Example CBR: Routing message  X " + $msgId  );
