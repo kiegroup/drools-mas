@@ -26,40 +26,48 @@ public class ResponseContent implements Serializable{
 
     private static Logger logger = LoggerFactory.getLogger( ResponseContent.class );
 
-    public static void deliverResponse( String $nodeId, String $sessionId, String $msgId, Object $return, Fault $fault ) {
-        deliverResponse( $nodeId, $sessionId, $msgId, $return, $fault, false );
+    public static void deliverResponse( String nodeId, String sessionId, String msgId, Object ret, Fault fault ) {
+        deliverResponse( nodeId, sessionId, msgId, ret, fault, false );
     }
 
-    public static void deliverResponse( String $nodeId, String $sessionId, String $msgId, Object $return, Fault $fault, boolean needEncoding ) {
+    public static void deliverResponse( Grid grid, String nodeId, String sessionId, String msgId, Object ret, Fault fault ) {
+            deliverResponse( grid, nodeId, sessionId, msgId, ret, fault, false );
+        }
+
+    public static void deliverResponse( String nodeId, String sessionId, String msgId, Object ret, Fault fault, boolean needEncoding ) {
         Grid grid = GridHelper.createGrid();
+        deliverResponse( grid, nodeId, sessionId, msgId, ret, fault, needEncoding );
+    }
+    
+    public static void deliverResponse( Grid grid, String nodeId, String sessionId, String msgId, Object ret, Fault fault, boolean needEncoding ) {
         try {
             if ( logger.isDebugEnabled() ) {
                 logger.debug( "(" + Thread.currentThread().getId() + ")"+Thread.currentThread().getName() + "Content helper is now active" );
             }
             Map results = null;
-            if ( $return != null ) {
+            if ( ret != null ) {
                 results = new HashMap();
-                if ( $return instanceof String ) {
-                    results.put( "?return", $return );
+                if ( ret instanceof String ) {
+                    results.put( "?return", ret );
                 } else {
                     if ( needEncoding ) {
-                        $return = MessageContentEncoder.encode( $return, Encodings.XML );
+                        ret = MessageContentEncoder.encode( ret, Encodings.XML );
                     }
-                    results.put( "?return", $return );
+                    results.put( "?return", ret );
                 }
                 if ( logger.isDebugEnabled() ) {
                     logger.debug("(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper would like to return" + results.get("?return"));
                 }
             }
 
-            ResponseContent response = new ResponseContent( $nodeId, $sessionId, $msgId, results );
-            response.setFault( $fault );
+            ResponseContent response = new ResponseContent( nodeId, sessionId, msgId, results );
+            response.setFault( fault );
 
             if ( logger.isDebugEnabled() ) {
-                logger.debug( "(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper fault is expected to be null " + $fault );
+                logger.debug( "(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper fault is expected to be null " + fault );
             }
 
-            StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession( grid, $nodeId, $sessionId, true );
+            StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession( grid, nodeId, sessionId, true );
 
             if ( logger.isDebugEnabled() ) {
                 logger.debug( "(" + Thread.currentThread().getId() + ")"+Thread.currentThread().getName() +"Content helper ksession found!"  );

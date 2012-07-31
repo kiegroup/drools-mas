@@ -119,6 +119,10 @@ public class SessionManager extends SessionTemplateManager {
                         // should indicate that someone else left an orphan row in the WP
                         node = grid.claimGridNode( nodeId );
                         grid.get( SocketService.class ).addService( nodeId, port, node );
+
+                        if ( forceRemote && ! node.isRemote() ) {
+                            node = grid.asRemoteNode( node );
+                        }
                     }
 
 
@@ -127,8 +131,11 @@ public class SessionManager extends SessionTemplateManager {
                         logger.debug( " ### Session Manager: Creating a new Local Node" );
                     }
                     node = createLocalNode( grid, nodeId );
-
                     grid.get( SocketService.class ).addService( nodeId, port, node );
+
+                    if ( forceRemote && ! node.isRemote() ) {
+                        node = grid.asRemoteNode( node );
+                    }
                 }
 
             } else {

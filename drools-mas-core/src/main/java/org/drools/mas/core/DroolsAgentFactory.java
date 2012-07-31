@@ -110,12 +110,12 @@ public class DroolsAgentFactory {
                 SessionManager sm = SessionManager.create( config, descr, grid, true );
                 StatefulKnowledgeSession mindSet = sm.getStatefulKnowledgeSession();
 
-                try{
-                    mindSet.setGlobal( "grid", grid );
-                } catch (Exception e){
-                    //maybe 'grid' is not even defined in subsession
-                    logger.debug("Global 'grid' not set on session '"+descr.getSessionId()+"' due to "+e.getMessage());
-                }
+//                try{
+//                    mindSet.setGlobal( "grid", grid );
+//                } catch (Exception e){
+//                    //maybe 'grid' is not even defined in subsession
+//                    logger.debug("Global 'grid' not set on session '"+descr.getSessionId()+"' due to "+e.getMessage());
+//                }
                 
                 mindSet.fireAllRules();
                 
