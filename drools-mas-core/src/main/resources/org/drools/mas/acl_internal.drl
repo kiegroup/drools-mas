@@ -45,12 +45,12 @@ import org.drools.mas.util.helper.SessionLocator;
 import org.drools.grid.remote.command.*;
 import org.drools.command.*;
 
-rule "Response content inserted"
-    when
-        $r: ResponseContent()
-    then
-        LoggerHelper.debug("CONTENT = "+$r);
-end
+//rule "Response content inserted"
+//    when
+//        $r: ResponseContent()
+//    then
+//        LoggerHelper.debug("CONTENT = "+$r);
+//end
 
 rule "Invoke"
 when
@@ -65,7 +65,7 @@ then
         LoggerHelper.debug(" ### INTERNAL: \t commands " + $cmd);
     }
     
-    retract($cmd);
+    retract( $cmd );
 
     StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession( grid, $nodeId, $sessionId, true );
     if ( LoggerHelper.isDebugEnabled() ) {
@@ -370,4 +370,11 @@ end
 
 
 
+rule "Clean Destinations"
+when
+    $dst : Destination( $id ; )
+    not    ACLMessage( id == $id )
+then
+    retract( $dst );
+end
 
