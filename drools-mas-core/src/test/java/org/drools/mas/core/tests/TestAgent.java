@@ -610,15 +610,15 @@ public class TestAgent {
         ACLMessage info = factory.newInformMessage("me", "you", uRLResourceLocator);
         mainAgent.tell(info);
         
-        waitForAnswers( info.getId(), 0, 250, 50 );
+        waitForAnswers( info.getId(), 0, 1000, 50 );
         
         for (Object o : target.getObjects()) {
             System.err.println("\t Assets AFTER the inform : " + o);
         }
         
         //This string comes from newResource.drl
-        Assert.assertTrue(target.getObjects().contains("--------@@   It's alive!!   @@--------------"));
-        Assert.assertNotNull(target.getKnowledgeBase().getRule("org.drools.mas.test", "Test this"));
+        Assert.assertTrue( target.getObjects().contains("--------@@   It's alive!!   @@--------------") );
+        Assert.assertNotNull( target.getKnowledgeBase().getRule( "org.drools.mas.test", "Test this") );
         
         
         
