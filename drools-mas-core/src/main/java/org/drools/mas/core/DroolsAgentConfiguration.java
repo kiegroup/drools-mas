@@ -25,6 +25,7 @@ public class DroolsAgentConfiguration implements Serializable {
     private String changeset;
     private String responseInformer;
     private List<SubSessionDescriptor> subSessions = new ArrayList<SubSessionDescriptor>();
+    private List<String> subNodes = new ArrayList<String>();
     
     private String springContextFilePath;
     private String defaultSubsessionChangeSet;
@@ -103,8 +104,18 @@ public class DroolsAgentConfiguration implements Serializable {
     public void setPort(int port) {
         this.port = port;
     }
-    
-    
+
+    public List<String> getSubNodes() {
+        return subNodes;
+    }
+
+    public void setSubNodes( List<String> subNodes ) {
+        this.subNodes = subNodes;
+    }
+
+    public void addSubNode( String node ) {
+        this.subNodes.add( node );
+    }
 
     public static class SubSessionDescriptor implements Serializable {
 

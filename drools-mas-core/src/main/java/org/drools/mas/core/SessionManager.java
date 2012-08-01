@@ -32,6 +32,7 @@ import org.drools.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import org.apache.commons.io.IOUtils;
@@ -59,7 +60,7 @@ public class SessionManager extends SessionTemplateManager {
     public static SessionManager create( DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor subDescr, Grid grid, boolean forceRemote ) {
         return create( null, conf, subDescr, grid, forceRemote );
     }
-    
+
     public static SessionManager create( String sessionId, DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor subDescr, Grid grid, boolean forceRemote ) {
         String id;
         String changeset;
@@ -82,80 +83,19 @@ public class SessionManager extends SessionTemplateManager {
         int port = conf.getPort();
         try {
 
-            GridNode node = grid.getGridNode( nodeId );
-            if ( node == null ) {
-                // the node is not "local"
-                if ( logger.isDebugEnabled() ) {
-                    logger.debug( "  ### Session Manager: Looking for Remote Node: " + nodeId );
-                }
-                GridServiceDescription<GridNode> n1Gsd = grid.get( WhitePages.class ).lookup( nodeId );
-                if ( n1Gsd != null ) {
-                    if ( logger.isDebugEnabled() ) {
-                        logger.debug( "  ### Session Manager: Remote Node Descriptor Found: " + n1Gsd );
-                    }
+            GridNode node = createNode( nodeId, grid, port, forceRemote );
+            String cs =  changeset != null ?
+                    changeset :
+                    ( conf.getDefaultSubsessionChangeSet() != null ?
+                            conf.getDefaultSubsessionChangeSet() :
+                            DEFAULT_CHANGESET
+                    );
 
-                    if ( grid.getId().equals( n1Gsd.getOwnerGridId() ) && GridNode.class.equals( n1Gsd.getServiceInterface() ) ) {
-                        // the node is theoretically owned by this grid, but is not among the local nodes - it's usually due to a stale WP record, claim it by right!
-                        node = grid.claimGridNode( nodeId );
-                        grid.get( SocketService.class ).addService( nodeId, port, node );
-                    } else if ( n1Gsd.getAddresses().size() > 0 ) {
-                        Address socketAddress = n1Gsd.getAddresses().get("socket");
-                        if ( socketAddress.getObject() instanceof InetSocketAddress ) {
-                            // node exists and is alive
-                            GridConnection<GridNode> conn = grid.get( ConnectionFactoryService.class ).createConnection( n1Gsd );
-                            if ( logger.isDebugEnabled() ) {
-                                logger.debug( "  ### Session Manager: Opened connection to node: " + conn );
-                            }
-                            // node exists and is hopefully alive
-                            node = conn.connect();
-                            if ( logger.isDebugEnabled() ) {
-                                logger.debug( "  ### Session Manager: Got in touch with the node: " + node + ", now look at service " + grid.get( SocketService.class ) );
-                                logger.debug( n1Gsd.toString() + " // " + n1Gsd.getAddresses() );
-                            }
-                        }
-                    }
-
-                    if ( node == null ) {
-                        // should indicate that someone else left an orphan row in the WP
-                        node = grid.claimGridNode( nodeId );
-                        grid.get( SocketService.class ).addService( nodeId, port, node );
-
-                        if ( forceRemote && ! node.isRemote() ) {
-                            node = grid.asRemoteNode( node );
-                        }
-                    }
-
-
-                } else {
-                    if ( logger.isDebugEnabled() ) {
-                        logger.debug( " ### Session Manager: Creating a new Local Node" );
-                    }
-                    node = createLocalNode( grid, nodeId );
-                    grid.get( SocketService.class ).addService( nodeId, port, node );
-
-                    if ( forceRemote && ! node.isRemote() ) {
-                        node = grid.asRemoteNode( node );
-                    }
-                }
-
-            } else {
-                if ( logger.isDebugEnabled() ) {
-                    logger.debug( " ### Session Manager: I have already found a local node ! " );
-                }
-            }
-
-            return new SessionManager( id, buildKnowledgeBase(
-                    changeset != null ?
-                            changeset :
-                            ( conf.getDefaultSubsessionChangeSet() != null ?
-                                conf.getDefaultSubsessionChangeSet() :
-                                DEFAULT_CHANGESET
-                            ),
-                    node ), node );
+            return new SessionManager( id, buildKnowledgeBase( cs, node ), node );
         } catch ( SAXException ex ) {
             ex.printStackTrace();
         } catch ( IOException ioe ) {
-            ioe.printStackTrace();    
+            ioe.printStackTrace();
         } catch ( IllegalStateException ise ) {
             logger.error( " FATAL : Could not create a Knowledge Base " );
             ise.printStackTrace();
@@ -163,7 +103,81 @@ public class SessionManager extends SessionTemplateManager {
         return null;
     }
 
+    public static GridNode createNode( String nodeId, Grid grid, int port, boolean forceRemote ) {
+        GridNode node = grid.getGridNode( nodeId );
+        if ( node == null ) {
+            // the node is not "local"
+            if ( logger.isDebugEnabled() ) {
+                logger.debug( "  ### Session Manager: Looking for Remote Node: " + nodeId );
+            }
+            GridServiceDescription<GridNode> n1Gsd = grid.get( WhitePages.class ).lookup( nodeId );
+            if ( n1Gsd != null ) {
+                if ( logger.isDebugEnabled() ) {
+                    logger.debug( "  ### Session Manager: Remote Node Descriptor Found: " + n1Gsd );
+                }
 
+                if ( grid.getId().equals( n1Gsd.getOwnerGridId() ) && GridNode.class.equals( n1Gsd.getServiceInterface() ) ) {
+                    // the node is theoretically owned by this grid, but is not among the local nodes - it's usually due to a stale WP record, claim it by right!
+                    node = grid.claimGridNode( nodeId );
+                    grid.get( SocketService.class ).addService( nodeId, port, node );
+                } else if ( n1Gsd.getAddresses().size() > 0 ) {
+                    Address socketAddress = n1Gsd.getAddresses().get("socket");
+                    if ( socketAddress.getObject() instanceof InetSocketAddress ) {
+                        // node exists and is alive
+                        GridConnection<GridNode> conn = grid.get( ConnectionFactoryService.class ).createConnection( n1Gsd );
+                        if ( logger.isDebugEnabled() ) {
+                            logger.debug( "  ### Session Manager: Opened connection to node: " + conn );
+                        }
+                        // node exists and is hopefully alive
+                        node = conn.connect();
+                        if ( logger.isDebugEnabled() ) {
+                            logger.debug( "  ### Session Manager: Got in touch with the node: " + node + ", now look at service " + grid.get( SocketService.class ) );
+                            logger.debug( n1Gsd.toString() + " // " + n1Gsd.getAddresses() );
+                        }
+                    }
+                }
+
+                if ( node == null ) {
+                    // should indicate that someone else left an orphan row in the WP
+                    node = grid.claimGridNode( nodeId );
+                    grid.get( SocketService.class ).addService( nodeId, port, node );
+
+                    if ( forceRemote && ! node.isRemote() ) {
+                        node = grid.asRemoteNode( node );
+                    }
+                }
+
+
+            } else {
+                if ( logger.isDebugEnabled() ) {
+                    logger.debug( " ### Session Manager: Creating a new Local Node" );
+                }
+                node = createLocalNode( grid, nodeId );
+                grid.get( SocketService.class ).addService( nodeId, port, node );
+
+                if ( forceRemote && ! node.isRemote() ) {
+                    node = grid.asRemoteNode( node );
+                }
+            }
+
+        } else {
+            if ( logger.isDebugEnabled() ) {
+                logger.debug( " ### Session Manager: I have already found a local node ! " );
+            }
+        }
+
+        node = applyLocality( grid, node, forceRemote );
+        return node;
+    }
+
+
+    private static GridNode applyLocality( Grid grid, GridNode node, boolean forceRemote ) {
+        if ( forceRemote ) {
+            return node.isRemote() ? node : grid.asRemoteNode( node );
+        } else {
+            return node;
+        }
+    }
 
     protected SessionManager( String id, KnowledgeBase kbase, GridNode node ) {
         super();
@@ -176,7 +190,7 @@ public class SessionManager extends SessionTemplateManager {
 
         KnowledgeSessionConfiguration conf = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
         conf.setProperty( ClockTypeOption.PROPERTY_NAME, ClockType.REALTIME_CLOCK.toExternalForm() );
-        
+
 //        this.kSession = kAgent.getKnowledgeBase().newStatefulKnowledgeSession(conf, null);
         this.kSession = kbase.newStatefulKnowledgeSession( conf, null );
 
@@ -185,6 +199,7 @@ public class SessionManager extends SessionTemplateManager {
             logger.info( " ### SessionManager : Registering session " + id + " in node: " + node.getId() );
         }
         node.set( id, this.kSession );
+
     }
 
     private static KnowledgeBase buildKnowledgeBase( String changeset, GridNode node ) throws IOException, SAXException, IllegalStateException {
@@ -201,17 +216,18 @@ public class SessionManager extends SessionTemplateManager {
         } catch ( Throwable t ) {
             throw new IllegalStateException( "Could not init the KnowledgeBuilder : " + t.getMessage() );
         }
+
         SemanticModules semanticModules = new SemanticModules();
         semanticModules.addSemanticModule( new ChangeSetSemanticModule() );
         XmlChangeSetReader reader = new XmlChangeSetReader( semanticModules );
 
         //InputStream inputStream = new ClassPathResource(changeset, SessionManager.class).getInputStream();
         reader.setClassLoader( SessionManager.class.getClassLoader(),
-                                   null );
+                null );
         ChangeSet cs = reader.read( SessionManager.class.getClassLoader().getResourceAsStream( changeset ) );
         Collection<Resource> resourcesAdded = cs.getResourcesAdded();
         for( Resource res: resourcesAdded ){
-            
+
             String file = ( (InternalResource) res ).getURL().getFile();
             if ( ! file.contains( "file:" ) ) {
                 file = "file:" + file;
@@ -222,17 +238,17 @@ public class SessionManager extends SessionTemplateManager {
             logger.info( "Resource: " + res + " file: " + file );
             InputStream inputStream = new UrlResource( file ).getInputStream();
             byte[] bytes = IOUtils.toByteArray( inputStream );
-        
+
             kbuilder.add( new ByteArrayResource( bytes ), ( (InternalResource) res ).getResourceType() );
         }
-        
-        
-        
+
+
+
         KnowledgeBuilderErrors errors = kbuilder.getErrors();
         if ( errors != null && errors.size() > 0 ) {
             for ( KnowledgeBuilderError error : errors ) {
                 logger.error( "### Session Manager: Error: " + error.getMessage() );
-
+                logger.error( "### >>> " + error.getResource() + " @ " + Arrays.toString( error.getLines() ) );
             }
             throw new IllegalStateException( " ### Session Manager: There were errors during the knowledge compilation ^^^^ !" );
         }
@@ -263,13 +279,13 @@ public class SessionManager extends SessionTemplateManager {
             if(logger.isDebugEnabled()){
                 logger.debug(" ### Session Manager: Add Resource -> nodeId: "+nodeId +" - sessionId: "+sessionId +" - id: "+id+" - res: "+((InternalResource)res).getURL().toString() +" -  type: "+((InternalResource)res).getResourceType().getName());
             }
-             String changeSetString = "<change-set xmlns='http://drools.org/drools-5.0/change-set'>"
+            String changeSetString = "<change-set xmlns='http://drools.org/drools-5.0/change-set'>"
                     + "<add>"
                     + "<resource type=\""+((InternalResource)res).getResourceType().getName()+"\" source=\""+((InternalResource)res).getURL().toString()+"\" />"
                     + "</add>"
                     + "</change-set>"
                     + "";
-             
+
             Resource changeSetRes = new ByteArrayResource( changeSetString.getBytes() );
             ((InternalResource) changeSetRes).setResourceType( ResourceType.CHANGE_SET );
             //resources.put(id, res);
@@ -312,9 +328,9 @@ public class SessionManager extends SessionTemplateManager {
 //        }
 //    }
 
-    
 
-   
+
+
 
     private static GridNode createLocalNode( Grid grid, String nodeName ) {
         if ( logger.isDebugEnabled() ) {
@@ -323,11 +339,11 @@ public class SessionManager extends SessionTemplateManager {
         GridNode localNode = grid.createGridNode( nodeName );
         return localNode;
     }
-    
-    public static void addResource( WorkingMemory ksession, ResourceDescriptor rd){
+
+    public static void addResource( WorkingMemory ksession, ResourceDescriptor rd ){
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add(ResourceFactory.newUrlResource(rd.getResourceURL()), rd.getType());
-        
+
         if (kbuilder.hasErrors()){
             Iterator<KnowledgeBuilderError> iterator = kbuilder.getErrors().iterator();
             while (iterator.hasNext()) {
@@ -335,14 +351,14 @@ public class SessionManager extends SessionTemplateManager {
                 logger.debug( " ### Session Manager: Error compiling resource '"+rd.getResourceURL()+"': " + knowledgeBuilderError.getMessage() );
             }
         }
-        
+
         org.drools.rule.Package[] packages = new org.drools.rule.Package[kbuilder.getKnowledgePackages().size()];
         int i=0;
         for (KnowledgePackage knowledgePackage : kbuilder.getKnowledgePackages()) {
             packages[i++] = ((KnowledgePackageImp)knowledgePackage).pkg;
         }
-        
+
         ksession.getRuleBase().addPackages(packages);
-        
+
     }
 }
