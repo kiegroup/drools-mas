@@ -184,6 +184,7 @@ public class SpringAgentTest {
 
 
     @Test
+    @Ignore
     public void testNodeSessionSharedHosting() {
         ApplicationContext context;
         DroolsAgent a1;

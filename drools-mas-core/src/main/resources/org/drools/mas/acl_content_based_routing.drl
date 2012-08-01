@@ -29,6 +29,7 @@ import java.util.Map;
 import org.drools.mas.util.LoggerHelper;
 import org.drools.mas.core.DroolsAgentConfiguration;
 import org.drools.mas.util.helper.SessionLocator;
+import org.drools.mas.util.helper.NodeLocator;
 import org.drools.grid.helper.GridHelper;
 import org.drools.mas.util.helper.NoHandlerFault;
 
@@ -65,9 +66,17 @@ then
     insert( new Destination( $mid, $target ) );
 end
 
+rule "Implicit nodes"
+when
+    SessionLocator( $isMind : mind, $nid : nodeId )
+    not NodeLocator( mindNode == $isMind, nodeId == $nid )
+then
+    insert( new NodeLocator( $nid, $isMind ) );
+end
+
 
 query subLocation( String $target )
-    SessionLocator( mind == false, $target := nodeId )
+    NodeLocator( mindNode == false, $target := nodeId )
 end
 
 rule "Generate Session"

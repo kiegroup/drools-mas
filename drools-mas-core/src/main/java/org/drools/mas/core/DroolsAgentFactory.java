@@ -15,6 +15,7 @@
  */
 package org.drools.mas.core;
 
+import org.drools.mas.util.helper.NodeLocator;
 import org.drools.runtime.StatefulKnowledgeSession;
 
 
@@ -103,6 +104,8 @@ public class DroolsAgentFactory {
             }
 
             mind.setGlobal( "grid", grid );
+            mind.insert( new NodeLocator(config.getMindNodeLocation(), true ) );
+
             for ( DroolsAgentConfiguration.SubSessionDescriptor descr : config.getSubSessions() ) {
                 if ( logger.isDebugEnabled() ) {
                     logger.debug( "  ### Creating Agent Sub-Session: " + descr.getSessionId() + "- CS: " + descr.getChangeset() + " - on node: " + descr.getNodeId() );
@@ -122,8 +125,20 @@ public class DroolsAgentFactory {
                 mindSet.insert( new SessionLocator( config.getMindNodeLocation(), config.getAgentId(), true, false ) );
                 mindSet.insert( new SessionLocator( descr.getNodeId(), descr.getSessionId(), false, true ) );
                 mind.insert( new SessionLocator( descr.getNodeId(), descr.getSessionId(), false, true ) );
+                mind.insert( new NodeLocator( descr.getNodeId(), true ) );
 
             }
+
+            if ( config.getSubNodes().size() > 0 ) {
+                for ( String node : config.getSubNodes() ) {
+                    if ( logger.isDebugEnabled() ) {
+                     logger.debug( "  ### Creating Additional Node: " + node );
+                    }
+                    SessionManager.createNode( node, grid, config.getPort(), true );
+                    mind.insert( new NodeLocator( node, false ) );
+                }
+            }
+
             mind.insert( aid );
             //Insert configuration as a fact inside the mind session
             mind.insert( config );
