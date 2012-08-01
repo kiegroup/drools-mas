@@ -21,7 +21,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     <bean id="async-agent-service" class="org.drools.mas.AsyncDroolsAgentServiceImpl" destroy-method="dispose">
         <property name="agent" ref="agent"/>
     </bean>  
-    <bean id="agent-service" class="org.drools.mas.SynchronousDroolsAgentServiceImpl" destroy-method="dispose">
+    <bean id="agent-service" class="org.drools.mas.SynchronousDroolsAgentServiceImpl" >
         <property name="agent" ref="agent"/>
     </bean>  
     

@@ -30,6 +30,7 @@ import org.drools.mas.util.LoggerHelper;
 import org.drools.mas.util.helper.SessionLocator;
 
 import org.drools.grid.Grid;
+import org.drools.grid.helper.GridHelper;
 import org.drools.grid.api.impl.ResourceDescriptorImpl;
 import org.drools.grid.api.ResourceDescriptor;
 
@@ -39,8 +40,8 @@ import org.drools.builder.ResourceType;
 global Grid grid;
 
 declare ResourceAdditionRequest
-    URL: URL
-    type: ResourceType
+    URL  : URL
+    type : ResourceType
 end
 
 query queryIf( Object $o )
@@ -77,6 +78,16 @@ end
 //end
 
 
+rule "Init Grid"
+salience 999
+when
+then
+    // need to initialize Grid in remote nodes
+    if ( kcontext.getKnowledgeRuntime().getGlobal( "grid" ) == null ) {
+        kcontext.getKnowledgeRuntime().setGlobal( "grid", GridHelper.createGrid() );
+    }
+end
+
 rule "Add Resource"
 when
     $rar: ResourceAdditionRequest($url: URL, $type: type)
@@ -88,10 +99,7 @@ then
     rd.setResourceURL($url);
     rd.setType($type);
 
-    //SessionManager.addResource(grid, $nodeId, $sessionId, rd);
+    SessionManager.addResource( grid, $nodeId, $sessionId, rd );
     
-    SessionManager.addResource(drools.getWorkingMemory(), rd);
-    
-
     retract($rar);
 end
