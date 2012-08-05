@@ -120,15 +120,22 @@ public class DroolsAgent {
                 GridServiceDescription<GridNode> nGsd = null;
                 if ( node == null ) {
                     nGsd = grid.get( WhitePages.class ).lookup( sessionLoc.getNodeId() );
+                    if ( nGsd != null ) {
                     GridConnection<GridNode> conn = grid.get( ConnectionFactoryService.class ).createConnection( nGsd );
-                    node = conn.connect();
+                        node = conn.connect();
+                        if ( logger.isDebugEnabled() ) {
+                            logger.debug(" ### \t Session " + sessionLoc + " found in " + node.getId() + "  >> local = " + node.isRemote() + " ( proxy = " + node.isRemote() + " ) " );
+                        }
 
-                    StatefulKnowledgeSession ksession = node.get( sessionLoc.getSessionId(), StatefulKnowledgeSession.class );
-                    ksession.dispose();
-                    node.dispose();
-
+                        StatefulKnowledgeSession ksession = node.get( sessionLoc.getSessionId(), StatefulKnowledgeSession.class );
+                        ksession.dispose();
+                    }
                 } else {
                     // it's a local node ( triple check! ), so we just shut the KS down. The node will be disposed later
+                    if ( logger.isDebugEnabled() ) {
+                        logger.debug(" ### \t Session " + sessionLoc + " found in " + node.getId() + "  >> local = " + node.isRemote() + " ( proxy = " + node.isRemote() + " ) " );
+                    }
+
                     StatefulKnowledgeSession ksession = node.get( sessionLoc.getSessionId(), StatefulKnowledgeSession.class );
                     ksession.dispose();
                 }
