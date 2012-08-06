@@ -16,6 +16,10 @@
 package org.drools.mas.core;
 
 import org.drools.agent.KnowledgeAgent;
+import org.drools.agent.KnowledgeAgentConfiguration;
+import org.drools.agent.KnowledgeAgentFactory;
+import org.drools.agent.conf.NewInstanceOption;
+import org.drools.agent.conf.UseKnowledgeBaseClassloaderOption;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.ResourceType;
 import org.drools.conf.EventProcessingOption;
@@ -141,10 +145,6 @@ public class SessionManager extends SessionTemplateManager {
                     // should indicate that someone else left an orphan row in the WP
                     node = grid.claimGridNode( nodeId );
                     grid.get( SocketService.class ).addService( nodeId, port, node );
-
-                    if ( forceRemote && ! node.isRemote() ) {
-                        node = grid.asRemoteNode( node );
-                    }
                 }
 
 
@@ -154,10 +154,6 @@ public class SessionManager extends SessionTemplateManager {
                 }
                 node = createLocalNode( grid, nodeId );
                 grid.get( SocketService.class ).addService( nodeId, port, node );
-
-                if ( forceRemote && ! node.isRemote() ) {
-                    node = grid.asRemoteNode( node );
-                }
             }
 
         } else {
@@ -193,6 +189,9 @@ public class SessionManager extends SessionTemplateManager {
 
 //        this.kSession = kAgent.getKnowledgeBase().newStatefulKnowledgeSession(conf, null);
         this.kSession = kbase.newStatefulKnowledgeSession( conf, null );
+        if ( ! node.isRemote() ) {
+            addKnowledgeAgent( id, kbase, node );
+        }
 
         //this.kSession.insert(new SessionLocator(node.getId(), id));
         if ( logger.isInfoEnabled() ) {
@@ -200,6 +199,51 @@ public class SessionManager extends SessionTemplateManager {
         }
         node.set( id, this.kSession );
 
+    }
+
+    private void addKnowledgeAgent(String id, KnowledgeBase kbase, GridNode node) {
+        KnowledgeAgentConfiguration kaConfig = KnowledgeAgentFactory.newKnowledgeAgentConfiguration();
+        kaConfig.setProperty( NewInstanceOption.PROPERTY_NAME, "false" );
+        kaConfig.setProperty( UseKnowledgeBaseClassloaderOption.PROPERTY_NAME, "true" );
+        KnowledgeAgent kagent = KnowledgeAgentFactory.newKnowledgeAgent( id, kbase, kaConfig );
+        SystemEventListener systemEventListener = new SystemEventListener() {
+
+            public void info(String string) {
+                System.out.println("INFO: "+string);
+            }
+
+            public void info(String string, Object o) {
+                System.out.println("INFO: "+string +", "+o);
+            }
+
+            public void warning(String string) {
+                System.out.println("WARN: "+string );
+            }
+
+            public void warning(String string, Object o) {
+                System.out.println("WARN: "+string +", "+o);
+            }
+
+            public void exception(String string, Throwable thrwbl) {
+                System.out.println("EXCEPTION: "+string +", "+thrwbl);
+            }
+
+            public void exception(Throwable thrwbl) {
+                System.out.println("EXCEPTION: "+thrwbl);
+            }
+
+            public void debug(String string) {
+                System.out.println("DEBUG: "+string );
+            }
+
+            public void debug(String string, Object o) {
+                System.out.println("DEBUG: "+string +", "+o);
+            }
+        };
+
+        kagent.setSystemEventListener( systemEventListener );
+
+        node.set( id + "_kAgent", kagent );
     }
 
     private static KnowledgeBase buildKnowledgeBase( String changeset, GridNode node ) throws IOException, SAXException, IllegalStateException {
@@ -247,7 +291,7 @@ public class SessionManager extends SessionTemplateManager {
         KnowledgeBuilderErrors errors = kbuilder.getErrors();
         if ( errors != null && errors.size() > 0 ) {
             for ( KnowledgeBuilderError error : errors ) {
-                logger.error( "### Session Manager: Error: " + error.getMessage() );
+                logger.error( "### Session Manager: Error: " + error );
                 logger.error( "### >>> " + error.getResource() + " @ " + Arrays.toString( error.getLines() ) );
             }
             throw new IllegalStateException( " ### Session Manager: There were errors during the knowledge compilation ^^^^ !" );
@@ -289,7 +333,15 @@ public class SessionManager extends SessionTemplateManager {
             Resource changeSetRes = new ByteArrayResource( changeSetString.getBytes() );
             ((InternalResource) changeSetRes).setResourceType( ResourceType.CHANGE_SET );
             //resources.put(id, res);
-            KnowledgeAgent kAgent = GridHelper.getKnowledgeAgentRemoteClient( grid, nodeId, sessionId );
+
+            KnowledgeAgent kAgent;
+            GridNode node = grid.getGridNode( nodeId );
+            if ( node == null || node.isRemote() ) {
+                kAgent = GridHelper.getKnowledgeAgentRemoteClient( grid, nodeId, sessionId );
+            } else {
+                kAgent = node.get( sessionId + "_kAgent", KnowledgeAgent.class );
+            }
+
             kAgent.applyChangeSet( changeSetRes );
         } catch (IOException ex) {
             logger.error( " ### SessionManager: " + ex);
