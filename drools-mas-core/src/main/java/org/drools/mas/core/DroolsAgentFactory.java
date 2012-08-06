@@ -15,6 +15,7 @@
  */
 package org.drools.mas.core;
 
+import org.drools.grid.remote.StatefulKnowledgeSessionRemoteClient;
 import org.drools.mas.util.helper.NodeLocator;
 import org.drools.runtime.StatefulKnowledgeSession;
 
@@ -113,12 +114,14 @@ public class DroolsAgentFactory {
                 SessionManager sm = SessionManager.create( config, descr, grid, true );
                 StatefulKnowledgeSession mindSet = sm.getStatefulKnowledgeSession();
 
-//                try{
-//                    mindSet.setGlobal( "grid", grid );
-//                } catch (Exception e){
-//                    //maybe 'grid' is not even defined in subsession
-//                    logger.debug("Global 'grid' not set on session '"+descr.getSessionId()+"' due to "+e.getMessage());
-//                }
+                if ( ! ( mindSet instanceof StatefulKnowledgeSessionRemoteClient) ) {
+                    try{
+                        mindSet.setGlobal( "grid", grid );
+                    } catch (Exception e){
+                        //maybe 'grid' is not even defined in subsession
+                        logger.debug("Global 'grid' not set on session '"+descr.getSessionId()+"' due to "+e.getMessage());
+                    }
+                }
                 
                 mindSet.fireAllRules();
                 
