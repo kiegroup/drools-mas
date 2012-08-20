@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.namespace.QName;
@@ -393,18 +394,19 @@ public class DialogueHelper {
     }
     
     protected void tell(final ACLMessage message, DialogueHelperCallback callback, final boolean waitForAnswers){
-        
         final DialogueHelperCallback finalCallback = callback != null? callback : this.defaultDialogueHelperCallback;
         
+        Logger.getLogger(DialogueHelper.class.getName()).log(Level.INFO, "Preparing tell command for {0} ", message.getId());
+        Logger.getLogger(DialogueHelper.class.getName()).log(Level.CONFIG, "Message:\n{0} ", message);
         Runnable runnable = new Runnable() {
 
-            private AsyncDroolsAgentService asyncDroolsAgentService;
+            AsyncDroolsAgentService asyncDroolsAgentService = getAsyncDroolsAgentService();
             
             public void run() {
                 try{
-                    asyncDroolsAgentService = getAsyncDroolsAgentService();
+                    Logger.getLogger(DialogueHelper.class.getName()).log(Level.INFO, "Telling the agent about {0} - START", message.getId());
                     asyncDroolsAgentService.tell(message);
-                    
+                    Logger.getLogger(DialogueHelper.class.getName()).log(Level.INFO, "Telling the agent about {0} - DONE", message.getId());
                     if (waitForAnswers){
                         List<ACLMessage> results = this.waitForAnswers(message.getId(), finalCallback.getExpectedResponsesNumber(), finalCallback.getMinimumWaitTimeForResponses(), finalCallback.getTimeoutForResponses());
                         finalCallback.onSuccess(results);
@@ -414,23 +416,34 @@ public class DialogueHelper {
                 }
             }
             
-            private List<ACLMessage> waitForAnswers( String id, int expectedMessagesNumber, long minimumWaitTime, long timeout) {
+            private List<ACLMessage> waitForAnswers( String id, int expectedMessagesNumber, long minimumWaitTime, long timeout) throws TimeoutException {
                 
+                //could be the case that the client is not waiting for any answer.
+                //In this case there's no need to invoke the agent to get any response.
+                if (expectedMessagesNumber == 0){
+                    return new ArrayList<ACLMessage>();
+                }
                 
                 List<ACLMessage> answers = new ArrayList<ACLMessage>();
                 long waitTime = minimumWaitTime;
                 do {
                     try {
-                        Logger.getLogger(DialogueHelper.class.getName()).log(Level.FINER, "Answer for {0} is not ready, wait... ", id);
+                        Logger.getLogger(DialogueHelper.class.getName()).log(Level.INFO, "Answer for {0} is not ready, wait... ", id);
                         Thread.sleep( waitTime );
                     } catch ( InterruptedException ex ) {
                         Logger.getLogger(DialogueHelper.class.getName()).log(Level.WARNING, "Thread could not be put to sleep", ex);
                     }
                     List<ACLMessage> incomingAnswers = asyncDroolsAgentService.getResponses(id);
                     answers.addAll( incomingAnswers );
-
+                    
+                    Logger.getLogger(DialogueHelper.class.getName()).log(Level.INFO, "Answers for {0}: {1} (waitTime= {2}, timeout= {3}, # responsed expected= {4})",new Object[]{ id, answers.size(), waitTime, timeout, expectedMessagesNumber});
                     waitTime *= 2;
                 } while ( answers.size() != expectedMessagesNumber && waitTime < timeout );
+                
+                if (answers.size() < expectedMessagesNumber){
+                    throw new TimeoutException("Expecting "+expectedMessagesNumber+" messages for message "+id+" but only received "+answers.size()+" in "+timeout+"ms");
+                }
+                
                 return answers;
 
             }
