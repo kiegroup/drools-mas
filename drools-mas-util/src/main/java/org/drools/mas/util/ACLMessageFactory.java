@@ -22,6 +22,8 @@ import org.drools.mas.body.content.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 import org.drools.mas.ACLMessage;
 import org.drools.mas.Act;
 import org.drools.mas.AgentID;
@@ -60,9 +62,9 @@ Message content is encoded in string format, either XML or JSON
  */
 public class ACLMessageFactory implements Serializable {
 
-    private static long idCounter = 0;
-    private static long convoCounter = 0;
-
+    private static AtomicLong idCounter = new AtomicLong();
+    private static AtomicLong convCounter  = new AtomicLong();
+    
     private static ACLMessageFactory instance;
     
     public static ACLMessageFactory getInstance(){
@@ -72,12 +74,12 @@ public class ACLMessageFactory implements Serializable {
         return instance;
     }
     
-    private String newId() {
-        return "" + (idCounter++);
+    private long newId() {
+        return idCounter.incrementAndGet();
     }
 
-    private String newConversationId() {
-        return "" + (convoCounter++);
+    private long newConversationId() {
+        return convCounter.incrementAndGet();
     }
     private Encodings defaultEncoding = Encodings.XML;
 
@@ -94,20 +96,20 @@ public class ACLMessageFactory implements Serializable {
     }
 
     public ACLMessage newMessage() {
-        return new ACLMessage( newId() );
+        return new ACLMessage( UUID.randomUUID().toString()+"-"+newId() );
     }
 
     protected ACLMessage newMessage( String sender, String receiver ) {
 
         ACLMessage msg = new ACLMessage();
 
-        msg.setConversationId( newConversationId() );
-
         AgentID senderAgent = new AgentID();
         senderAgent.setName( sender );
         msg.setSender( senderAgent );
 
-        msg.setId( newId() + senderAgent.toString() );
+        msg.setConversationId( senderAgent.toString() +"-"+ newConversationId());
+        
+        msg.setId( senderAgent.toString() +"-"+ newId());
 
         List<AgentID> recSet = msg.getReceiver();
         AgentID receiverAgent = new AgentID();
@@ -121,7 +123,7 @@ public class ACLMessageFactory implements Serializable {
 
     protected ACLMessage createReply(ACLMessage inMsg, AgentID sender) {
 
-        ACLMessage msg = new ACLMessage(newId());
+        ACLMessage msg = newMessage();
         msg.setEncoding(inMsg.getEncoding());
         msg.setSender(sender);
 
