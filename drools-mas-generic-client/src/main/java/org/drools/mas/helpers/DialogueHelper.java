@@ -21,6 +21,7 @@ import org.drools.mas.body.acts.AbstractMessageBody;
 import org.drools.mas.body.acts.Inform;
 import org.drools.mas.body.acts.InformIf;
 import org.drools.mas.body.content.Action;
+import org.drools.mas.body.content.Query;
 import org.drools.mas.util.ACLMessageFactory;
 import org.drools.mas.util.MessageContentEncoder;
 import org.drools.mas.util.MessageContentFactory;
@@ -213,6 +214,22 @@ public class DialogueHelper {
         this.tell(qryif, callback, callback != null);
         
         return qryif.getId();
+
+    }
+    
+    
+    public String invokeQueryRef(String sender, String receiver, Query query, DialogueHelperCallback callback) {
+        return this.doQueryRef(sender, receiver, query, callback);
+    }
+    
+    protected String doQueryRef(String sender, String receiver, Query query, DialogueHelperCallback callback) {
+
+        ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
+        ACLMessage qryRef = factory.newQueryRefMessage(sender, receiver, query);
+
+        this.tell(qryRef, callback, callback != null);
+        
+        return qryRef.getId();
 
     }
 
