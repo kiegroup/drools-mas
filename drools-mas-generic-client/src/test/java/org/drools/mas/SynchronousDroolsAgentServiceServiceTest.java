@@ -26,6 +26,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -58,6 +59,7 @@ public class SynchronousDroolsAgentServiceServiceTest {
    
     
     @Test
+    @Ignore
     public void genericTest() {
         // Get the helper 
         DialogueHelper helper = new DialogueHelper(endpoint);
