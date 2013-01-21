@@ -24,7 +24,7 @@
   <name>Drools :: MAS</name>
   <properties>
     <project.version>1.0.Final</project.version>
-    <drools.version>5.5.0.Final</drools.version>
+    <drools.version>5.5.1-SNAPSHOT</drools.version>
     <drools.informer.version>5.5.0-SNAPSHOT</drools.informer.version>
     <camel.version>2.7.1</camel.version>
     <spring.version>3.0.5.RELEASE</spring.version>

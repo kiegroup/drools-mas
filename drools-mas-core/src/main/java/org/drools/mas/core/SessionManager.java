@@ -184,7 +184,14 @@ public class SessionManager extends SessionTemplateManager {
 //        kaConfig.setProperty("drools.agent.newInstance", "false");
 //        this.kAgent = KnowledgeAgentFactory.newKnowledgeAgent(id, kbase, kaConfig);
 
-        KnowledgeSessionConfiguration conf = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
+        KnowledgeSessionConfiguration conf;
+        if ( node.isRemote() ) {
+            KnowledgeBaseFactoryService kbf = node.get( KnowledgeBaseFactoryService.class );
+            conf = kbf.newKnowledgeSessionConfiguration();
+        } else {
+            conf = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
+        }
+
         conf.setProperty( ClockTypeOption.PROPERTY_NAME, ClockType.REALTIME_CLOCK.toExternalForm() );
 
 //        this.kSession = kAgent.getKnowledgeBase().newStatefulKnowledgeSession(conf, null);
