@@ -240,14 +240,14 @@ public class GridTests {
                 + "</add>"
                 + "</change-set>"
                 + "";
-        Resource changeSetRes = new ByteArrayResource(changeSetString.getBytes());
+        Resource changeSetRes = new ByteArrayResource( changeSetString.getBytes() );
         ((InternalResource) changeSetRes).setResourceType( ResourceType.CHANGE_SET );
 
 
         KnowledgeAgent kAgent = GridHelper.getKnowledgeAgentRemoteClient( GridHelper.createGrid(), remoteN1.getId(), "ksession-rules" );
         kAgent.applyChangeSet( changeSetRes );
 
-        Thread.sleep( 1000 );
+        Thread.sleep( 5000 );
 
         QueryResults result = ksession.getQueryResults( "beanQuery", Variable.v );
         assertEquals( 1, result.size() );
