@@ -68,7 +68,9 @@ public class GridTests {
         }
         System.out.println("DB for white pages started! ");
 
-        GridHelper.reset();
+//        WhitePages wps = new JpaWhitePages( Persistence.createEntityManagerFactory("org.drools.grid") );
+//
+//        GridHelper.getInstance().reinitialize( wps );
     }
 
     @AfterClass
@@ -83,7 +85,8 @@ public class GridTests {
     
     private Map<String, GridServiceDescription> coreServicesMap;
     protected Grid grid1;
-    
+    protected Grid grid2;
+
     protected GridNode remoteN1;
     private static Server server;
 
@@ -107,7 +110,7 @@ public class GridTests {
                         8000,
                         new JpaWhitePages( Persistence.createEntityManagerFactory( "org.drools.grid" ) ) );
 
-        Grid grid2 = new GridImpl("peer2", new HashMap<String, Object>() );
+        grid2 = new GridImpl("peer2", new HashMap<String, Object>() );
         configureGrid1( grid2,
                         -1,
                         grid1.get( WhitePages.class ) );
@@ -183,7 +186,8 @@ public class GridTests {
 
          String rule = "package test\n"
                  + "import mock.MockFact;\n"
-                 + "global MockFact myGlobalObj;\n"
+                 + "global MockFact myGlobalObj;\n" +
+                 "  global org.drools.grid.Grid grid; \n"
                  + "query getMyObjects(String n)\n"
                  + "  $mo: MockFact(name == n)\n"
                  + "end\n"
@@ -229,7 +233,7 @@ public class GridTests {
     @Test
     public void remoteKAgentResourceLoadTest() throws InterruptedException {
         StatefulKnowledgeSession ksession = createSession();
-        ksession.setGlobal("myGlobalObj", new MockFact("myglobalObj",10));
+        ksession.setGlobal( "myGlobalObj", new MockFact( "myglobalObj", 10 ) );
 
         int fired = ksession.fireAllRules();
         Assert.assertEquals(0, fired);
@@ -244,7 +248,7 @@ public class GridTests {
         ((InternalResource) changeSetRes).setResourceType( ResourceType.CHANGE_SET );
 
 
-        KnowledgeAgent kAgent = GridHelper.getKnowledgeAgentRemoteClient( GridHelper.createGrid(), remoteN1.getId(), "ksession-rules" );
+        KnowledgeAgent kAgent = GridHelper.getInstance().getKnowledgeAgentRemoteClient( grid2, remoteN1.getId(), "ksession-rules" );
         kAgent.applyChangeSet( changeSetRes );
 
         Thread.sleep( 5000 );

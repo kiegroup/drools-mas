@@ -90,7 +90,7 @@ rule "Action_Request : squareRoot - Result "
         
     then
        retract($a);
-       ResponseContent.deliverResponse( $nodeId, $sessionId, $msgId, $return, null );
+       ResponseContent.deliverResponse( grid, $nodeId, $sessionId, $msgId, $return, null );
 end
 
 rule "Action_Request : no logic to deal with this kind request"
@@ -101,7 +101,7 @@ when
 then
     retract( $a );
     Fault fault = new NoHandlerFault( $msgId, "No known way to process a request " + $actName );
-    ResponseContent.deliverResponse( $nodeId, $sessionId, $msgId, null, fault );
+    ResponseContent.deliverResponse( grid, $nodeId, $sessionId, $msgId, null, fault );
 end
 
 
@@ -113,7 +113,7 @@ when
 then
     retract( $a );
     Fault fault = new ExecutionFault( $msgId,"can't extract the square root of " + $x );
-    ResponseContent.deliverResponse( $nodeId, $sessionId, $msgId, null, fault );
+    ResponseContent.deliverResponse( grid, $nodeId, $sessionId, $msgId, null, fault );
 end
 
 

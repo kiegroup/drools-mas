@@ -30,7 +30,6 @@ import org.drools.mas.util.LoggerHelper;
 import org.drools.mas.core.DroolsAgentConfiguration;
 import org.drools.mas.util.helper.SessionLocator;
 import org.drools.mas.util.helper.NodeLocator;
-import org.drools.grid.helper.GridHelper;
 import org.drools.mas.util.helper.NoHandlerFault;
 
 

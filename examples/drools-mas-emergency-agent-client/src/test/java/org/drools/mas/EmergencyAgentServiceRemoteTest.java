@@ -58,15 +58,12 @@ public class EmergencyAgentServiceRemoteTest {
 
     @Test
     public void testSimpleInformWithHelper() {
-        DialogueHelper agentHelper = new DialogueHelper( endpoint );
+        SyncDialogueHelper agentHelper = new SyncDialogueHelper( endpoint );
 
         MockFact fact = new MockFact( "patient1", 18 );
 
         String iid = agentHelper.invokeInform( "me", "you", fact );
 
-        List<ACLMessage> result = agentHelper.getAgentAnswers( iid );
-        
-        assertEquals( 0, result.size() );
     }
 
     @Test

@@ -82,9 +82,9 @@ rule "Init Grid"
 salience 999
 when
 then
-    // need to initialize Grid in remote nodes
     if ( kcontext.getKnowledgeRuntime().getGlobal( "grid" ) == null ) {
-        kcontext.getKnowledgeRuntime().setGlobal( "grid", GridHelper.createGrid() );
+        LoggerHelper.error( "Fatal error, global object GRID is not set" );
+//        kcontext.getKnowledgeRuntime().setGlobal( "grid", GridHelper.getInstance().createGrid() );
     }
 end
 

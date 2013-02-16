@@ -15,6 +15,7 @@
  */
 package org.drools.mas.core;
 
+import org.drools.grid.helper.GridHelper;
 import org.drools.grid.remote.StatefulKnowledgeSessionRemoteClient;
 import org.drools.mas.util.helper.NodeLocator;
 import org.drools.runtime.StatefulKnowledgeSession;
@@ -62,7 +63,7 @@ public class DroolsAgentFactory {
     private static DroolsAgentFactory singleton;
 
     public static DroolsAgentFactory getInstance() {
-        if (singleton == null) {
+        if ( singleton == null ) {
             singleton = new DroolsAgentFactory();
         }
         return singleton;
@@ -76,15 +77,20 @@ public class DroolsAgentFactory {
         configureGrid( grid, config.getPort() );
 
         AgentID aid = new AgentID();
-        aid.setName( config.getAgentId() );
-        aid.setLocalName( config.getAgentId() );
+            aid.setName( config.getAgentId() );
+            aid.setLocalName( config.getAgentId() );
+
         if ( logger.isInfoEnabled() ) {
             logger.info( " >>> Spawning Agent => Name: " + aid.getName() );
         }
+
         try {
+
             if ( logger.isDebugEnabled() ) {
                 logger.debug("  ### Creating Agent Mind: " + config.getAgentId() + "- CS: " + config.getChangeset() +" - mind location: " +config.getMindNodeLocation() );
             }
+
+
             SessionManager manager = SessionManager.create( config, null, grid, false );
             if ( manager == null ) {
                 logger.error( "SOMETHING BAD HAPPENED WHILE TRYING TO CREATE AN AGENT, could not create sessionManager" );
@@ -94,9 +100,6 @@ public class DroolsAgentFactory {
             StatefulKnowledgeSession mind = manager.getStatefulKnowledgeSession();
 
             DroolsManagementAgent kmanagement = DroolsManagementAgent.getInstance();
-
-            //kmanagement.registerKnowledgeBase((ReteooRuleBase) ((KnowledgeBaseImpl) mind.get).getRuleBase());
-
             kmanagement.registerKnowledgeSession( ( (StatefulKnowledgeSessionImpl) mind ).getInternalWorkingMemory() );
 
             if ( logger.isDebugEnabled() ) {
@@ -150,7 +153,7 @@ public class DroolsAgentFactory {
 
             return new DroolsAgent( grid, aid, mind );
         } catch ( Throwable t ) {
-            if (t.getCause() != null){
+            if ( t.getCause() != null ){
                 logger.error( "SOMETHING BAD HAPPENED WHILE TRYING TO CREATE AN AGENT " + t.getMessage() + ", due to " + t.getCause().getMessage() );
             }else{
                 logger.error( "SOMETHING BAD HAPPENED WHILE TRYING TO CREATE AN AGENT " + t.getMessage());
