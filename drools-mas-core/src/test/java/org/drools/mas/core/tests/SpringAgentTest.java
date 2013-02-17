@@ -60,8 +60,6 @@ public class SpringAgentTest {
         }
         logger.info("DB for white pages started! ");
 
-        GridHelper.reset();
-        
         logger.info( "----------------------------------------------------------------------------------------------" );
         logger.info( "PRE-Setup Complete \n\n\n\n\n" );
     }

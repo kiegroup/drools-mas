@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.drools.grid.*;
+import org.drools.impl.StatefulKnowledgeSessionImpl;
+import org.drools.management.DroolsManagementAgent;
 import org.drools.mas.util.MessageContentEncoder;
 import org.drools.runtime.StatefulKnowledgeSession;
 
@@ -103,6 +105,9 @@ public class DroolsAgent {
      * Destructor
      */
     public void dispose() {
+        DroolsManagementAgent kmanagement = DroolsManagementAgent.getInstance();
+        kmanagement.unregisterKnowledgeSession( ( (StatefulKnowledgeSessionImpl ) mind).getInternalWorkingMemory() );
+
         //TODO : what if another agent is using this grid's nodes?
         try {
             if ( logger.isInfoEnabled() ) {
@@ -144,6 +149,9 @@ public class DroolsAgent {
         } finally {
             grid.dispose();
         }
+        // Should have already been disposed...
+        mind.dispose();
+
     }
 
 

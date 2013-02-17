@@ -18,6 +18,8 @@ package org.drools.mas.core.tests;
 import java.sql.SQLException;
 
 import org.drools.grid.helper.GridHelper;
+import org.drools.grid.service.directory.WhitePages;
+import org.drools.grid.service.directory.impl.JpaWhitePages;
 import org.drools.mas.body.acts.Failure;
 import org.drools.mas.body.content.Query;
 import org.drools.mas.body.acts.InformIf;
@@ -49,6 +51,8 @@ import static org.junit.Assert.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.Persistence;
+
 public class TestAgent {
 
     private static DroolsAgent mainAgent;
@@ -68,9 +72,18 @@ public class TestAgent {
             logger.error( ex.getMessage() );
         }
         logger.info("DB for white pages started! ");
+    }
 
-        // force DB initialization
-        GridHelper.reset();
+    @Test
+    @Ignore( "Manual use only, test for memory leaks" )
+    public void stressTest() throws InterruptedException {
+        for ( int j = 0; j < 100; j++ ) {
+            if ( j > 0 ) {
+                createAgents();
+            }
+            testRequest();
+            mainAgent.dispose();
+        }
     }
 
     @Before
@@ -586,7 +599,7 @@ public class TestAgent {
         assertEquals( Act.FAILURE, ans.get(1).getPerformative() );
 
     }
-    
+
     @Test
     public void testDynamicResourceAddition() throws Exception{
 
@@ -595,34 +608,34 @@ public class TestAgent {
         for (Object o : target.getObjects()) {
             System.err.println("\t Assets BEFORE the inform : " + o);
         }
-        
+
         Assert.assertFalse(target.getObjects().contains("--------@@   It's alive!!   @@--------------"));
-        
+
         Assert.assertNull(target.getKnowledgeBase().getRule("org.drools.mas.test", "Test this"));
-        
+
         ClasspathURLResourceLocator uRLResourceLocator = new ClasspathURLResourceLocator(
-            "classpath:newResource.drl", 
-            ResourceType.DRL
+                "classpath:newResource.drl",
+                ResourceType.DRL
         );
         uRLResourceLocator.setName("patient1");
-        
+
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
         ACLMessage info = factory.newInformMessage("me", "you", uRLResourceLocator);
         mainAgent.tell(info);
-        
+
         waitForAnswers( info.getId(), 0, 1000, 50 );
-        
+
         for (Object o : target.getObjects()) {
             System.err.println("\t Assets AFTER the inform : " + o);
         }
-        
+
         //This string comes from newResource.drl
         Assert.assertTrue( target.getObjects().contains("--------@@   It's alive!!   @@--------------") );
         Assert.assertNotNull( target.getKnowledgeBase().getRule( "org.drools.mas.test", "Test this") );
-        
-        
-        
+
+
+
     }
-    
-    
+
+
 }

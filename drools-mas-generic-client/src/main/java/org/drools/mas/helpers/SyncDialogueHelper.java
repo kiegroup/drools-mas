@@ -234,16 +234,23 @@ public class SyncDialogueHelper {
             long waitTime = minWaitTime;
             do {
                 try {
-                    logger.debug( " >>> Waiting for answers (" + waitTime + ") for: Message ->  " + msgRef );
+                    logger.debug( " >>> [" + msgid + "] Waiting for " + numExpectedMessages + " answers (" + waitTime + ") for: Message ->  " + msgRef + " , now I have " + answers.size() );
+                    logger.debug( answers.toString() );
                     Thread.sleep( waitTime );
                 } catch ( InterruptedException ex ) {
                     logger.error( ex.getMessage() );
                 }
-                List<ACLMessage> incomingAnswers = asyncServicePort.getResponses(msgid);
+                logger.debug( " >>> [" + msgid + "] Wake up with " + answers );
+                List<ACLMessage> incomingAnswers = asyncServicePort.getResponses( msgid );
+                logger.debug( " >>> [" + msgid + "] Incoming new " + incomingAnswers );
                 answers.addAll( incomingAnswers );
+                logger.debug( " >>> [" + msgid + "] After adding new " + answers );
 
                 waitTime *= 2;
-            } while ( answers.size() != numExpectedMessages && waitTime < maxTimeout );
+            } while ( answers.size() < numExpectedMessages && waitTime < maxTimeout );
+            if ( answers.size() < numExpectedMessages ) {
+                logger.equals( " >>> [" + msgid + "] Expecting " + numExpectedMessages + " but got " + answers.size() );
+            }
             return answers;
         }
 

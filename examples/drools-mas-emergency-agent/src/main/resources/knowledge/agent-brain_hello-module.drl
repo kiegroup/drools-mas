@@ -44,7 +44,7 @@ when
     coordinateEmergency( $return; )
 then
     retract( $action );
-    ResponseContent.deliverResponse( $nodeId, $sessionId, $msgId, $return, null );
+    ResponseContent.deliverResponse( grid, $nodeId, $sessionId, $msgId, $return, null );
 end
 
 
