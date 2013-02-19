@@ -26,8 +26,10 @@ import org.drools.conf.EventProcessingOption;
 import org.drools.grid.*;
 import org.drools.grid.api.ResourceDescriptor;
 import org.drools.grid.service.directory.Address;
+import org.drools.impl.EnvironmentImpl;
 import org.drools.io.Resource;
 import org.drools.io.impl.ByteArrayResource;
+import org.drools.runtime.Environment;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.conf.ClockTypeOption;
@@ -193,9 +195,11 @@ public class SessionManager extends SessionTemplateManager {
         }
 
         conf.setProperty( ClockTypeOption.PROPERTY_NAME, ClockType.REALTIME_CLOCK.toExternalForm() );
+        Environment env = new EnvironmentImpl();
+        env.set( "sessionId", id );
 
 //        this.kSession = kAgent.getKnowledgeBase().newStatefulKnowledgeSession(conf, null);
-        this.kSession = kbase.newStatefulKnowledgeSession( conf, null );
+        this.kSession = kbase.newStatefulKnowledgeSession( conf, env );
         if ( ! node.isRemote() ) {
             addKnowledgeAgent( id, kbase, node );
         }
@@ -205,6 +209,9 @@ public class SessionManager extends SessionTemplateManager {
             logger.info( " ### SessionManager : Registering session " + id + " in node: " + node.getId() );
         }
         node.set( id, this.kSession );
+        if ( ! node.isRemote() ) {
+            kSession.setGlobal( "grid", node.getGrid() );
+        }
 
     }
 
@@ -344,7 +351,7 @@ public class SessionManager extends SessionTemplateManager {
             KnowledgeAgent kAgent;
             GridNode node = grid.getGridNode( nodeId );
             if ( node == null || node.isRemote() ) {
-                kAgent = GridHelper.getKnowledgeAgentRemoteClient( grid, nodeId, sessionId );
+                kAgent = GridHelper.getInstance().getKnowledgeAgentRemoteClient( grid, nodeId, sessionId );
             } else {
                 kAgent = node.get( sessionId + "_kAgent", KnowledgeAgent.class );
             }

@@ -28,12 +28,14 @@ import org.drools.command.CommandFactory;
 import org.drools.command.BatchExecutionCommand;
 import org.drools.grid.remote.command.AsyncBatchExecutionCommandImpl;
 import org.drools.runtime.rule.QueryResults;
+import org.drools.grid.helper.GridHelper;
 import org.drools.mas.Act;
 import org.drools.mas.body.content.*;
 import org.drools.mas.body.acts.*;
 import org.drools.mas.util.MessageContentHelper;
 import org.drools.mas.util.MessageContentFactory;
 import org.drools.command.runtime.rule.QueryCommand;
+import org.drools.grid.helper.GridHelper;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -67,7 +69,7 @@ then
     
     retract( $cmd );
 
-    StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession( grid, $nodeId, $sessionId, true );
+    StatefulKnowledgeSession kSession = GridHelper.getInstance().getStatefulKnowledgeSession( grid, $nodeId, $sessionId, true );
     if ( LoggerHelper.isDebugEnabled() ) {
             LoggerHelper.debug( " ### INTERNAL RULES: Trying to execute in = " + kSession );
         }
@@ -119,7 +121,7 @@ then
     retract( $cmd );
     
    
-    StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession( grid, $nodeId, $sessionId, true );
+    StatefulKnowledgeSession kSession = GridHelper.getInstance().getStatefulKnowledgeSession( grid, $nodeId, $sessionId, true );
     kSession.execute( $act );
     kSession.execute( CommandFactory.newFireAllRules() );
 end
@@ -214,7 +216,7 @@ then
         LoggerHelper.debug(" ### INTERNAL: FIXING QUERYIF RESULTS " + $sessionId );
     }
     if( $data instanceof QueryResultsDescriptor ) {
-        $data = GridHelper.getQueryResultRemoteClient( grid, $nodeId, $sessionId,
+        $data = GridHelper.getInstance().getQueryResultRemoteClient( grid, $nodeId, $sessionId,
                 ( (QueryResultsDescriptor) $data ).getQueryName(), ( (QueryResultsDescriptor) $data ).getQueryId() );
     }
     modify ( $cont ) {
@@ -259,7 +261,7 @@ then
         LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $data);
     }
     if( $data instanceof QueryResultsDescriptor ) {
-        $data = GridHelper.getQueryResultRemoteClient( grid, $nodeId, $sessionId,
+        $data = GridHelper.getInstance().getQueryResultRemoteClient( grid, $nodeId, $sessionId,
                 ( (QueryResultsDescriptor) $data ).getQueryName(), ( (QueryResultsDescriptor) $data ).getQueryId() );
     }
 

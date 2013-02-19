@@ -26,19 +26,19 @@ public class ResponseContent implements Serializable{
 
     private static Logger logger = LoggerFactory.getLogger( ResponseContent.class );
 
-    public static void deliverResponse( String nodeId, String sessionId, String msgId, Object ret, Fault fault ) {
-        deliverResponse( nodeId, sessionId, msgId, ret, fault, false );
-    }
+//    public static void deliverResponse( String nodeId, String sessionId, String msgId, Object ret, Fault fault ) {
+//        deliverResponse( nodeId, sessionId, msgId, ret, fault, false );
+//    }
 
     public static void deliverResponse( Grid grid, String nodeId, String sessionId, String msgId, Object ret, Fault fault ) {
-            deliverResponse( grid, nodeId, sessionId, msgId, ret, fault, false );
-        }
-
-    public static void deliverResponse( String nodeId, String sessionId, String msgId, Object ret, Fault fault, boolean needEncoding ) {
-        Grid grid = GridHelper.createGrid();
-        deliverResponse( grid, nodeId, sessionId, msgId, ret, fault, needEncoding );
+        deliverResponse( grid, nodeId, sessionId, msgId, ret, fault, false );
     }
-    
+
+//    public static void deliverResponse( String nodeId, String sessionId, String msgId, Object ret, Fault fault, boolean needEncoding ) {
+//        Grid grid = GridHelper.getInstance().createGrid();
+//        deliverResponse( grid, nodeId, sessionId, msgId, ret, fault, needEncoding );
+//    }
+
     public static void deliverResponse( Grid grid, String nodeId, String sessionId, String msgId, Object ret, Fault fault, boolean needEncoding ) {
         try {
             if ( logger.isDebugEnabled() ) {
@@ -67,7 +67,7 @@ public class ResponseContent implements Serializable{
                 logger.debug( "(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper fault is expected to be null " + fault );
             }
 
-            StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession( grid, nodeId, sessionId, true );
+            StatefulKnowledgeSession kSession = GridHelper.getInstance().getStatefulKnowledgeSession( grid, nodeId, sessionId, true );
 
             if ( logger.isDebugEnabled() ) {
                 logger.debug( "(" + Thread.currentThread().getId() + ")"+Thread.currentThread().getName() +"Content helper ksession found!"  );

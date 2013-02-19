@@ -17,61 +17,68 @@
 
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <modelVersion>4.0.0</modelVersion>
-   
-    <groupId>org.drools.mas</groupId>
-    <artifactId>drools-mas-generic-client</artifactId>
-    <version>1.0.Final</version>
-    
-    <name>Drools MAS :: Generic Agent Client</name>
-    <url>http://maven.apache.org</url>
-    <build>
-        <plugins>
-       
-        </plugins>
-    </build>
-    <repositories>
-        <repository>
-            <url>http://download.java.net/maven/2</url>
-            <id>metro</id>
-            <layout>default</layout>
-            <name>Repository for library[metro]</name>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <name>java.net</name>
-            <id>java.net</id>
-            <url>http://download.java.net/maven/2/</url>
-        </pluginRepository>
-    </pluginRepositories>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-    <dependencies>
-        
-        <dependency>
-            <groupId>org.drools.mas</groupId>
-            <artifactId>drools-mas-util</artifactId>
-            <version>1.0.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.xml</groupId>
-            <artifactId>webservices-api</artifactId>
-            <version>1.4</version>
-        </dependency>
-       
-        <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>webservices-rt</artifactId>
-            <version>1.4</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.1</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.drools.mas</groupId>
+  <artifactId>drools-mas-generic-client</artifactId>
+  <version>1.0.Final</version>
+
+  <name>Drools MAS :: Generic Agent Client</name>
+  <url>http://maven.apache.org</url>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <repositories>
+    <repository>
+      <url>http://download.java.net/maven/2</url>
+      <id>metro</id>
+      <layout>default</layout>
+      <name>Repository for library[metro]</name>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <name>java.net</name>
+      <id>java.net</id>
+      <url>http://download.java.net/maven/2/</url>
+    </pluginRepository>
+  </pluginRepositories>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <dependencies>
+
+    <dependency>
+      <groupId>org.drools.mas</groupId>
+      <artifactId>drools-mas-util</artifactId>
+      <version>1.0.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.xml</groupId>
+      <artifactId>webservices-api</artifactId>
+      <version>1.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.sun.xml.ws</groupId>
+      <artifactId>webservices-rt</artifactId>
+      <version>1.4</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 </project>
