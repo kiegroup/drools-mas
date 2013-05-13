@@ -130,7 +130,7 @@
           <manifestLocation>META-INF</manifestLocation>
           <instructions>
             <_removeheaders>Ignore-Package</_removeheaders>
-            <Require-Bundle>org.drools.api;org.drools.core;org.drools.compiler;visibility:=reexport;bundle-version="5.5.0-SNAPSHOT"</Require-Bundle>
+            <Require-Bundle>org.drools.api;org.drools.core;org.drools.compiler;visibility:=reexport;bundle-version="5.6.0-SNAPSHOT"</Require-Bundle>
             <Import-Package>!org.drools.*, *,org.osgi.util.tracker</Import-Package>
             <Export-Package>org.drools.mas.core.*</Export-Package>
             <DynamicImport-Package>*</DynamicImport-Package>
