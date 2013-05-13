@@ -19,11 +19,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.drools.mas</groupId>
   <artifactId>drools-mas</artifactId>
-  <version>1.0.Final-SG</version>
+  <version>1.0-SG</version>
   <packaging>pom</packaging>
   <name>Drools :: MAS</name>
   <properties>
-    <project.version>1.0.Final-SG</project.version>
+    <project.version>1.0-SG</project.version>
     <drools.version>5.6.0-SG</drools.version>
     <drools.informer.version>0.5.6.Final-SG</drools.informer.version>
     <camel.version>2.7.1</camel.version>

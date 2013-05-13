@@ -19,7 +19,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.drools.mas.impl</groupId>
   <artifactId>drools-mas-emergency-agent</artifactId>
-  <version>1.0.Final</version>
+  <version>1.0-SG</version>
   <packaging>war</packaging>
 
   <name>Drools MAS :: Emergency Agent Agent Web</name>
@@ -53,18 +53,18 @@
     <dependency>
       <groupId>org.drools.mas.examples</groupId>
       <artifactId>emergency-agent-model</artifactId>
-      <version>1.0.Final</version>
+      <version>1.0-SG</version>
     </dependency>
     <!-- Drools MAS Dependencies -->
     <dependency>
       <groupId>org.drools.mas</groupId>
       <artifactId>drools-mas-core</artifactId>
-      <version>1.0.Final</version>
+      <version>1.0-SG</version>
     </dependency>
     <dependency>
       <groupId>org.drools.mas</groupId>
       <artifactId>drools-mas-acl</artifactId>
-      <version>1.0.Final</version>
+      <version>1.0-SG</version>
     </dependency>
 
     <dependency>

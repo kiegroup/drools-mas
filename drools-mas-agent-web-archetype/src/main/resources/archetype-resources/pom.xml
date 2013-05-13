@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.drools.mas.impl</groupId>
     <artifactId>drools-mas-${agent-name}</artifactId>
-    <version>1.0.Final</version>
+    <version>1.0-SG</version>
     <packaging>war</packaging>
 
     <name>Drools MAS :: ${agent-name} Agent Web</name>
