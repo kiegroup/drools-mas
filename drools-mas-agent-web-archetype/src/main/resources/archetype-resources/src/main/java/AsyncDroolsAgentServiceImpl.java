@@ -3,7 +3,7 @@
  * the editor.
  */
 
-package org.drools.mas;
+package ${package};
 import java.util.List;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
@@ -25,13 +25,13 @@ import org.drools.mas.mappers.MyMapArgsEntryType;
 import org.drools.mas.mappers.MyMapReferenceEntryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.drools.mas.*;
 
 
 /**
  * @author salaboy
  */
-@WebService(targetNamespace = "http://mas.drools.org/", serviceName="AsyncAgentService", portName="AsyncAgentServicePort", endpointInterface="org.drools.mas.AsyncDroolsAgentService")
+@WebService(targetNamespace = "http://mas.drools.org/", serviceName="AsyncAgentService", portName="AsyncAgentServicePort", endpointInterface="${package}.AsyncDroolsAgentService")
 @XmlSeeAlso(value = {ACLMessage.class, AbstractMessageBody.class, Inform.class, Info.class, QueryIf.class, InformIf.class,
     Agree.class, Failure.class, Action.class, Rule.class, InformRef.class, Act.class,
     QueryRef.class, Query.class, Ref.class, Encodings.class,
