@@ -2,11 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.drools.mas;
+package ${package};
 
 import java.sql.SQLException;
 import org.drools.mas.core.DroolsAgent;
-import org.drools.mas.mock.MockResponseInformer;
 import org.h2.tools.DeleteDbFiles;
 import org.h2.tools.Server;
 import org.junit.*;
