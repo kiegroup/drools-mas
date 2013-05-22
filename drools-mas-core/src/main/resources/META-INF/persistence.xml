@@ -6,7 +6,7 @@
     <class>org.drools.grid.service.directory.impl.AddressImpl</class>
     <class>java.lang.String</class>
     <class>org.drools.grid.timer.impl.ScheduledJob</class>
-    <class>org.drools.mas.pages.YellowPages</class>
+    <class>org.drools.grid.service.directory.YellowPages</class>
     <properties>
       <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
       <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
