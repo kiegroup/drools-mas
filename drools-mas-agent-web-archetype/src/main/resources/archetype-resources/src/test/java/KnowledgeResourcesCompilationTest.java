@@ -6,6 +6,7 @@ package ${package};
 
 import java.sql.SQLException;
 import org.drools.mas.core.DroolsAgent;
+import org.drools.mas.helpers.DialogueHelper;
 import org.h2.tools.DeleteDbFiles;
 import org.h2.tools.Server;
 import org.junit.*;
@@ -59,12 +60,18 @@ public class KnowledgeResourcesCompilationTest {
      * initialized correctly
      */
     @Test
-    public void compilationTest() {
+    public void compilationTest() throws InterruptedException {
         
         ApplicationContext context = new ClassPathXmlApplicationContext("META-INF/applicationContext.xml");
         DroolsAgent agent = (DroolsAgent) context.getBean("agent");
         
         assertNotNull(agent);
+        
+        DialogueHelper helper = new DialogueHelper("http://${agent.endpoint.ip}:${agent.endpoint.port}/${agent.name}/services/AsyncAgentService?wsdl");
+        
+        helper.invokeInform("me", "you", "Hello World!", null);
+        
+        Thread.sleep(3000);
         
         agent.dispose();
         
