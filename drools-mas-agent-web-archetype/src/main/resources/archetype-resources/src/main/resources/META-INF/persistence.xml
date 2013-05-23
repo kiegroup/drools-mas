@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:orm="http://java.sun.com/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_1_0.xsd">
+  <persistence-unit name="org.drools.grid">
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <class>org.drools.grid.service.directory.impl.GridServiceDescriptionImpl</class>
+    <class>org.drools.grid.service.directory.impl.AddressImpl</class>
+    <class>org.drools.grid.timer.impl.ScheduledJob</class>
+    <class>java.lang.String</class>
+    
+    <properties>
+      <property name="hibernate.dialect" value="${db.dialect}"/>
+      <property name="hibernate.connection.driver_class" value="${db.driverClass}"/>
+      <property name="hibernate.connection.url" value="${db.connectionURL}"/>
+      <property name="hibernate.connection.username" value="${db.username}"/>
+      <property name="hibernate.connection.password" value="${db.password}"/>
+      <property name="hibernate.connection.autocommit" value="false"/>
+      <property name="hibernate.max_fetch_depth" value="3"/>
+      <property name="hibernate.hbm2ddl.auto" value="update"/>
+      <property name="hibernate.show_sql" value="false"/>
+    </properties>
+  </persistence-unit>
+</persistence>
