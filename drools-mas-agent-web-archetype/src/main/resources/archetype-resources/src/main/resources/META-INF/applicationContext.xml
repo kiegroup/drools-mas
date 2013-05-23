@@ -10,11 +10,11 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
     <jaxws:endpoint id="agent-ws" 
-                    address="http://localhost:8080/${agent-name}/services/SyncAgentService"
+                    address="http://${agent.endpoint.ip}:${agent.endpoint.port}/${agent.name}/services/SyncAgentService"
                     implementor="#agent-service">
     </jaxws:endpoint> 
     <jaxws:endpoint id="async-agent-ws" 
-                    address="http://localhost:8080/${agent-name}/services/AsyncAgentService"
+                    address="http://${agent.endpoint.ip}:${agent.endpoint.port}/${agent.name}/services/AsyncAgentService"
                     implementor="#async-agent-service">
     </jaxws:endpoint> 
    
@@ -26,21 +26,21 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
         <property name="agent" ref="agent"/>
     </bean>  
     
-    <bean id="agent1-session1" class="org.drools.mas.core.DroolsAgentConfiguration$SubSessionDescriptor">
+    <bean id="${agent.name}-session1" class="org.drools.mas.core.DroolsAgentConfiguration$SubSessionDescriptor">
         <constructor-arg value="session1"/>
         <constructor-arg value="agent_defSession_changeset.xml"/>
-        <constructor-arg value="local-agent1"/>
+        <constructor-arg value="${agent.node}"/>
     </bean>  
    
-    <bean id="agent1-configuration" class="org.drools.mas.core.DroolsAgentConfiguration">
-        <property name="agentId" value="Agent 1"/>
+    <bean id="${agent.name}-configuration" class="org.drools.mas.core.DroolsAgentConfiguration">
+        <property name="agentId" value="${agent.name}"/>
         <property name="changeset" value="agent_changeset.xml" />
         <!-- by default the mindNodeLocation is local --> 
-        <property name="mindNodeLocation" value="local-agent1"/>
-        <property name="port" value="7000"/>
+        <property name="mindNodeLocation" value="${agent.node}"/>
+        <property name="port" value="${agent.port}"/>
         <property name="subSessions">
             <list>
-                <ref local="agent1-session1"/>
+                <ref local="${agent.name}-session1"/>
                 
             </list>
         </property>
@@ -49,7 +49,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     <bean id="agent-factory" class="org.drools.mas.core.DroolsAgentFactory" factory-method="getInstance"/>
   
     <bean id="agent" class="org.drools.mas.core.DroolsAgent" factory-bean="agent-factory" factory-method="spawn">
-        <constructor-arg ref="agent1-configuration"/>
+        <constructor-arg ref="${agent.name}-configuration"/>
     </bean>
 
 
