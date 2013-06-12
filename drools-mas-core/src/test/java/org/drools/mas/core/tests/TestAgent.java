@@ -17,9 +17,6 @@ package org.drools.mas.core.tests;
 
 import java.sql.SQLException;
 
-import org.drools.grid.helper.GridHelper;
-import org.drools.grid.service.directory.WhitePages;
-import org.drools.grid.service.directory.impl.JpaWhitePages;
 import org.drools.mas.body.acts.Failure;
 import org.drools.mas.body.content.Query;
 import org.drools.mas.body.acts.InformIf;
@@ -51,7 +48,6 @@ import static org.junit.Assert.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.Persistence;
 
 public class TestAgent {
 
@@ -89,10 +85,17 @@ public class TestAgent {
     @Before
     public void createAgents() {
 
+        Map<String, Object> mainSessionGlobals = new HashMap<String, Object>();
+        mainSessionGlobals.put("globalString", "GlObAl StRiNg");
+        
+        Map<String, Object> session1Globals = new HashMap<String, Object>();
+        session1Globals.put("session1GlobalString", "SeSsIoN1 GlObAl StRiNg");
+        
         DroolsAgentConfiguration mainConfig = new DroolsAgentConfiguration();
         mainConfig.setAgentId( "Mock Test Agent" );
         mainConfig.setChangeset( "mainTestAgent_changeset.xml" );
-        DroolsAgentConfiguration.SubSessionDescriptor subDescr1 = new DroolsAgentConfiguration.SubSessionDescriptor( "session1", "sub1.xml", "mock-test-agent" );
+        mainConfig.setGlobals(mainSessionGlobals);
+        DroolsAgentConfiguration.SubSessionDescriptor subDescr1 = new DroolsAgentConfiguration.SubSessionDescriptor( "session1", "sub1.xml", "mock-test-agent", session1Globals );
         mainConfig.addSubSession( subDescr1 );
         DroolsAgentConfiguration.SubSessionDescriptor subDescr2 = new DroolsAgentConfiguration.SubSessionDescriptor( "session2", "sub2.xml", "mock-test-agent" );
         mainConfig.addSubSession( subDescr2 );
@@ -104,7 +107,6 @@ public class TestAgent {
 
         assertNotNull( mainAgent.getInnerSession( "session1" ) );
         assertNotNull( mainAgent.getInnerSession( "session2" ) );
-
     }
 
     @After
@@ -146,7 +148,15 @@ public class TestAgent {
 
     }
 
-
+    @Test
+    public void testGlobalsSetup(){
+        Object mainGlobal = mainAgent.getMind().getGlobal("globalString");
+        
+        Assert.assertEquals("GlObAl StRiNg", mainGlobal);
+        
+        Object session1Global = mainAgent.getInnerSession("session1").getGlobal("session1GlobalString");
+        Assert.assertEquals("SeSsIoN1 GlObAl StRiNg", session1Global);
+    }
 
     @Test
     public void testSimpleInform() throws InterruptedException {

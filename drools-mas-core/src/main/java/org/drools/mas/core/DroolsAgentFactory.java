@@ -15,7 +15,6 @@
  */
 package org.drools.mas.core;
 
-import org.drools.grid.helper.GridHelper;
 import org.drools.grid.remote.StatefulKnowledgeSessionRemoteClient;
 import org.drools.mas.util.helper.NodeLocator;
 import org.drools.runtime.StatefulKnowledgeSession;
@@ -23,6 +22,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 
 
 import java.util.HashMap;
+import java.util.Map;
 import javax.persistence.Persistence;
 import org.drools.SystemEventListenerFactory;
 import org.drools.grid.Grid;
@@ -41,7 +41,6 @@ import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.management.DroolsManagementAgent;
 import org.drools.mas.AgentID;
 import org.drools.mas.util.helper.SessionLocator;
-import org.drools.runtime.Globals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,8 +53,8 @@ import org.slf4j.LoggerFactory;
  *
  * TODO at the moment, a single default grid node is created locally. TODO the
  * topology is static, i.e. one master session with unidrectional links to
- * "slave" sessions  --> full GRID capabilities are being used to manage
- * sessions dynamically
+ * "slave" sessions --> full GRID capabilities are being used to manage sessions
+ * dynamically
  */
 public class DroolsAgentFactory {
 
@@ -63,7 +62,7 @@ public class DroolsAgentFactory {
     private static DroolsAgentFactory singleton;
 
     public static DroolsAgentFactory getInstance() {
-        if ( singleton == null ) {
+        if (singleton == null) {
             singleton = new DroolsAgentFactory();
         }
         return singleton;
@@ -72,93 +71,102 @@ public class DroolsAgentFactory {
     private DroolsAgentFactory() {
     }
 
-    public DroolsAgent spawn( DroolsAgentConfiguration config ) {
-        Grid grid = new GridImpl( "peer-" + config.getAgentId(), new HashMap<String, Object>() );
-        configureGrid( grid, config.getPort() );
+    public DroolsAgent spawn(DroolsAgentConfiguration config) {
+        Grid grid = new GridImpl("peer-" + config.getAgentId(), new HashMap<String, Object>());
+        configureGrid(grid, config.getPort());
 
         AgentID aid = new AgentID();
-            aid.setName( config.getAgentId() );
-            aid.setLocalName( config.getAgentId() );
+        aid.setName(config.getAgentId());
+        aid.setLocalName(config.getAgentId());
 
-        if ( logger.isInfoEnabled() ) {
-            logger.info( " >>> Spawning Agent => Name: " + aid.getName() );
+        if (logger.isInfoEnabled()) {
+            logger.info(" >>> Spawning Agent => Name: " + aid.getName());
         }
 
         try {
 
-            if ( logger.isDebugEnabled() ) {
-                logger.debug("  ### Creating Agent Mind: " + config.getAgentId() + "- CS: " + config.getChangeset() +" - mind location: " +config.getMindNodeLocation() );
+            if (logger.isDebugEnabled()) {
+                logger.debug("  ### Creating Agent Mind: " + config.getAgentId() + "- CS: " + config.getChangeset() + " - mind location: " + config.getMindNodeLocation());
             }
 
 
-            SessionManager manager = SessionManager.create( config, null, grid, false );
-            if ( manager == null ) {
-                logger.error( "SOMETHING BAD HAPPENED WHILE TRYING TO CREATE AN AGENT, could not create sessionManager" );
+            SessionManager manager = SessionManager.create(config, null, grid, false);
+            if (manager == null) {
+                logger.error("SOMETHING BAD HAPPENED WHILE TRYING TO CREATE AN AGENT, could not create sessionManager");
                 grid.dispose();
                 return null;
             }
             StatefulKnowledgeSession mind = manager.getStatefulKnowledgeSession();
 
             DroolsManagementAgent kmanagement = DroolsManagementAgent.getInstance();
-            kmanagement.registerKnowledgeSession( ( (StatefulKnowledgeSessionImpl) mind ).getInternalWorkingMemory() );
+            kmanagement.registerKnowledgeSession(((StatefulKnowledgeSessionImpl) mind).getInternalWorkingMemory());
 
-            if ( logger.isDebugEnabled() ) {
-                logger.debug( "  ### Mind Created: " + config.getAgentId() + "- CS: " + config.getChangeset() + " in "+ config.getMindNodeLocation() );
-                logger.debug( "  ### Creating Agent Sub-Sessions " );
+            if (logger.isDebugEnabled()) {
+                logger.debug("  ### Mind Created: " + config.getAgentId() + "- CS: " + config.getChangeset() + " in " + config.getMindNodeLocation());
+                logger.debug("  ### Creating Agent Sub-Sessions ");
             }
 
-            mind.setGlobal( "grid", grid );
-            mind.insert( new NodeLocator(config.getMindNodeLocation(), true ) );
+            mind.setGlobal("grid", grid);
 
-            for ( DroolsAgentConfiguration.SubSessionDescriptor descr : config.getSubSessions() ) {
-                if ( logger.isDebugEnabled() ) {
-                    logger.debug( "  ### Creating Agent Sub-Session: " + descr.getSessionId() + "- CS: " + descr.getChangeset() + " - on node: " + descr.getNodeId() );
+            for (Map.Entry<String, Object> entry : config.getGlobals().entrySet()) {
+                mind.setGlobal(entry.getKey(), entry.getValue());
+            }
+
+            mind.insert(new NodeLocator(config.getMindNodeLocation(), true));
+
+            for (DroolsAgentConfiguration.SubSessionDescriptor descr : config.getSubSessions()) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("  ### Creating Agent Sub-Session: " + descr.getSessionId() + "- CS: " + descr.getChangeset() + " - on node: " + descr.getNodeId());
                 }
-                SessionManager sm = SessionManager.create( config, descr, grid, true );
+                SessionManager sm = SessionManager.create(config, descr, grid, true);
                 StatefulKnowledgeSession mindSet = sm.getStatefulKnowledgeSession();
 
-                if ( ! ( mindSet instanceof StatefulKnowledgeSessionRemoteClient) ) {
-                    try{
-                        mindSet.setGlobal( "grid", grid );
-                    } catch (Exception e){
+                if (!(mindSet instanceof StatefulKnowledgeSessionRemoteClient)) {
+                    try {
+                        mindSet.setGlobal("grid", grid);
+                    } catch (Exception e) {
                         //maybe 'grid' is not even defined in subsession
-                        logger.debug("Global 'grid' not set on session '"+descr.getSessionId()+"' due to "+e.getMessage());
+                        logger.debug("Global 'grid' not set on session '" + descr.getSessionId() + "' due to " + e.getMessage());
                     }
                 }
-                
+
+                for (Map.Entry<String, Object> entry : descr.getGlobals().entrySet()) {
+                    mindSet.setGlobal(entry.getKey(), entry.getValue());
+                }
+
                 mindSet.fireAllRules();
-                
-                mindSet.insert( new SessionLocator( config.getMindNodeLocation(), config.getAgentId(), true, false ) );
-                mindSet.insert( new SessionLocator( descr.getNodeId(), descr.getSessionId(), false, true ) );
-                mind.insert( new SessionLocator( descr.getNodeId(), descr.getSessionId(), false, true ) );
-                mind.insert( new NodeLocator( descr.getNodeId(), true ) );
+
+                mindSet.insert(new SessionLocator(config.getMindNodeLocation(), config.getAgentId(), true, false));
+                mindSet.insert(new SessionLocator(descr.getNodeId(), descr.getSessionId(), false, true));
+                mind.insert(new SessionLocator(descr.getNodeId(), descr.getSessionId(), false, true));
+                mind.insert(new NodeLocator(descr.getNodeId(), true));
 
             }
 
-            if ( config.getSubNodes().size() > 0 ) {
-                for ( String node : config.getSubNodes() ) {
-                    if ( logger.isDebugEnabled() ) {
-                     logger.debug( "  ### Creating Additional Node: " + node );
+            if (config.getSubNodes().size() > 0) {
+                for (String node : config.getSubNodes()) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("  ### Creating Additional Node: " + node);
                     }
-                    SessionManager.createNode( node, grid, config.getPort(), true );
-                    mind.insert( new NodeLocator( node, false ) );
+                    SessionManager.createNode(node, grid, config.getPort(), true);
+                    mind.insert(new NodeLocator(node, false));
                 }
             }
 
-            mind.insert( aid );
+            mind.insert(aid);
             //Insert configuration as a fact inside the mind session
-            mind.insert( config );
-            mind.insert( new SessionLocator( config.getMindNodeLocation(), config.getAgentId(), true, false ) );
+            mind.insert(config);
+            mind.insert(new SessionLocator(config.getMindNodeLocation(), config.getAgentId(), true, false));
             mind.fireAllRules();
 
-            return new DroolsAgent( grid, aid, mind );
-        } catch ( Throwable t ) {
-            if ( t.getCause() != null ){
-                logger.error( "SOMETHING BAD HAPPENED WHILE TRYING TO CREATE AN AGENT " + t.getMessage() + ", due to " + t.getCause().getMessage() );
-            }else{
-                logger.error( "SOMETHING BAD HAPPENED WHILE TRYING TO CREATE AN AGENT " + t.getMessage());
+            return new DroolsAgent(grid, aid, mind);
+        } catch (Throwable t) {
+            if (t.getCause() != null) {
+                logger.error("SOMETHING BAD HAPPENED WHILE TRYING TO CREATE AN AGENT " + t.getMessage() + ", due to " + t.getCause().getMessage());
+            } else {
+                logger.error("SOMETHING BAD HAPPENED WHILE TRYING TO CREATE AN AGENT " + t.getMessage());
             }
-            if ( logger.isDebugEnabled() ) {
+            if (logger.isDebugEnabled()) {
                 t.printStackTrace();
             }
             grid.dispose();
@@ -167,36 +175,34 @@ public class DroolsAgentFactory {
 
     }
 
-
-    
-    private void configureGrid( Grid grid, int port ) {
+    private void configureGrid(Grid grid, int port) {
         //Local Grid Configuration, for our client
         GridPeerConfiguration conf = new GridPeerConfiguration();
 
         //Configuring the Core Services White Pages
-        GridPeerServiceConfiguration coreSeviceWPConf = new CoreServicesLookupConfiguration( new HashMap<String, GridServiceDescription>() );
-        conf.addConfiguration( coreSeviceWPConf );
+        GridPeerServiceConfiguration coreSeviceWPConf = new CoreServicesLookupConfiguration(new HashMap<String, GridServiceDescription>());
+        conf.addConfiguration(coreSeviceWPConf);
 
         //Configuring the a local WhitePages service that is being shared with all the grid peers
         WhitePagesLocalConfiguration wplConf = new WhitePagesLocalConfiguration();
         //wplConf.setWhitePages(new WhitePagesImpl());
-        wplConf.setWhitePages( new JpaWhitePages( Persistence.createEntityManagerFactory( "org.drools.grid" ) ) );
-        conf.addConfiguration( wplConf );
+        wplConf.setWhitePages(new JpaWhitePages(Persistence.createEntityManagerFactory("org.drools.grid")));
+        conf.addConfiguration(wplConf);
 
 
-        if ( port >= 0 ) {
+        if (port >= 0) {
             //Configuring the SocketService
-            MultiplexSocketServiceConfiguration socketConf = new MultiplexSocketServiceConfiguration( new MultiplexSocketServerImpl( "127.0.0.1",
+            MultiplexSocketServiceConfiguration socketConf = new MultiplexSocketServiceConfiguration(new MultiplexSocketServerImpl("127.0.0.1",
                     new MinaAcceptorFactoryService(),
                     SystemEventListenerFactory.getSystemEventListener(),
-                    grid ) );
-            socketConf.addService( WhitePages.class.getName(), wplConf.getWhitePages(), port );
+                    grid));
+            socketConf.addService(WhitePages.class.getName(), wplConf.getWhitePages(), port);
 //            socketConf.addService( SchedulerService.class.getName(), schlConf.getSchedulerService(), port );
 
-            conf.addConfiguration( socketConf );
+            conf.addConfiguration(socketConf);
         }
 
-        conf.configure( grid );
+        conf.configure(grid);
 
     }
 }

@@ -5,22 +5,6 @@
 package org.drools.mas.core.tests;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import javax.persistence.Persistence;
-import org.drools.SystemEventListenerFactory;
-import org.drools.grid.Grid;
-import org.drools.grid.GridServiceDescription;
-import org.drools.grid.conf.GridPeerServiceConfiguration;
-import org.drools.grid.conf.impl.GridPeerConfiguration;
-import org.drools.grid.helper.GridHelper;
-import org.drools.grid.impl.MultiplexSocketServerImpl;
-import org.drools.grid.io.impl.MultiplexSocketServiceConfiguration;
-import org.drools.grid.remote.mina.MinaAcceptorFactoryService;
-import org.drools.grid.service.directory.WhitePages;
-import org.drools.grid.service.directory.impl.CoreServicesLookupConfiguration;
-import org.drools.grid.service.directory.impl.JpaWhitePages;
-import org.drools.grid.service.directory.impl.WhitePagesLocalConfiguration;
-import org.drools.grid.timer.impl.CoreServicesSchedulerConfiguration;
 import org.drools.mas.ACLMessage;
 import org.drools.mas.core.DroolsAgent;
 import org.drools.mas.util.ACLMessageFactory;
@@ -86,6 +70,22 @@ public class SpringAgentTest {
 
     @After
     public void tearDown() {
+    }
+    
+    @Test
+    public void testGlobalsSetup(){
+        ApplicationContext context = new ClassPathXmlApplicationContext( "applicationContextOneNodeGlobals.xml" );
+
+        DroolsAgent agent = (DroolsAgent) context.getBean( "agent" );
+        
+        Object mainGlobal = agent.getMind().getGlobal("globalString");
+        
+        Assert.assertEquals("GlObAl StRiNg", mainGlobal);
+        
+        Object session1Global = agent.getInnerSession("session47").getGlobal("session1GlobalString");
+        Assert.assertEquals("TeSt StRiNg", session1Global);
+        
+        agent.dispose();
     }
 
     @Test
@@ -220,6 +220,7 @@ public class SpringAgentTest {
         agent.dispose();
 
         logger.info( "**********************************************************************************************\n\n\n\n\n\n\n\n\n" );
+        
     }
     
     

@@ -39,7 +39,7 @@ import org.drools.mas.Encodings;
 import org.drools.mas.util.LoggerHelper;
 
 
-
+global String globalString;
 
 rule "Mapping"
 when
