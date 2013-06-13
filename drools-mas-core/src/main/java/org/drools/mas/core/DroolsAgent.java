@@ -16,20 +16,16 @@
 package org.drools.mas.core;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import org.drools.grid.*;
 import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.management.DroolsManagementAgent;
 import org.drools.mas.util.MessageContentEncoder;
 import org.drools.runtime.StatefulKnowledgeSession;
 
-import org.drools.grid.service.directory.WhitePages;
 import org.drools.mas.ACLMessage;
 import org.drools.mas.AgentID;
-import org.drools.mas.util.helper.SessionLocator;
+import org.drools.mas.util.helper.SessionHelper;
 import org.drools.runtime.rule.QueryResults;
 import org.drools.runtime.rule.QueryResultsRow;
 import org.drools.runtime.rule.Variable;
@@ -59,7 +55,6 @@ public class DroolsAgent {
      * Response channel class
      */
     
-    private Grid grid;
     private static Logger logger = LoggerFactory.getLogger(DroolsAgent.class);
 
     public DroolsAgent() {
@@ -71,8 +66,7 @@ public class DroolsAgent {
      * @param id
      * @param session
      */
-    public DroolsAgent(Grid grid, AgentID id, StatefulKnowledgeSession session) {
-        this.grid = grid;
+    public DroolsAgent(AgentID id, StatefulKnowledgeSession session) {
         this.agentId = id;
         this.mind = session;
         
@@ -108,49 +102,11 @@ public class DroolsAgent {
         DroolsManagementAgent kmanagement = DroolsManagementAgent.getInstance();
         kmanagement.unregisterKnowledgeSession( ( (StatefulKnowledgeSessionImpl ) mind).getInternalWorkingMemory() );
 
-        //TODO : what if another agent is using this grid's nodes?
-        try {
-            if ( logger.isInfoEnabled() ) {
-                logger.info( " >>> Disposing Agent " + agentId.getName() );
-            }
-            QueryResults queryResults = mind.getQueryResults( "getSessions", new Object[] {} );
-            Iterator<QueryResultsRow> iterator = queryResults.iterator();
-            while ( iterator.hasNext() ) {
-
-                SessionLocator sessionLoc = (SessionLocator) iterator.next().get( "$sessionLocator" );
-                if ( logger.isDebugEnabled() ) {
-                    logger.debug(" ### \t Disposing Agent Session :" + sessionLoc );
-                }
-                GridNode node = grid.getGridNode( sessionLoc.getNodeId() );
-                GridServiceDescription<GridNode> nGsd = null;
-                if ( node == null ) {
-                    nGsd = grid.get( WhitePages.class ).lookup( sessionLoc.getNodeId() );
-                    if ( nGsd != null ) {
-                    GridConnection<GridNode> conn = grid.get( ConnectionFactoryService.class ).createConnection( nGsd );
-                        node = conn.connect();
-                        if ( logger.isDebugEnabled() ) {
-                            logger.debug(" ### \t Session " + sessionLoc + " found in " + node.getId() + "  >> local = " + node.isRemote() + " ( proxy = " + node.isRemote() + " ) " );
-                        }
-
-                        StatefulKnowledgeSession ksession = node.get( sessionLoc.getSessionId(), StatefulKnowledgeSession.class );
-                        ksession.dispose();
-                    }
-                } else {
-                    // it's a local node ( triple check! ), so we just shut the KS down. The node will be disposed later
-                    if ( logger.isDebugEnabled() ) {
-                        logger.debug(" ### \t Session " + sessionLoc + " found in " + node.getId() + "  >> local = " + node.isRemote() + " ( proxy = " + node.isRemote() + " ) " );
-                    }
-
-                    StatefulKnowledgeSession ksession = node.get( sessionLoc.getSessionId(), StatefulKnowledgeSession.class );
-                    ksession.dispose();
-                }
-            }
-
-        } finally {
-            grid.dispose();
+        if ( logger.isInfoEnabled() ) {
+            logger.info( " >>> Disposing Agent " + agentId.getName() );
         }
-        // Should have already been disposed...
-        mind.dispose();
+            
+        SessionHelper.getInstance().dispose();
 
     }
 
@@ -162,30 +118,9 @@ public class DroolsAgent {
         }
         if (sessionId == null) {
             return mind;
-        } else {
-            QueryResults queryResults = mind.getQueryResults("getSessionById", new Object[]{sessionId});
-            //size must be 1
-            if (queryResults.size() > 1) {
-                throw new IllegalStateException("Duplicate sessions ids");
-            }
-            if (queryResults.size() == 0) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("No Session Found for SessionId: " + sessionId);
-                }
-                return null;
-            }
-            QueryResultsRow first = queryResults.iterator().next();
-            SessionLocator sessionLoc = (SessionLocator) first.get("$sessionLocator");
-            if (logger.isDebugEnabled()) {
-                logger.debug("Session Locator Found: " + sessionLoc);
-            }
-            GridNode node = grid.getGridNode(sessionLoc.getNodeId());
-            StatefulKnowledgeSession ksession = node.get(sessionId, StatefulKnowledgeSession.class);
-            if (logger.isDebugEnabled()) {
-                logger.debug("Session Located: " + ksession);
-            }
-            return ksession;
-        }
+        } 
+        
+        return SessionHelper.getInstance().getSession(sessionId);
 
     }
 

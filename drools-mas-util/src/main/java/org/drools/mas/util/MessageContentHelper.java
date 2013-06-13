@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.drools.grid.remote.InternalQueryResultsClient;
-import org.drools.grid.remote.QueryResultsRemoteClient;
 
 
 import org.drools.mas.body.content.Action;
@@ -83,23 +81,7 @@ public class MessageContentHelper {
 
             }
         }
-        InternalQueryResultsClient innerClient;
 
-        if (results instanceof QueryResultsRemoteClient) {
-            innerClient = ((QueryResultsRemoteClient) results).getResults();
-            String[] paramsString = innerClient.getParameters();
-            for (MyMapReferenceEntryType entry : pointers) {
-                String decString = paramsString[ entry.getKey()];
-                if (logger.isDebugEnabled()) {
-                    logger.debug(" $$$ ParamsString [" + entry.getKey() + "] = " + paramsString[ entry.getKey()]);
-                    logger.debug(" $$$ entry.getValue() " + entry.getValue());
-//                    logger.debug(" $$$ innerClient.getObject( " + decString + ") = " + innerClient.getObject(decString));
-
-                }
-                map.put(entry.getValue(), innerClient.getObject(decString));
-            }
-
-        }
         Ref ref = new Ref();
         ref.setReferences(MapArgsAdapterHelper.marshal(map));
         return ref;
@@ -126,16 +108,6 @@ public class MessageContentHelper {
                 map.put(entry.getValue(), inner.get(0).get(dec.getIdentifier()));
             }
         }
-        InternalQueryResultsClient innerClient;
-        if (results instanceof QueryResultsRemoteClient) {
-            innerClient = ((QueryResultsRemoteClient) results).getResults();
-            String[] paramsString = innerClient.getParameters();
-            for (MyMapReferenceEntryType entry : query.getReferences()) {
-                String decString = paramsString[ entry.getKey()];
-                map.put(entry.getValue(), innerClient.getObject(decString));
-            }
-        }
-
 
         Ref ref = new Ref();
         ref.setReferences(MapArgsAdapterHelper.marshal(map));

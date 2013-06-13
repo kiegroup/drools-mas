@@ -1,9 +1,6 @@
 package org.drools.mas.util.helper;
 
 import org.drools.command.CommandFactory;
-import org.drools.grid.Grid;
-import org.drools.grid.helper.GridHelper;
-import org.drools.grid.remote.command.AsyncBatchExecutionCommandImpl;
 import org.drools.mas.Encodings;
 import org.drools.mas.util.MessageContentEncoder;
 import org.drools.runtime.StatefulKnowledgeSession;
@@ -15,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.drools.command.runtime.BatchExecutionCommandImpl;
 
 public class ResponseContent implements Serializable{
 
@@ -26,20 +24,11 @@ public class ResponseContent implements Serializable{
 
     private static Logger logger = LoggerFactory.getLogger( ResponseContent.class );
 
-//    public static void deliverResponse( String nodeId, String sessionId, String msgId, Object ret, Fault fault ) {
-//        deliverResponse( nodeId, sessionId, msgId, ret, fault, false );
-//    }
-
-    public static void deliverResponse( Grid grid, String nodeId, String sessionId, String msgId, Object ret, Fault fault ) {
-        deliverResponse( grid, nodeId, sessionId, msgId, ret, fault, false );
+    public static void deliverResponse(String sessionId, String msgId, Object ret, Fault fault ) {
+        deliverResponse( sessionId, msgId, ret, fault, false );
     }
 
-//    public static void deliverResponse( String nodeId, String sessionId, String msgId, Object ret, Fault fault, boolean needEncoding ) {
-//        Grid grid = GridHelper.getInstance().createGrid();
-//        deliverResponse( grid, nodeId, sessionId, msgId, ret, fault, needEncoding );
-//    }
-
-    public static void deliverResponse( Grid grid, String nodeId, String sessionId, String msgId, Object ret, Fault fault, boolean needEncoding ) {
+    public static void deliverResponse(String sessionId, String msgId, Object ret, Fault fault, boolean needEncoding ) {
         try {
             if ( logger.isDebugEnabled() ) {
                 logger.debug( "(" + Thread.currentThread().getId() + ")"+Thread.currentThread().getName() + "Content helper is now active" );
@@ -60,14 +49,14 @@ public class ResponseContent implements Serializable{
                 }
             }
 
-            ResponseContent response = new ResponseContent( nodeId, sessionId, msgId, results );
+            ResponseContent response = new ResponseContent( sessionId, msgId, results );
             response.setFault( fault );
 
             if ( logger.isDebugEnabled() ) {
                 logger.debug( "(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper fault is expected to be null " + fault );
             }
 
-            StatefulKnowledgeSession kSession = GridHelper.getInstance().getStatefulKnowledgeSession( grid, nodeId, sessionId, true );
+            StatefulKnowledgeSession kSession = SessionHelper.getInstance().getSession(sessionId);
 
             if ( logger.isDebugEnabled() ) {
                 logger.debug( "(" + Thread.currentThread().getId() + ")"+Thread.currentThread().getName() +"Content helper ksession found!"  );
@@ -76,7 +65,7 @@ public class ResponseContent implements Serializable{
             List list = new ArrayList(2);
             list.add( CommandFactory.newInsert(response) );
             list.add( CommandFactory.newFireAllRules() );
-            AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl( list );
+            BatchExecutionCommandImpl batch = new BatchExecutionCommandImpl( list );
 
             if ( logger.isDebugEnabled() ) {
                 logger.debug( "(" + Thread.currentThread().getId() + ")"+Thread.currentThread().getName() +"Content helper batch is ready"  );
@@ -92,8 +81,7 @@ public class ResponseContent implements Serializable{
 
 
 
-    public ResponseContent(String nodeId, String sessionId, String messageId, Object data) {
-        this.nodeId = nodeId;
+    public ResponseContent(String sessionId, String messageId, Object data) {
         this.sessionId = sessionId;
         this.messageId = messageId;
         this.data = data;
@@ -113,14 +101,6 @@ public class ResponseContent implements Serializable{
 
     public void setMessageId(String messageId) {
         this.messageId = messageId;
-    }
-
-    public String getNodeId() {
-        return nodeId;
-    }
-
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
     }
 
     public String getSessionId() {
@@ -148,9 +128,6 @@ public class ResponseContent implements Serializable{
             return false;
         }
         final ResponseContent other = (ResponseContent) obj;
-        if ((this.nodeId == null) ? (other.nodeId != null) : !this.nodeId.equals(other.nodeId)) {
-            return false;
-        }
         if ((this.sessionId == null) ? (other.sessionId != null) : !this.sessionId.equals(other.sessionId)) {
             return false;
         }
@@ -169,7 +146,6 @@ public class ResponseContent implements Serializable{
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 89 * hash + (this.nodeId != null ? this.nodeId.hashCode() : 0);
         hash = 89 * hash + (this.sessionId != null ? this.sessionId.hashCode() : 0);
         hash = 89 * hash + (this.messageId != null ? this.messageId.hashCode() : 0);
         hash = 89 * hash + (this.data != null ? this.data.hashCode() : 0);
@@ -179,7 +155,7 @@ public class ResponseContent implements Serializable{
 
     @Override
     public String toString() {
-        return "ResponseContent{" + "nodeId=" + nodeId + ", sessionId=" + sessionId + ", messageId=" + messageId + ", data=" + data + ", fault=" + fault + '}';
+        return "ResponseContent{ sessionId=" + sessionId + ", messageId=" + messageId + ", data=" + data + ", fault=" + fault + '}';
     }
 
 

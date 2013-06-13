@@ -26,26 +26,25 @@ import org.drools.mas.util.helper.ResponseContent;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.command.CommandFactory;
 import org.drools.command.BatchExecutionCommand;
-import org.drools.grid.remote.command.AsyncBatchExecutionCommandImpl;
 import org.drools.runtime.rule.QueryResults;
-import org.drools.grid.helper.GridHelper;
 import org.drools.mas.Act;
 import org.drools.mas.body.content.*;
 import org.drools.mas.body.acts.*;
 import org.drools.mas.util.MessageContentHelper;
 import org.drools.mas.util.MessageContentFactory;
+import org.drools.mas.util.command.RetractFromObjectCommand;
 import org.drools.command.runtime.rule.QueryCommand;
-import org.drools.grid.helper.GridHelper;
+import org.drools.command.BatchExecutionCommand;
+import org.drools.command.runtime.BatchExecutionCommandImpl;
 import java.util.List;
 import java.util.ArrayList;
 
 import org.drools.mas.util.LoggerHelper;
-import org.drools.grid.helper.GridHelper;
-import org.drools.grid.GridNode;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.mas.util.helper.SessionLocator;
-import org.drools.grid.remote.command.*;
 import org.drools.command.*;
+
+import org.drools.mas.util.helper.SessionHelper;
 
 //rule "Response content inserted"
 //    when
@@ -59,7 +58,7 @@ when
     $msg : ACLMessage( $msgId : id )
     $dst : Destination( $msgId , $sessionId ; )
     $cmd : MessageCommands( $msgId, $batch ; )
-    SessionLocator($nodeId: nodeId, sessionId == $sessionId)
+    SessionLocator(sessionId == $sessionId)
 then
     LoggerHelper.debug(" ### INTERNAL: INVOKE - EXECUTING msg commands for "+ $msgId + " in " + $sessionId);
     if (LoggerHelper.isDebugEnabled()) {
@@ -69,7 +68,7 @@ then
     
     retract( $cmd );
 
-    StatefulKnowledgeSession kSession = GridHelper.getInstance().getStatefulKnowledgeSession( grid, $nodeId, $sessionId, true );
+    StatefulKnowledgeSession kSession = SessionHelper.getInstance().getSession($sessionId);
     if ( LoggerHelper.isDebugEnabled() ) {
             LoggerHelper.debug( " ### INTERNAL RULES: Trying to execute in = " + kSession );
         }
@@ -77,21 +76,15 @@ then
     LoggerHelper.debug( " ### INTERNAL RULES: Trying to execute in = " + kSession + " -  batch: " + $batch );
     try {
         org.drools.runtime.impl.ExecutionResultImpl result = (org.drools.runtime.impl.ExecutionResultImpl) kSession.execute( $batch );
-        if( ! ( $batch instanceof AsyncBatchExecutionCommandImpl ) ) {
-            if ( LoggerHelper.isDebugEnabled() ) {
-                LoggerHelper.debug( " ### INTERNAL RULES: Executing Synchronous Batch, waiting for results ... " );
-            }
-            retVal = result.getValue( "$out_" + $msgId );
-            if ( LoggerHelper.isDebugEnabled() ) {
-                LoggerHelper.debug( " ### INTERNAL RULES: Remote Execution return = " + retVal );
-            }
-            ResponseContent response = new ResponseContent( $nodeId, $sessionId, $msgId, retVal );
-            insert( response );
-        } else {
-            if ( LoggerHelper.isDebugEnabled() ) {
-                LoggerHelper.debug( " ### INTERNAL RULES: Executing Asynchronous Batch, results will come later ... " );
-            }
+        if ( LoggerHelper.isDebugEnabled() ) {
+            LoggerHelper.debug( " ### INTERNAL RULES: Executing Synchronous Batch, waiting for results ... " );
         }
+        retVal = result.getValue( "$out_" + $msgId );
+        if ( LoggerHelper.isDebugEnabled() ) {
+            LoggerHelper.debug( " ### INTERNAL RULES: Remote Execution return = " + retVal );
+        }
+        ResponseContent response = new ResponseContent( $sessionId, $msgId, retVal );
+        insert( response );
     } catch ( Exception e ) {
         e.printStackTrace();
         if ( LoggerHelper.isDebugEnabled() ) {
@@ -112,7 +105,7 @@ when
     $msg : ACLMessage( $msgId : id )
     $dst : Destination( $msgId , $sessionId ; )
     $cmd : OneShotMessageCommand( $msgId, $act ; )
-    SessionLocator( $nodeId: nodeId, sessionId == $sessionId )
+    SessionLocator( sessionId == $sessionId )
 then
     if ( LoggerHelper.isDebugEnabled() ) {
         LoggerHelper.debug( " ### INTERNAL: EXECUTING msg command ONE for "+ $msgId + " in " + $sessionId );
@@ -121,7 +114,7 @@ then
     retract( $cmd );
     
    
-    StatefulKnowledgeSession kSession = GridHelper.getInstance().getStatefulKnowledgeSession( grid, $nodeId, $sessionId, true );
+    StatefulKnowledgeSession kSession = SessionHelper.getInstance().getSession($sessionId);
     kSession.execute( $act );
     kSession.execute( CommandFactory.newFireAllRules() );
 end
@@ -143,7 +136,7 @@ then
             //list.add(CommandFactory.newInsert( $info.getData(), "$out_"+$msgId ));
             list.add( CommandFactory.newInsert( $info.getData() ) );
             list.add( CommandFactory.newFireAllRules() );
-    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl( list );
+    BatchExecutionCommandImpl batch = new BatchExecutionCommandImpl( list );
     insert( new MessageCommands( $msgId, batch ) );
 end
 
@@ -161,7 +154,7 @@ then
             //list.add(CommandFactory.newInsert( $info.getData(), "$out_"+$msgId ));
             list.add( CommandFactory.newInsert( $info.getData() ) );
             list.add( CommandFactory.newFireAllRules() );
-    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl( list );
+    BatchExecutionCommandImpl batch = new BatchExecutionCommandImpl( list );
     insert( new MessageCommands( $msgId, batch ) );
 end
 
@@ -178,7 +171,7 @@ then
     
     list.add( new RetractFromObjectCommand( $info.getData() ) );
     list.add( CommandFactory.newFireAllRules() );
-    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl( list );
+    BatchExecutionCommandImpl batch = new BatchExecutionCommandImpl( list );
     insert( new MessageCommands( $msgId, batch ) );
 end
 
@@ -190,13 +183,13 @@ when
     $msg : ACLMessage( $msgId : id, performative == Act.QUERY_IF )
     QueryIf( $info : proposition ) from $msg.body
     $dst : Destination( $msgId , $sessionId ; )
-    SessionLocator( $nodeId: nodeId, sessionId == $sessionId )
+    SessionLocator( sessionId == $sessionId )
 then
     if ( LoggerHelper.isTraceEnabled() ) {
         LoggerHelper.trace(" ### INTERNAL: GENERATING COMMANDS FOR QUERYIF " + $msgId );
     }
     List list = new ArrayList( 1 );
-    list.add( new QueryRemoteCommand( "$out_" + $msgId, "queryIf", true, new Object[] { $info.getData() } ) );
+    list.add( new QueryCommand( "$out_" + $msgId, "queryIf", true, new Object[] { $info.getData() } ) );
     BatchExecutionCommand batch = CommandFactory.newBatchExecution( list );
     insert( new MessageCommands( $msgId, batch ) );
 end
@@ -207,17 +200,12 @@ salience 9999
 no-loop
 when
     $msg :  ACLMessage( $msgId : id, performative == Act.QUERY_IF )
-    $cont : ResponseContent( $nodeId: nodeId, $sessionId: sessionId,  messageId == $msgId, $data : data != null )
+    $cont : ResponseContent( $sessionId: sessionId,  messageId == $msgId, $data : data != null )
             QueryResults( size > 0 ) from $data
 then
     if ( LoggerHelper.isDebugEnabled() ) {
         LoggerHelper.debug(" ### INTERNAL: FIXING QUERYIF RESULTS " + $msgId );
-        LoggerHelper.debug(" ### INTERNAL: FIXING QUERYIF RESULTS " + $nodeId );
         LoggerHelper.debug(" ### INTERNAL: FIXING QUERYIF RESULTS " + $sessionId );
-    }
-    if( $data instanceof QueryResultsDescriptor ) {
-        $data = GridHelper.getInstance().getQueryResultRemoteClient( grid, $nodeId, $sessionId,
-                ( (QueryResultsDescriptor) $data ).getQueryName(), ( (QueryResultsDescriptor) $data ).getQueryId() );
     }
     modify ( $cont ) {
         setData( ( (QueryResults) $data ).iterator().next().get( "$queryIf" ) );
@@ -234,13 +222,13 @@ when
     $msg : ACLMessage( $msgId : id, performative == Act.QUERY_REF )
     QueryRef( $query : query ) from $msg.body
     $dst : Destination( $msgId , $sessionId ; )
-    SessionLocator($nodeId: nodeId, sessionId == $sessionId)
+    SessionLocator(sessionId == $sessionId)
 then
     if (LoggerHelper.isTraceEnabled()) {
         LoggerHelper.trace(" ### INTERNAL: GENERATING COMMANDS FOR QUERYREF " + $msgId);
     }
     List list = new ArrayList(2);
-    list.add(new QueryRemoteCommand( "$out_"+$msgId, $query.getQueryName() ,true, $query.getArgs().toArray() ));        
+    list.add(new QueryCommand( "$out_"+$msgId, $query.getQueryName() ,true, $query.getArgs().toArray() ));        
     BatchExecutionCommand batch = CommandFactory.newBatchExecution(list);
     insert( new MessageCommands( $msgId, batch ) );
 end
@@ -252,17 +240,12 @@ no-loop
 when
     $msg : ACLMessage( $msgId : id, performative == Act.QUERY_REF )
     QueryRef( $query : query ) from $msg.body
-    $cont : ResponseContent($nodeId: nodeId, $sessionId: sessionId, messageId == $msgId, $data : data != null )
+    $cont : ResponseContent( $sessionId: sessionId, messageId == $msgId, $data : data != null )
 then
     if ( LoggerHelper.isDebugEnabled() ) {
         LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $msgId);
-        LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $nodeId);
         LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $sessionId);
         LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $data);
-    }
-    if( $data instanceof QueryResultsDescriptor ) {
-        $data = GridHelper.getInstance().getQueryResultRemoteClient( grid, $nodeId, $sessionId,
-                ( (QueryResultsDescriptor) $data ).getQueryName(), ( (QueryResultsDescriptor) $data ).getQueryId() );
     }
 
     modify ( $cont ) {
@@ -277,7 +260,7 @@ when
     $msg : ACLMessage( $msgId : id, performative == Act.REQUEST )
     $req : Request( $act : action, $actName : action.actionName ) from $msg.body
     $dst : Destination( $msgId , $sessionId ; )
-    SessionLocator($nodeId: nodeId, sessionId == $sessionId)
+    SessionLocator(sessionId == $sessionId)
 then
     if (LoggerHelper.isTraceEnabled()) {
         LoggerHelper.trace(" ### INTERNAL: GENERATING COMMANDS FOR REQUEST " + $msgId);
@@ -285,7 +268,7 @@ then
     List list = new ArrayList(3);
             list.add(CommandFactory.newInsert( $req.getAction() ));
             list.add(CommandFactory.newFireAllRules());
-    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl(list);
+    BatchExecutionCommandImpl batch = new BatchExecutionCommandImpl(list);
     insert( new MessageCommands( $msgId, batch ) );
 end
 
@@ -296,12 +279,11 @@ no-loop
 when
     $msg : ACLMessage( $msgId : id, performative == Act.REQUEST )
     $req : Request( $act : action, $actName : action.actionName ) from $msg.body
-    $cont : ResponseContent($nodeId: nodeId, $sessionId: sessionId, messageId == $msgId, $data : data != null )
+    $cont : ResponseContent( $sessionId: sessionId, messageId == $msgId, $data : data != null )
 then
     if ( LoggerHelper.isDebugEnabled() ) {
         LoggerHelper.debug( " ### INTERNAL: FIXING RESULTS FOR REQUEST " + $msgId );
         LoggerHelper.debug( " ### INTERNAL: FIXING RESULTS FOR REQUEST " + $sessionId );
-        LoggerHelper.debug( " ### INTERNAL: FIXING RESULTS FOR REQUEST " + $nodeId );
         LoggerHelper.debug( " ### INTERNAL: FIXING RESULTS FOR REQUEST " + $data );
         
     }
@@ -317,7 +299,7 @@ when
     $msg : ACLMessage( $msgId : id, performative == Act.REQUEST_WHEN )
     $req : RequestWhen( $act : action, $actName : action.actionName, $condition : condition.drl ) from $msg.body
     $dst : Destination( $msgId , $sessionId ; )
-    SessionLocator( $nodeId: nodeId, sessionId == $sessionId )
+    SessionLocator( sessionId == $sessionId )
 then
     if (LoggerHelper.isDebugEnabled()) {
         LoggerHelper.debug(" ### INTERNAL: GENERATING COMMANDS FOR REQUEST WHEN " + $msgId + " " + $condition);
@@ -327,7 +309,7 @@ then
     java.util.List list = new ArrayList( 2 );
             list.add( CommandFactory.newInsert( holder ) );
             list.add( CommandFactory.newFireAllRules() );
-    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl( list );
+    BatchExecutionCommandImpl batch = new BatchExecutionCommandImpl( list );
     insert( new OneShotMessageCommand( $msgId,  batch ) );
 end
 
@@ -337,7 +319,7 @@ when
     $msg : ACLMessage( $msgId : id, performative == Act.REQUEST_WHENEVER )
     $req : RequestWhenever( $act : action, $actName : action.actionName, $condition : condition.drl ) from $msg.body
     $dst : Destination( $msgId , $sessionId ; )
-    SessionLocator( $nodeId: nodeId, sessionId == $sessionId )
+    SessionLocator(  sessionId == $sessionId )
 then
     if (LoggerHelper.isTraceEnabled()) {
         LoggerHelper.trace(" ### INTERNAL: GENERATING COMMANDS FOR REQUEST WHENEVER " + $msgId + " " + $condition);
@@ -347,7 +329,7 @@ then
     java.util.List list = new ArrayList( 2 );
             list.add( CommandFactory.newInsert( holder ) );
             list.add( CommandFactory.newFireAllRules() );
-    AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl( list );
+    BatchExecutionCommandImpl batch = new BatchExecutionCommandImpl( list );
     insert( new OneShotMessageCommand( $msgId,  batch ) );
 end
 
