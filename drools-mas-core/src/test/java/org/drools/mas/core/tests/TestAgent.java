@@ -100,7 +100,6 @@ public class TestAgent {
         DroolsAgentConfiguration.SubSessionDescriptor subDescr2 = new DroolsAgentConfiguration.SubSessionDescriptor( "session2", "sub2.xml", "mock-test-agent" );
         mainConfig.addSubSession( subDescr2 );
         mainConfig.setMindNodeLocation( "local-mock-test-agent" );
-        mainConfig.setPort( 7000 );
 
         mainAgent = DroolsAgentFactory.getInstance().spawn( mainConfig );
         assertNotNull( mainAgent );

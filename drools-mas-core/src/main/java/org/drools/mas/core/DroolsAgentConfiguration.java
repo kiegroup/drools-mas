@@ -32,7 +32,6 @@ public class DroolsAgentConfiguration implements Serializable {
     private String springContextFilePath;
     private String defaultSubsessionChangeSet;
     private String mindNodeLocation;
-    private int port = 7000;
     
     private Map<String,Object> globals = new HashMap<String, Object>();
 
@@ -99,14 +98,6 @@ public class DroolsAgentConfiguration implements Serializable {
 
     public void setMindNodeLocation(String mindNodeLocation) {
         this.mindNodeLocation = mindNodeLocation;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
     }
 
     public List<String> getSubNodes() {
@@ -219,7 +210,7 @@ public class DroolsAgentConfiguration implements Serializable {
 
     @Override
     public String toString() {
-        return "DroolsAgentConfiguration{" + "agentId=" + agentId + ", changeset=" + changeset + ", responseInformer=" + responseInformer + ", subSessions=" + subSessions + ", springContextFilePath=" + springContextFilePath + ", defaultSubsessionChangeSet=" + defaultSubsessionChangeSet + ", mindNodeLocation=" + mindNodeLocation + ", port=" + port + '}';
+        return "DroolsAgentConfiguration{" + "agentId=" + agentId + ", changeset=" + changeset + ", responseInformer=" + responseInformer + ", subSessions=" + subSessions + ", springContextFilePath=" + springContextFilePath + ", defaultSubsessionChangeSet=" + defaultSubsessionChangeSet + ", mindNodeLocation=" + mindNodeLocation + '}';
     }
     
 }

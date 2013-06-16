@@ -44,7 +44,6 @@
                 
                 <agent.name>${agent-name}</agent.name>
                 <agent.node>${agent-name}-localnode</agent.node>
-                <agent.port>8000</agent.port>
                 <agent.endpoint.ip>localhost</agent.endpoint.ip>
                 <agent.endpoint.port>8081</agent.endpoint.port>
             </properties>
@@ -60,7 +59,6 @@
                 
                 <agent.name>${agent-name}</agent.name>
                 <agent.node>${agent-name}-localnode</agent.node>
-                <agent.port>8000</agent.port>
                 <agent.endpoint.ip>localhost</agent.endpoint.ip>
                 <agent.endpoint.port>8081</agent.endpoint.port>
             </properties>
