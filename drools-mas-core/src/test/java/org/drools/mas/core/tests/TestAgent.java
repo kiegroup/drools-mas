@@ -286,6 +286,30 @@ public class TestAgent {
         assertEquals( Act.AGREE, answer.getPerformative() );
         ACLMessage answer2 = ans.get(1);
         assertEquals( Act.INFORM_REF, answer2.getPerformative() );
+
+        MessageContentEncoder.decodeBody(answer2.getBody(), answer2.getEncoding());
+        assertEquals(InformRef.class, answer2.getBody().getClass());
+        Ref ref = ((InformRef) answer2.getBody()).getReferences();
+        assertNotNull(ref.getReferences());
+        
+        boolean containsPatient = false;
+        boolean containsAge = false;
+        for (MyMapArgsEntryType entry : ref.getReferences()) {
+            if (entry.getKey().equals("?mock")) {
+                containsPatient = true;
+                assertEquals(MockFact.class, entry.getValue().getClass());
+                assertEquals(fact.toString(), entry.getValue().toString());
+            }
+            if (entry.getKey().equals("?age")) {
+                containsAge = true;
+                assertEquals(Integer.class, entry.getValue().getClass());
+                assertEquals(18, entry.getValue());
+            }
+        }
+        assertTrue(containsPatient);
+        assertTrue(containsAge);
+
+        System.out.println("ok");
     }
 
     @Test

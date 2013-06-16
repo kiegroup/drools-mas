@@ -21,6 +21,10 @@ public class SessionHelper{
     private Map<String, StatefulKnowledgeSession> sessions = new HashMap<String, StatefulKnowledgeSession>();
     private Map<String, KnowledgeAgent> kagents = new HashMap<String, KnowledgeAgent>();
     
+    private SessionHelper(){
+        
+    }
+    
     public static SessionHelper getInstance(){
         return INSTANCE;
     }
@@ -52,6 +56,11 @@ public class SessionHelper{
     }
 
     public void dispose(){
+
+        for (StatefulKnowledgeSession statefulKnowledgeSession : sessions.values()) {
+            statefulKnowledgeSession.dispose();
+        }
+        
         for (KnowledgeAgent knowledgeAgent : kagents.values()) {
             knowledgeAgent.dispose();
         }
