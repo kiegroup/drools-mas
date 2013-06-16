@@ -189,7 +189,7 @@ then
         LoggerHelper.trace(" ### INTERNAL: GENERATING COMMANDS FOR QUERYIF " + $msgId );
     }
     List list = new ArrayList( 1 );
-    list.add( new QueryCommand( "$out_" + $msgId, "queryIf", true, new Object[] { $info.getData() } ) );
+    list.add( new QueryCommand( "$out_" + $msgId, "queryIf", new Object[] { $info.getData() } ) );
     BatchExecutionCommand batch = CommandFactory.newBatchExecution( list );
     insert( new MessageCommands( $msgId, batch ) );
 end
@@ -228,7 +228,7 @@ then
         LoggerHelper.trace(" ### INTERNAL: GENERATING COMMANDS FOR QUERYREF " + $msgId);
     }
     List list = new ArrayList(2);
-    list.add(new QueryCommand( "$out_"+$msgId, $query.getQueryName() ,true, $query.getArgs().toArray() ));        
+    list.add(new QueryCommand( "$out_"+$msgId, $query.getQueryName(), $query.getArgs().toArray() ));        
     BatchExecutionCommand batch = CommandFactory.newBatchExecution(list);
     insert( new MessageCommands( $msgId, batch ) );
 end
