@@ -41,9 +41,9 @@
     <module>drools-mas-generic-client</module>
     <module>drools-mas-merged-bundle</module>
     <module>drools-5-merged-bundle</module>
-    <module>examples/drools-mas-emergency-agent-model</module>
+    <!--module>examples/drools-mas-emergency-agent-model</module>
     <module>examples/drools-mas-emergency-agent</module>
-    <module>examples/drools-mas-emergency-agent-client</module>
+    <module>examples/drools-mas-emergency-agent-client</module-->
   </modules>
 
   <repositories>
