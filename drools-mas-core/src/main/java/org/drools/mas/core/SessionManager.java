@@ -181,6 +181,7 @@ public class SessionManager extends SessionTemplateManager {
         Collection<Resource> resourcesAdded = cs.getResourcesAdded();
         for (Resource res : resourcesAdded) {
 
+            /*
             String file = ((InternalResource) res).getURL().getFile();
             if (!file.contains("file:")) {
                 file = "file:" + file;
@@ -193,7 +194,10 @@ public class SessionManager extends SessionTemplateManager {
             byte[] bytes = IOUtils.toByteArray(inputStream);
 
             kbuilder.add(new ByteArrayResource(bytes), ((InternalResource) res).getResourceType());
-
+            */
+            
+            kbuilder.add(res, ((InternalResource) res).getResourceType());
+                    
             KnowledgeBuilderErrors errors = kbuilder.getErrors();
             if (errors != null && errors.size() > 0) {
                 for (KnowledgeBuilderError error : errors) {
