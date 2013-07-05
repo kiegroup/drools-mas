@@ -22,7 +22,6 @@
         <source>src/main/java/SynchronousDroolsAgentResponseInformer.java</source>
         <source>src/main/java/SynchronousDroolsAgentService.java</source>
         <source>src/main/java/SynchronousDroolsAgentServiceImpl.java</source>
-        <source>src/main/java/mock/MockFact.java</source>
     </sources>
     <resources>
         <resource>src/main/resources/actionAgent_changeset.xml</resource>
