@@ -3,7 +3,7 @@
  * the editor.
  */
 
-package ${package};
+package org.drools.mas;
 import java.util.List;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
@@ -33,7 +33,7 @@ import org.drools.mas.*;
  * @author esteban
  */
 @WebService(targetNamespace = "http://mas.drools.org/", serviceName="SyncAgentService", 
-            portName="SyncAgentServicePort", endpointInterface="${package}.SynchronousDroolsAgentService"
+            portName="SyncAgentServicePort", endpointInterface="org.drools.mas.SynchronousDroolsAgentService"
            )
 @XmlSeeAlso(value = {ACLMessage.class, AbstractMessageBody.class, Inform.class, Info.class, QueryIf.class, InformIf.class,
     Agree.class, Failure.class, Action.class, Rule.class, InformRef.class, Act.class,

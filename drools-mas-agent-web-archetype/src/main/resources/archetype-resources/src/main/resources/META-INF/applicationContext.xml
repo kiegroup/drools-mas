@@ -19,10 +19,10 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     </jaxws:endpoint> 
    
     
-    <bean id="async-agent-service" class="${package}.AsyncDroolsAgentServiceImpl">
+    <bean id="async-agent-service" class="org.drools.mas.AsyncDroolsAgentServiceImpl">
         <property name="agent" ref="agent"/>
     </bean>  
-    <bean id="agent-service" class="${package}.SynchronousDroolsAgentServiceImpl">
+    <bean id="agent-service" class="org.drools.mas.SynchronousDroolsAgentServiceImpl">
         <property name="agent" ref="agent"/>
     </bean>  
     

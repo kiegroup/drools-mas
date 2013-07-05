@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package ${package};
+package org.drools.mas;
 import java.util.List;
 import javax.jws.WebService;
 import org.drools.mas.ACLMessage;
