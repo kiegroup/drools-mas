@@ -15,31 +15,16 @@
  */
 package org.drools.mas.core;
 
-import org.drools.grid.remote.StatefulKnowledgeSessionRemoteClient;
 import org.drools.mas.util.helper.NodeLocator;
 import org.drools.runtime.StatefulKnowledgeSession;
 
 
 
-import java.util.HashMap;
 import java.util.Map;
-import javax.persistence.Persistence;
-import org.drools.SystemEventListenerFactory;
-import org.drools.grid.Grid;
-import org.drools.grid.GridServiceDescription;
-import org.drools.grid.conf.GridPeerServiceConfiguration;
-import org.drools.grid.conf.impl.GridPeerConfiguration;
-import org.drools.grid.impl.GridImpl;
-import org.drools.grid.impl.MultiplexSocketServerImpl;
-import org.drools.grid.io.impl.MultiplexSocketServiceConfiguration;
-import org.drools.grid.remote.mina.MinaAcceptorFactoryService;
-import org.drools.grid.service.directory.WhitePages;
-import org.drools.grid.service.directory.impl.CoreServicesLookupConfiguration;
-import org.drools.grid.service.directory.impl.JpaWhitePages;
-import org.drools.grid.service.directory.impl.WhitePagesLocalConfiguration;
 import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.management.DroolsManagementAgent;
 import org.drools.mas.AgentID;
+import org.drools.mas.util.helper.SessionHelper;
 import org.drools.mas.util.helper.SessionLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,8 +57,6 @@ public class DroolsAgentFactory {
     }
 
     public DroolsAgent spawn(DroolsAgentConfiguration config) {
-        Grid grid = new GridImpl("peer-" + config.getAgentId(), new HashMap<String, Object>());
-        configureGrid(grid, config.getPort());
 
         AgentID aid = new AgentID();
         aid.setName(config.getAgentId());
@@ -90,10 +73,10 @@ public class DroolsAgentFactory {
             }
 
 
-            SessionManager manager = SessionManager.create(config, null, grid, false);
+            SessionManager manager = SessionManager.create(config, null);
             if (manager == null) {
                 logger.error("SOMETHING BAD HAPPENED WHILE TRYING TO CREATE AN AGENT, could not create sessionManager");
-                grid.dispose();
+                SessionHelper.getInstance().dispose();
                 return null;
             }
             StatefulKnowledgeSession mind = manager.getStatefulKnowledgeSession();
@@ -106,8 +89,6 @@ public class DroolsAgentFactory {
                 logger.debug("  ### Creating Agent Sub-Sessions ");
             }
 
-            mind.setGlobal("grid", grid);
-
             for (Map.Entry<String, Object> entry : config.getGlobals().entrySet()) {
                 mind.setGlobal(entry.getKey(), entry.getValue());
             }
@@ -116,19 +97,11 @@ public class DroolsAgentFactory {
 
             for (DroolsAgentConfiguration.SubSessionDescriptor descr : config.getSubSessions()) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("  ### Creating Agent Sub-Session: " + descr.getSessionId() + "- CS: " + descr.getChangeset() + " - on node: " + descr.getNodeId());
+                    logger.debug("  ### Creating Agent Sub-Session: " + descr.getSessionId() + "- CS: " + descr.getChangeset() );
                 }
-                SessionManager sm = SessionManager.create(config, descr, grid, true);
+                SessionManager sm = SessionManager.create(config, descr);
                 StatefulKnowledgeSession mindSet = sm.getStatefulKnowledgeSession();
 
-                if (!(mindSet instanceof StatefulKnowledgeSessionRemoteClient)) {
-                    try {
-                        mindSet.setGlobal("grid", grid);
-                    } catch (Exception e) {
-                        //maybe 'grid' is not even defined in subsession
-                        logger.debug("Global 'grid' not set on session '" + descr.getSessionId() + "' due to " + e.getMessage());
-                    }
-                }
 
                 for (Map.Entry<String, Object> entry : descr.getGlobals().entrySet()) {
                     mindSet.setGlobal(entry.getKey(), entry.getValue());
@@ -148,7 +121,6 @@ public class DroolsAgentFactory {
                     if (logger.isDebugEnabled()) {
                         logger.debug("  ### Creating Additional Node: " + node);
                     }
-                    SessionManager.createNode(node, grid, config.getPort(), true);
                     mind.insert(new NodeLocator(node, false));
                 }
             }
@@ -159,7 +131,7 @@ public class DroolsAgentFactory {
             mind.insert(new SessionLocator(config.getMindNodeLocation(), config.getAgentId(), true, false));
             mind.fireAllRules();
 
-            return new DroolsAgent(grid, aid, mind);
+            return new DroolsAgent(aid, mind);
         } catch (Throwable t) {
             if (t.getCause() != null) {
                 logger.error("SOMETHING BAD HAPPENED WHILE TRYING TO CREATE AN AGENT " + t.getMessage() + ", due to " + t.getCause().getMessage());
@@ -169,40 +141,10 @@ public class DroolsAgentFactory {
             if (logger.isDebugEnabled()) {
                 t.printStackTrace();
             }
-            grid.dispose();
+            SessionHelper.getInstance().dispose();
         }
         return null;
 
     }
 
-    private void configureGrid(Grid grid, int port) {
-        //Local Grid Configuration, for our client
-        GridPeerConfiguration conf = new GridPeerConfiguration();
-
-        //Configuring the Core Services White Pages
-        GridPeerServiceConfiguration coreSeviceWPConf = new CoreServicesLookupConfiguration(new HashMap<String, GridServiceDescription>());
-        conf.addConfiguration(coreSeviceWPConf);
-
-        //Configuring the a local WhitePages service that is being shared with all the grid peers
-        WhitePagesLocalConfiguration wplConf = new WhitePagesLocalConfiguration();
-        //wplConf.setWhitePages(new WhitePagesImpl());
-        wplConf.setWhitePages(new JpaWhitePages(Persistence.createEntityManagerFactory("org.drools.grid")));
-        conf.addConfiguration(wplConf);
-
-
-        if (port >= 0) {
-            //Configuring the SocketService
-            MultiplexSocketServiceConfiguration socketConf = new MultiplexSocketServiceConfiguration(new MultiplexSocketServerImpl("127.0.0.1",
-                    new MinaAcceptorFactoryService(),
-                    SystemEventListenerFactory.getSystemEventListener(),
-                    grid));
-            socketConf.addService(WhitePages.class.getName(), wplConf.getWhitePages(), port);
-//            socketConf.addService( SchedulerService.class.getName(), schlConf.getSchedulerService(), port );
-
-            conf.addConfiguration(socketConf);
-        }
-
-        conf.configure(grid);
-
-    }
 }

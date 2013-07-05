@@ -19,14 +19,14 @@ import mock.MockFact;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.mappers.MyMapArgsEntryType;
 import org.drools.mas.util.LoggerHelper;
-import org.drools.grid.helper.GridHelper;
-import org.drools.grid.GridNode;
 import org.drools.mas.util.helper.SessionLocator;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import org.drools.runtime.rule.Variable;
+import org.drools.command.BatchExecutionCommand;
+import org.drools.command.runtime.BatchExecutionCommandImpl;
 import org.drools.mas.util.helper.*;
 
 
@@ -90,7 +90,7 @@ rule "Action_Request : squareRoot - Result "
         
     then
        retract($a);
-       ResponseContent.deliverResponse( grid, $nodeId, $sessionId, $msgId, $return, null );
+       ResponseContent.deliverResponse( $sessionId, $msgId, $return, null );
 end
 
 rule "Action_Request : no logic to deal with this kind request"
@@ -101,7 +101,7 @@ when
 then
     retract( $a );
     Fault fault = new NoHandlerFault( $msgId, "No known way to process a request " + $actName );
-    ResponseContent.deliverResponse( grid, $nodeId, $sessionId, $msgId, null, fault );
+    ResponseContent.deliverResponse( $sessionId, $msgId, null, fault );
 end
 
 
@@ -113,7 +113,7 @@ when
 then
     retract( $a );
     Fault fault = new ExecutionFault( $msgId,"can't extract the square root of " + $x );
-    ResponseContent.deliverResponse( grid, $nodeId, $sessionId, $msgId, null, fault );
+    ResponseContent.deliverResponse( $sessionId, $msgId, null, fault );
 end
 
 
@@ -169,12 +169,12 @@ end
        result.put($k3, $a3); 
        System.out.println(" ### SESSION 2: RESPONSE MAP = "+result);
        ResponseContent response = new ResponseContent($nodeId, $sessionId, $msgId, result);
-       StatefulKnowledgeSession kSession = GridHelper.getStatefulKnowledgeSession($nodeId, $sessionId);
+       StatefulKnowledgeSession kSession = SessionHelper.getInstance().getSession($sessionId);
         LoggerHelper.error("SESSION 2:  "+response);
         java.util.List list = new ArrayList(2);
         list.add(CommandFactory.newInsert(response));
         list.add(CommandFactory.newFireAllRules());
-        AsyncBatchExecutionCommandImpl batch = new AsyncBatchExecutionCommandImpl(list);
+        BatchExecutionCommandImpl batch = new BatchExecutionCommandImpl(list);
         kSession.execute(batch);
         
 end*/

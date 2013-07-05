@@ -22,7 +22,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         <property name="changeset" value="mainTestAgent_changeset.xml" />
         <property name="responseInformer" value="org.drools.mas.mock.MockResponseInformer"/>
         <property name="mindNodeLocation" value="local"/>
-        <property name="port" value="7001"/>
         <property name="subSessions">
             <list>
                 <ref local="agent0-session1"/>

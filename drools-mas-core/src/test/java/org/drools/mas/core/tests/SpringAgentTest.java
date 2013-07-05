@@ -95,7 +95,7 @@ public class SpringAgentTest {
 
     @Test
     public void helloAgentSmithManyNodes() {
-        spawnAgentSmithAndLayHimToRest( "applicationContextGrid.xml" );
+        spawnAgentSmithAndLayHimToRest( "applicationContext.xml" );
     }
 
 
@@ -104,13 +104,13 @@ public class SpringAgentTest {
     public void helloAgentSmithManyNodesRespawn() {
 
         System.out.println( "Create agent" );
-        spawnAgentSmithAndLayHimToRest( "applicationContextGrid.xml" );
+        spawnAgentSmithAndLayHimToRest( "applicationContext.xml" );
 
         System.out.println( "Recreate agent in same context" );
-        spawnAgentSmithAndLayHimToRest( "applicationContextGrid.xml" );
+        spawnAgentSmithAndLayHimToRest( "applicationContext.xml" );
 
         System.out.println( "Recreate same agent for the third time" );
-        spawnAgentSmithAndLayHimToRest( "applicationContextGrid.xml" );
+        spawnAgentSmithAndLayHimToRest( "applicationContext.xml" );
 
     }
 
@@ -120,7 +120,7 @@ public class SpringAgentTest {
         DroolsAgent a1;
         DroolsAgent a2;
 
-        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        context = new ClassPathXmlApplicationContext( "applicationContext.xml" );
         a1 = (DroolsAgent) context.getBean( "agent" );
         a1.dispose();
 
@@ -137,7 +137,7 @@ public class SpringAgentTest {
         DroolsAgent a1;
         DroolsAgent a2;
 
-        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        context = new ClassPathXmlApplicationContext( "applicationContext.xml" );
         a1 = (DroolsAgent) context.getBean( "agent" );
 
         context = new ClassPathXmlApplicationContext( "applicationContextOneNode.xml" );
@@ -155,7 +155,7 @@ public class SpringAgentTest {
         DroolsAgent a1;
         DroolsAgent a2;
 
-        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        context = new ClassPathXmlApplicationContext( "applicationContext.xml" );
         a1 = (DroolsAgent) context.getBean( "agent" );
 
         context = new ClassPathXmlApplicationContext( "applicationContextOneNode.xml" );
@@ -163,7 +163,7 @@ public class SpringAgentTest {
 
         a1.dispose();
 
-        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        context = new ClassPathXmlApplicationContext( "applicationContext.xml" );
         a1 = (DroolsAgent) context.getBean( "agent" );
 
         a1.dispose();
@@ -172,7 +172,7 @@ public class SpringAgentTest {
         context = new ClassPathXmlApplicationContext( "applicationContextOneNode.xml" );
         a2 = (DroolsAgent) context.getBean( "agent" );
 
-        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        context = new ClassPathXmlApplicationContext( "applicationContext.xml" );
         a1 = (DroolsAgent) context.getBean( "agent" );
 
         a2.dispose();
@@ -188,7 +188,7 @@ public class SpringAgentTest {
         DroolsAgent a1;
         DroolsAgent a2;
 
-        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        context = new ClassPathXmlApplicationContext( "applicationContext.xml" );
         a1 = (DroolsAgent) context.getBean( "agent" );
 
         context = new ClassPathXmlApplicationContext( "applicationContextSharing.xml" );

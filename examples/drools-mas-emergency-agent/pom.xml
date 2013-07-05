@@ -38,7 +38,6 @@
         <db.dialect>org.hibernate.dialect.H2Dialect</db.dialect>
         <agent.name>emergecy-agent</agent.name>
         <agent.node>emergency-agent-localnode</agent.node>
-        <agent.port>7043</agent.port>
         <agent.endpoint.ip>localhost</agent.endpoint.ip>
         <agent.endpoint.port>8084</agent.endpoint.port>
       </properties>

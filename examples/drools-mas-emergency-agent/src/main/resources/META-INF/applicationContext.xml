@@ -34,7 +34,6 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
         <property name="changeset" value="agent_changeset.xml" />
         <!-- by default the mindNodeLocation is local --> 
         <property name="mindNodeLocation" value="${agent.node}"/>
-        <property name="port" value="${agent.port}"/>
         <property name="subSessions">
             <list>
                 <ref local="agent1-session1"/>

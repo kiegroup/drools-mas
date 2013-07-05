@@ -39,12 +39,12 @@ end
 
 rule "Response collector - deliverMessage"
 when
-    $s : SessionLocator( $nodeId: nodeId, $sessionId: sessionId, mind == true )
+    $s : SessionLocator( $sessionId: sessionId, mind == true )
     $action: Action( actionName == "coordinateEmergency",  $msgId: msgId )
     coordinateEmergency( $return; )
 then
     retract( $action );
-    ResponseContent.deliverResponse( grid, $nodeId, $sessionId, $msgId, $return, null );
+    ResponseContent.deliverResponse( $sessionId, $msgId, $return, null );
 end
 
 

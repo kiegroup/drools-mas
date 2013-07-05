@@ -4,25 +4,32 @@
  */
 package ${package};
 
-import java.sql.SQLException;
 import org.drools.mas.core.DroolsAgent;
 import org.drools.mas.helpers.DialogueHelper;
-import org.h2.tools.DeleteDbFiles;
-import org.h2.tools.Server;
 import org.junit.*;
+import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  *
- * @author salaboy
+ * @author esteban
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath*:META-INF/applicationContext.xml"})
 public class KnowledgeResourcesCompilationTest {
     private static Logger logger = LoggerFactory.getLogger(KnowledgeResourcesCompilationTest.class);
-    private Server server;
+    
+    @Autowired
+    private DroolsAgent agent;
+
     public KnowledgeResourcesCompilationTest() {
     }
 
@@ -36,34 +43,20 @@ public class KnowledgeResourcesCompilationTest {
 
     @Before
     public void setUp() {
-         DeleteDbFiles.execute("~", "mydb", false);
-
-        logger.info("Staring DB for white pages ...");
-        try {
-            server = Server.createTcpServer(null).start();
-        } catch (SQLException ex) {
-            logger.error(ex.getMessage());
-        }
-        logger.info("DB for white pages started! ");
+         
     }
 
     @After
     public void tearDown() {
-        
-        logger.info("Stopping DB ...");
-        server.stop();
-        logger.info("DB Stopped!");
     }
     /*
      * Test for check that the resources provided inside this agent 
      * at least compile without errors. To ensure that the agent can be 
      * initialized correctly
      */
+    @DirtiesContext
     @Test
     public void compilationTest() throws InterruptedException {
-        
-        ApplicationContext context = new ClassPathXmlApplicationContext("META-INF/applicationContext.xml");
-        DroolsAgent agent = (DroolsAgent) context.getBean("agent");
         
         assertNotNull(agent);
         

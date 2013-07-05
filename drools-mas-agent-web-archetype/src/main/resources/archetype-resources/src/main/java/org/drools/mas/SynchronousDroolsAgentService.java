@@ -2,8 +2,8 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ${package};
 
+package org.drools.mas;
 import java.util.List;
 import javax.jws.WebService;
 import org.drools.mas.ACLMessage;
@@ -13,7 +13,6 @@ import org.drools.mas.ACLMessage;
  * @author salaboy
  */
 @WebService
-public interface AsyncDroolsAgentService {
-    void tell(ACLMessage message);
-    List<ACLMessage> getResponses(String msgId);
+public interface SynchronousDroolsAgentService {
+    List<ACLMessage> tell(ACLMessage message);
 }

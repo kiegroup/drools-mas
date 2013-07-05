@@ -3,7 +3,7 @@
  * the editor.
  */
 
-package ${package};
+package org.drools.mas;
 import java.util.List;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
@@ -30,25 +30,21 @@ import org.drools.mas.*;
 
 /**
  * @author salaboy
- * @author esteban
  */
-@WebService(targetNamespace = "http://mas.drools.org/", serviceName="SyncAgentService", 
-            portName="SyncAgentServicePort", endpointInterface="${package}.SynchronousDroolsAgentService"
-           )
+@WebService(targetNamespace = "http://mas.drools.org/", serviceName="AsyncAgentService", portName="AsyncAgentServicePort", endpointInterface="org.drools.mas.AsyncDroolsAgentService")
 @XmlSeeAlso(value = {ACLMessage.class, AbstractMessageBody.class, Inform.class, Info.class, QueryIf.class, InformIf.class,
     Agree.class, Failure.class, Action.class, Rule.class, InformRef.class, Act.class,
     QueryRef.class, Query.class, Ref.class, Encodings.class,
     Ref.class, InformRef.class, Request.class, RequestWhen.class,
     MyMapReferenceEntryType.class, MyMapArgsEntryType.class})
-
 @Features(features = "org.apache.cxf.feature.LoggingFeature") 
-public class SynchronousDroolsAgentServiceImpl implements SynchronousDroolsAgentService {
+public class AsyncDroolsAgentServiceImpl implements AsyncDroolsAgentService {
 
-    private static Logger logger = LoggerFactory.getLogger(SynchronousDroolsAgentServiceImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(AsyncDroolsAgentServiceImpl.class);
     private DroolsAgent agent;
 
 
-    public SynchronousDroolsAgentServiceImpl() {
+    public AsyncDroolsAgentServiceImpl() {
         
     }
 
@@ -56,7 +52,7 @@ public class SynchronousDroolsAgentServiceImpl implements SynchronousDroolsAgent
         this.agent = agent;
     }
 
-    public List<ACLMessage> tell(ACLMessage message) {
+    public void tell(ACLMessage message) {
         if (logger.isDebugEnabled()) {
             logger.debug(" >>> IN Message -> " + message.getPerformative().name());
         }
@@ -67,10 +63,11 @@ public class SynchronousDroolsAgentServiceImpl implements SynchronousDroolsAgent
                 logger.error(">>> exception => " + t.getMessage());
                 t.printStackTrace();
             }
-            return null;
-
         }
-        List<ACLMessage> retrieveResponses = agent.getAgentAnswers(message.getId());
+    }
+    
+    public List<ACLMessage> getResponses(String msgId) {
+        List<ACLMessage> retrieveResponses = agent.getAgentAnswers(msgId);
         if (logger.isDebugEnabled()) {
             if (retrieveResponses != null) {
                 logger.debug(" <<< Number of OUT Messages -> " + retrieveResponses.size());
@@ -83,4 +80,5 @@ public class SynchronousDroolsAgentServiceImpl implements SynchronousDroolsAgent
         }
         return retrieveResponses;
     }
+    
 }
