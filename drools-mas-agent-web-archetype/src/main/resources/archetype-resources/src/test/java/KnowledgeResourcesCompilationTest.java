@@ -7,19 +7,29 @@ package ${package};
 import org.drools.mas.core.DroolsAgent;
 import org.drools.mas.helpers.DialogueHelper;
 import org.junit.*;
+import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  *
- * @author salaboy
+ * @author esteban
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath*:META-INF/applicationContext.xml"})
 public class KnowledgeResourcesCompilationTest {
     private static Logger logger = LoggerFactory.getLogger(KnowledgeResourcesCompilationTest.class);
-    private Server server;
+    
+    @Autowired
+    private DroolsAgent agent;
+
     public KnowledgeResourcesCompilationTest() {
     }
 
@@ -44,11 +54,10 @@ public class KnowledgeResourcesCompilationTest {
      * at least compile without errors. To ensure that the agent can be 
      * initialized correctly
      */
+    @DirtiesContext
     @Test
     public void compilationTest() throws InterruptedException {
         
-        ApplicationContext context = new ClassPathXmlApplicationContext("META-INF/applicationContext.xml");
-        DroolsAgent agent = (DroolsAgent) context.getBean("agent");
         assertNotNull(agent);
         
         DialogueHelper helper = new DialogueHelper("http://${agent.endpoint.ip}:${agent.endpoint.port}/${agent.name}/services/AsyncAgentService?wsdl");
