@@ -425,7 +425,8 @@ public class DialogueHelper {
                 }
                 
                 List<ACLMessage> answers = new ArrayList<ACLMessage>();
-                long waitTime = minimumWaitTime;
+                //avoid infinite waiting loop
+                long waitTime = minimumWaitTime <= 0 ? 1 : minimumWaitTime;
                 do {
                     try {
                         Logger.getLogger(DialogueHelper.class.getName()).log(Level.INFO, "Answer for {0} is not ready, wait... ", id);
