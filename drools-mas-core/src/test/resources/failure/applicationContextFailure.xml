@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+  
+    <bean id="agent-failure-session" class="org.drools.mas.core.DroolsAgentConfiguration$SubSessionDescriptor">
+        <constructor-arg value="subsession"/>
+        <constructor-arg value="failure/subsession.xml"/>
+        <constructor-arg value="node1"/>
+    </bean>  
+    
+    <bean id="agent-failure-configuration" class="org.drools.mas.core.DroolsAgentConfiguration">
+        <property name="agentId" value="Agent 1"/>
+        <property name="changeset" value="failure/mainsession.xml" />
+        <property name="responseInformer" value="org.drools.mas.mock.MockResponseInformer"/>
+        <property name="mindNodeLocation" value="local-agent1"/>
+        <property name="subSessions">
+            <list>
+                <ref local="agent-failure-session"/>
+            </list>
+        </property>
+    </bean>
+  
+    <bean id="agent-factory" class="org.drools.mas.core.DroolsAgentFactory" factory-method="getInstance"/>
+  
+    <bean id="agent" class="org.drools.mas.core.DroolsAgent" factory-bean="agent-factory" factory-method="spawn" destroy-method="dispose">
+        <constructor-arg ref="agent-failure-configuration"/>
+    </bean>
+
+</beans>
