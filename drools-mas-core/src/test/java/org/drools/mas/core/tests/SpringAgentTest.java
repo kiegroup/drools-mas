@@ -4,12 +4,9 @@
  */
 package org.drools.mas.core.tests;
 
-import java.sql.SQLException;
 import org.drools.mas.ACLMessage;
 import org.drools.mas.core.DroolsAgent;
 import org.drools.mas.util.ACLMessageFactory;
-import org.h2.tools.DeleteDbFiles;
-import org.h2.tools.Server;
 import org.junit.*;
 import static org.junit.Assert.*;
 import org.slf4j.Logger;
@@ -23,45 +20,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class SpringAgentTest {
 
-    private static int port1 = 8000;
-    private static int port2 = 8010;
-    private static Logger logger = LoggerFactory.getLogger( SpringAgentTest.class );
-    private static Server server;
+    private static final Logger logger = LoggerFactory.getLogger( SpringAgentTest.class );
 
     public SpringAgentTest() {
 
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        DeleteDbFiles.execute("~", "mydb", false);
-        
-        logger.info("Staring DB for white pages ...");
-        try {
-            server = Server.createTcpServer(new String[] {"-tcp","-tcpAllowOthers","-tcpDaemon","-trace"}).start();
-        } catch (SQLException ex) {
-            logger.error(ex.getMessage());
-        }
-        logger.info("DB for white pages started! ");
-
-        logger.info( "----------------------------------------------------------------------------------------------" );
-        logger.info( "PRE-Setup Complete \n\n\n\n\n" );
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-                
-        logger.info("Stopping DB ...");
-        try {
-            Server.shutdownTcpServer( server.getURL(), "", false, false );
-        } catch (SQLException e) {
-            e.printStackTrace();
-            fail ( e.getMessage() );
-        }
-        logger.info("DB Stopped!");
-        
-        logger.info( "----------------------------------------------------------------------------------------------" );
-        logger.info( "\n\n\n\n\n Context TORN DOWN" );
     }
 
     @Before
@@ -233,7 +195,6 @@ public class SpringAgentTest {
                 Thread.sleep( sleep );
                 counter++;
             } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         } while ( agent.peekAgentAnswers( id ).size() < expectedSize && counter < maxIters );
     }
