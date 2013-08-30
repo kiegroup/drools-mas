@@ -53,6 +53,21 @@
             <includes>
                 <include>**/*</include>
             </includes>
+            <excludes>
+                <exclude>index.jsp</exclude>
+                <exclude>js/*</exclude>
+                <exclude>css/*</exclude>
+                <exclude>fonts/*</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet filtered="false" packaged="false">
+            <directory>src/main/webapp</directory>
+            <includes>
+                <include>index.jsp</include>
+                <include>js/*</include>
+                <include>css/*</include>
+                <include>fonts/*</include>
+            </includes>
         </fileSet>
         <fileSet filtered="true" packaged="true">
             <directory>src/test/java</directory>

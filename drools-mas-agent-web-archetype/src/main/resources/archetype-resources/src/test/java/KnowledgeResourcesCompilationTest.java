@@ -4,6 +4,7 @@
  */
 package ${package};
 
+import java.util.Properties;
 import org.drools.mas.core.DroolsAgent;
 import org.drools.mas.helpers.DialogueHelper;
 import org.junit.*;
@@ -26,6 +27,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = {"classpath*:META-INF/applicationContext.xml"})
 public class KnowledgeResourcesCompilationTest {
     private static Logger logger = LoggerFactory.getLogger(KnowledgeResourcesCompilationTest.class);
+    private static String agentUrl;
     
     @Autowired
     private DroolsAgent agent;
@@ -35,6 +37,9 @@ public class KnowledgeResourcesCompilationTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+        Properties p = new Properties();
+        p.load(KnowledgeResourcesCompilationTest.class.getResourceAsStream("/agentsConfig.properties"));
+        agentUrl = p.getProperty("agent.endpoint.url");
     }
 
     @AfterClass
@@ -60,7 +65,7 @@ public class KnowledgeResourcesCompilationTest {
         
         assertNotNull(agent);
         
-        DialogueHelper helper = new DialogueHelper("http://${agent.endpoint.ip}:${agent.endpoint.port}/${agent.name}/services/AsyncAgentService?wsdl");
+        DialogueHelper helper = new DialogueHelper(agentUrl);
         
         helper.invokeInform("me", "you", "Hello World!", null);
         
