@@ -17,7 +17,9 @@ package org.drools.mas.core;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DroolsAgentConfiguration implements Serializable {
 
@@ -30,7 +32,8 @@ public class DroolsAgentConfiguration implements Serializable {
     private String springContextFilePath;
     private String defaultSubsessionChangeSet;
     private String mindNodeLocation;
-    private int port = 7000;
+    
+    private Map<String,Object> globals = new HashMap<String, Object>();
 
     public DroolsAgentConfiguration() {
     }
@@ -97,14 +100,6 @@ public class DroolsAgentConfiguration implements Serializable {
         this.mindNodeLocation = mindNodeLocation;
     }
 
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
     public List<String> getSubNodes() {
         return subNodes;
     }
@@ -117,16 +112,33 @@ public class DroolsAgentConfiguration implements Serializable {
         this.subNodes.add( node );
     }
 
+    public Map<String, Object> getGlobals() {
+        return globals;
+    }
+
+    public void setGlobals(Map<String, Object> globals) {
+        this.globals.putAll(globals);
+    }
+
     public static class SubSessionDescriptor implements Serializable {
 
         private String sessionId;
         private String changeset;
         private String nodeId;
+        private Map<String,Object> globals = new HashMap<String, Object>();
 
         public SubSessionDescriptor(String sessionId, String changeset, String nodeId) {
             this.sessionId = sessionId;
             this.changeset = changeset;
             this.nodeId = nodeId;
+        }
+        
+        public SubSessionDescriptor(String sessionId, String changeset, String nodeId, Map globals) {
+            this.sessionId = sessionId;
+            this.changeset = changeset;
+            this.nodeId = nodeId;
+            
+            this.globals.putAll(globals);
         }
 
         public String getSessionId() {
@@ -153,6 +165,11 @@ public class DroolsAgentConfiguration implements Serializable {
             this.nodeId = nodeId;
         }
 
+        public Map<String, Object> getGlobals() {
+            return globals;
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) {
                 return true;
@@ -176,6 +193,7 @@ public class DroolsAgentConfiguration implements Serializable {
             return true;
         }
 
+        @Override
         public int hashCode() {
             int result = sessionId != null ? sessionId.hashCode() : 0;
             result = 31 * result + (changeset != null ? changeset.hashCode() : 0);
@@ -192,7 +210,7 @@ public class DroolsAgentConfiguration implements Serializable {
 
     @Override
     public String toString() {
-        return "DroolsAgentConfiguration{" + "agentId=" + agentId + ", changeset=" + changeset + ", responseInformer=" + responseInformer + ", subSessions=" + subSessions + ", springContextFilePath=" + springContextFilePath + ", defaultSubsessionChangeSet=" + defaultSubsessionChangeSet + ", mindNodeLocation=" + mindNodeLocation + ", port=" + port + '}';
+        return "DroolsAgentConfiguration{" + "agentId=" + agentId + ", changeset=" + changeset + ", responseInformer=" + responseInformer + ", subSessions=" + subSessions + ", springContextFilePath=" + springContextFilePath + ", defaultSubsessionChangeSet=" + defaultSubsessionChangeSet + ", mindNodeLocation=" + mindNodeLocation + '}';
     }
     
 }

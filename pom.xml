@@ -19,13 +19,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.drools.mas</groupId>
   <artifactId>drools-mas</artifactId>
-  <version>1.0.Final</version>
+  <version>1.0-SG</version>
   <packaging>pom</packaging>
   <name>Drools :: MAS</name>
   <properties>
-    <project.version>1.0.Final</project.version>
-    <drools.version>5.6.0-SNAPSHOT</drools.version>
-    <drools.informer.version>0.5.6.Final</drools.informer.version>
+    <project.version>1.0-SG</project.version>
+    <drools.version>5.6.0-SG</drools.version>
+    <drools.informer.version>0.5.6.Final-SG</drools.informer.version>
     <camel.version>2.7.1</camel.version>
     <spring.version>3.0.5.RELEASE</spring.version>
     <cxf.version>2.4.2</cxf.version>
@@ -41,9 +41,9 @@
     <module>drools-mas-generic-client</module>
     <module>drools-mas-merged-bundle</module>
     <module>drools-5-merged-bundle</module>
-    <module>examples/drools-mas-emergency-agent-model</module>
+    <!--module>examples/drools-mas-emergency-agent-model</module>
     <module>examples/drools-mas-emergency-agent</module>
-    <module>examples/drools-mas-emergency-agent-client</module>
+    <module>examples/drools-mas-emergency-agent-client</module-->
   </modules>
 
   <repositories>
@@ -97,6 +97,11 @@
         <artifactId>gson</artifactId>
         <version>1.7.1</version>
       </dependency>
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>2.5.0</version>
+      </dependency>
 
       <dependency>
         <groupId>commons-io</groupId>
@@ -147,6 +152,12 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context</artifactId>
+        <version>3.1.0.RELEASE</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
         <version>3.1.0.RELEASE</version>
         <scope>test</scope>
       </dependency>

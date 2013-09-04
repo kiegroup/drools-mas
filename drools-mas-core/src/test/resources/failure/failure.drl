@@ -17,41 +17,35 @@ package org.drools.test;
 
 
 import mock.MockFact;
-import org.slf4j.Logger;
 import org.drools.mas.util.LoggerHelper;
-import org.drools.mas.ResourceAdditionRequest;
 
-import java.net.URL;
-import org.drools.builder.ResourceType;
-import mock.ClasspathURLResourceLocator;
-
-global String session1GlobalString;
-
-query ageOfPatient( MockFact $mock, String $patientName, int $age )
-    $mock := MockFact( $patientName := name, $age := age )
-end
 
 rule "Log"
 when
     $o : Object()
 then 
-    LoggerHelper.info(" >>> SESSION #1 >>> " + $o);
+    LoggerHelper.info(" >>> FAILURE SESSION >>> " + $o);
 end
 
-rule "Add new Resource"
+rule "Insert a MockFact"
 when
-    ClasspathURLResourceLocator($url: URL, $resourceType: resourceType)
+    $s: String( this str[startsWith] "insert MockFact please")
 then
-    LoggerHelper.info(" >>> SESSION #1 >>> URLResourceLocator");
-    ResourceAdditionRequest rar = new ResourceAdditionRequest();
-    rar.setURL($url);
-    rar.setType($resourceType);
-    
-    insert (rar);
+    LoggerHelper.info(" >>> I'M ABOUT TO INSERT NEW MockFact");
+    insert(new MockFact($s, 18));
 end
 
-query exceptional( )
+rule "RHS Fail"
+when
+    String( this == "fail please")
+then
+    LoggerHelper.info(" >>> SESSION IS ABOUT TO FAIL");
+    throw new RuntimeException("Explicitly thrown Exception");
 end
 
-
-
+rule "LHS Fail"
+when
+    MockFact(name.length == 1)
+then
+    LoggerHelper.info(" >>> MockFact with name length = 1 found!");
+end

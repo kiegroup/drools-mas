@@ -29,15 +29,11 @@ import org.drools.mas.util.LoggerHelper;
 
 import org.drools.mas.util.helper.SessionLocator;
 
-import org.drools.grid.Grid;
-import org.drools.grid.helper.GridHelper;
-import org.drools.grid.api.impl.ResourceDescriptorImpl;
-import org.drools.grid.api.ResourceDescriptor;
+import org.drools.mas.util.ResourceDescriptorImpl;
+import org.drools.mas.util.ResourceDescriptor;
 
 import java.net.URL;
 import org.drools.builder.ResourceType;
-
-global Grid grid;
 
 declare ResourceAdditionRequest
     URL  : URL
@@ -48,58 +44,19 @@ query queryIf( Object $o )
     $queryIf : Object( this == $o )
 end
 
-
-
-//rule "Delayed action"
-//salience 9999
-//when
-//    $holder : ActionHolder( $id : refId, $act : action, $drl : condition )
-//    SessionLocator( $nodeId: nodeId, $sessionId : sessionId, mind == false )
-//then
-//    ResourceDescriptorImpl rd = new ResourceDescriptorImpl( );
-//        rd.setId( "FIPA_RWH_" + $id );
-//        rd.setLoaded( true );
-//    insert( rd );
-//
-//    LoggerHelper.error(" >>> Adding Rule By Template: "+"requestWhen.drlt" + "THE FOLLOWING LOGIC IS NOT WORKING CHECK!!!!  " + $nodeId + " >>> " + $sessionId );
-//    SessionManager.addRuleByTemplate( grid, $nodeId, $sessionId, rd.getId(), "requestWhen.drlt", $holder );
-//end
-
-//rule "CleanUp Request When"
-//when
-//    $rd : ResourceDescriptor( $id : id )
-//    not   ActionHolder( refId == $id.replace( "FIPA_RWH_", "" ) )
-//    SessionLocator( $nodeId: nodeId, $sessionId : sessionId, mind == false )
-//then
-//    retract( $rd );
-//
-//    LoggerHelper.error(" >>> Unload Request rule " + "THE FOLLOWING LOGIC IS NOT WORKING CHECK!!!!" );
-//    // remove rule....
-//end
-
-
-rule "Init Grid"
-salience 999
-when
-then
-    if ( kcontext.getKnowledgeRuntime().getGlobal( "grid" ) == null ) {
-        LoggerHelper.error( "Fatal error, global object GRID is not set" );
-//        kcontext.getKnowledgeRuntime().setGlobal( "grid", GridHelper.getInstance().createGrid() );
-    }
-end
-
+//TODO: Test this rule!
 rule "Add Resource"
 when
     $rar: ResourceAdditionRequest($url: URL, $type: type)
-    SessionLocator( $nodeId: nodeId, $sessionId : sessionId, mind == false )
+    SessionLocator( $sessionId : sessionId, mind == false )
 then
-    LoggerHelper.error("Loading resource '" + $rar.getURL() +"' in session '"+$sessionId+"' of grid '"+grid+"'");
+    LoggerHelper.error("Loading resource '" + $rar.getURL() +"' in session '"+$sessionId);
     
     ResourceDescriptorImpl rd = new ResourceDescriptorImpl( );
     rd.setResourceURL($url);
     rd.setType($type);
 
-    SessionManager.addResource( grid, $nodeId, $sessionId, rd );
+    SessionManager.addResource($sessionId, rd );
     
     retract($rar);
 end

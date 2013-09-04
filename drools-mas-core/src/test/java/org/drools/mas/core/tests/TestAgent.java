@@ -15,11 +15,7 @@ package org.drools.mas.core.tests;
  * the License.
  */
 
-import java.sql.SQLException;
 
-import org.drools.grid.helper.GridHelper;
-import org.drools.grid.service.directory.WhitePages;
-import org.drools.grid.service.directory.impl.JpaWhitePages;
 import org.drools.mas.body.acts.Failure;
 import org.drools.mas.body.content.Query;
 import org.drools.mas.body.acts.InformIf;
@@ -44,35 +40,17 @@ import org.drools.mas.Act;
 import org.drools.mas.Encodings;
 import org.drools.mas.core.*;
 import org.drools.mas.mappers.MyMapArgsEntryType;
-import org.h2.tools.DeleteDbFiles;
-import org.h2.tools.Server;
 
 import static org.junit.Assert.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.Persistence;
 
 public class TestAgent {
 
     private static DroolsAgent mainAgent;
-    private static Logger logger = LoggerFactory.getLogger( TestAgent.class );
-    private static Server server;
+    private static final Logger logger = LoggerFactory.getLogger( TestAgent.class );
 
-
-    @BeforeClass
-    public static void setupDB() {
-        DeleteDbFiles.execute( "~", "mydb", false );
-
-        logger.info( "Staring DB for white pages ..." );
-        try {
-
-            server = Server.createTcpServer( new String[] { "-tcp","-tcpAllowOthers","-tcpDaemon","-trace" } ).start();
-        } catch ( SQLException ex ) {
-            logger.error( ex.getMessage() );
-        }
-        logger.info("DB for white pages started! ");
-    }
 
     @Test
     @Ignore( "Manual use only, test for memory leaks" )
@@ -89,22 +67,27 @@ public class TestAgent {
     @Before
     public void createAgents() {
 
+        Map<String, Object> mainSessionGlobals = new HashMap<String, Object>();
+        mainSessionGlobals.put("globalString", "GlObAl StRiNg");
+        
+        Map<String, Object> session1Globals = new HashMap<String, Object>();
+        session1Globals.put("session1GlobalString", "SeSsIoN1 GlObAl StRiNg");
+        
         DroolsAgentConfiguration mainConfig = new DroolsAgentConfiguration();
         mainConfig.setAgentId( "Mock Test Agent" );
         mainConfig.setChangeset( "mainTestAgent_changeset.xml" );
-        DroolsAgentConfiguration.SubSessionDescriptor subDescr1 = new DroolsAgentConfiguration.SubSessionDescriptor( "session1", "sub1.xml", "mock-test-agent" );
+        mainConfig.setGlobals(mainSessionGlobals);
+        DroolsAgentConfiguration.SubSessionDescriptor subDescr1 = new DroolsAgentConfiguration.SubSessionDescriptor( "session1", "sub1.xml", "mock-test-agent", session1Globals );
         mainConfig.addSubSession( subDescr1 );
         DroolsAgentConfiguration.SubSessionDescriptor subDescr2 = new DroolsAgentConfiguration.SubSessionDescriptor( "session2", "sub2.xml", "mock-test-agent" );
         mainConfig.addSubSession( subDescr2 );
         mainConfig.setMindNodeLocation( "local-mock-test-agent" );
-        mainConfig.setPort( 7000 );
 
         mainAgent = DroolsAgentFactory.getInstance().spawn( mainConfig );
         assertNotNull( mainAgent );
 
         assertNotNull( mainAgent.getInnerSession( "session1" ) );
         assertNotNull( mainAgent.getInnerSession( "session2" ) );
-
     }
 
     @After
@@ -116,19 +99,6 @@ public class TestAgent {
 
     }
 
-    @AfterClass
-    public static void cleanDB() {
-        logger.info("Stopping DB ...");
-        try {
-            Server.shutdownTcpServer(server.getURL(), "", false, false);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        logger.info("DB Stopped!");
-
-    }
-
-
     private void waitForAnswers( String id, int expectedSize, long sleep, int maxIters ) {
         int counter = 0;
         do {
@@ -137,7 +107,6 @@ public class TestAgent {
                 Thread.sleep( sleep );
                 counter++;
             } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         } while ( mainAgent.peekAgentAnswers( id ).size() < expectedSize && counter < maxIters );
         if ( counter == maxIters ) {
@@ -146,7 +115,15 @@ public class TestAgent {
 
     }
 
-
+    @Test
+    public void testGlobalsSetup(){
+        Object mainGlobal = mainAgent.getMind().getGlobal("globalString");
+        
+        Assert.assertEquals("GlObAl StRiNg", mainGlobal);
+        
+        Object session1Global = mainAgent.getInnerSession("session1").getGlobal("session1GlobalString");
+        Assert.assertEquals("SeSsIoN1 GlObAl StRiNg", session1Global);
+    }
 
     @Test
     public void testSimpleInform() throws InterruptedException {
@@ -276,6 +253,30 @@ public class TestAgent {
         assertEquals( Act.AGREE, answer.getPerformative() );
         ACLMessage answer2 = ans.get(1);
         assertEquals( Act.INFORM_REF, answer2.getPerformative() );
+
+        MessageContentEncoder.decodeBody(answer2.getBody(), answer2.getEncoding());
+        assertEquals(InformRef.class, answer2.getBody().getClass());
+        Ref ref = ((InformRef) answer2.getBody()).getReferences();
+        assertNotNull(ref.getReferences());
+        
+        boolean containsPatient = false;
+        boolean containsAge = false;
+        for (MyMapArgsEntryType entry : ref.getReferences()) {
+            if (entry.getKey().equals("?mock")) {
+                containsPatient = true;
+                assertEquals(MockFact.class, entry.getValue().getClass());
+                assertEquals(fact.toString(), entry.getValue().toString());
+            }
+            if (entry.getKey().equals("?age")) {
+                containsAge = true;
+                assertEquals(Integer.class, entry.getValue().getClass());
+                assertEquals(18, entry.getValue());
+            }
+        }
+        assertTrue(containsPatient);
+        assertTrue(containsAge);
+
+        System.out.println("ok");
     }
 
     @Test

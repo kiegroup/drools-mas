@@ -21,7 +21,7 @@
 
   <groupId>org.drools.mas.example</groupId>
   <artifactId>emergency-agent-client</artifactId>
-  <version>1.0.Final</version>
+  <version>1.0-SG</version>
 
   <name>Drools MAS :: Emergency Agent Client</name>
   <url>http://maven.apache.org</url>
@@ -214,17 +214,17 @@
     <dependency>
       <groupId>org.drools.mas</groupId>
       <artifactId>drools-mas-util</artifactId>
-      <version>1.0.Final</version>
+      <version>1.0-SG</version>
     </dependency>
     <dependency>
       <groupId>org.drools.mas</groupId>
       <artifactId>drools-mas-generic-client</artifactId>
-      <version>1.0.Final</version>
+      <version>1.0-SG</version>
     </dependency>
     <dependency>
       <groupId>org.drools.mas.examples</groupId>
       <artifactId>emergency-agent-model</artifactId>
-      <version>1.0.Final</version>
+      <version>1.0-SG</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

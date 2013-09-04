@@ -4,28 +4,9 @@
  */
 package org.drools.mas.core.tests;
 
-import java.sql.SQLException;
-import java.util.HashMap;
-import javax.persistence.Persistence;
-import org.drools.SystemEventListenerFactory;
-import org.drools.grid.Grid;
-import org.drools.grid.GridServiceDescription;
-import org.drools.grid.conf.GridPeerServiceConfiguration;
-import org.drools.grid.conf.impl.GridPeerConfiguration;
-import org.drools.grid.helper.GridHelper;
-import org.drools.grid.impl.MultiplexSocketServerImpl;
-import org.drools.grid.io.impl.MultiplexSocketServiceConfiguration;
-import org.drools.grid.remote.mina.MinaAcceptorFactoryService;
-import org.drools.grid.service.directory.WhitePages;
-import org.drools.grid.service.directory.impl.CoreServicesLookupConfiguration;
-import org.drools.grid.service.directory.impl.JpaWhitePages;
-import org.drools.grid.service.directory.impl.WhitePagesLocalConfiguration;
-import org.drools.grid.timer.impl.CoreServicesSchedulerConfiguration;
 import org.drools.mas.ACLMessage;
 import org.drools.mas.core.DroolsAgent;
 import org.drools.mas.util.ACLMessageFactory;
-import org.h2.tools.DeleteDbFiles;
-import org.h2.tools.Server;
 import org.junit.*;
 import static org.junit.Assert.*;
 import org.slf4j.Logger;
@@ -39,45 +20,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class SpringAgentTest {
 
-    private static int port1 = 8000;
-    private static int port2 = 8010;
-    private static Logger logger = LoggerFactory.getLogger( SpringAgentTest.class );
-    private static Server server;
+    private static final Logger logger = LoggerFactory.getLogger( SpringAgentTest.class );
 
     public SpringAgentTest() {
 
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        DeleteDbFiles.execute("~", "mydb", false);
-        
-        logger.info("Staring DB for white pages ...");
-        try {
-            server = Server.createTcpServer(new String[] {"-tcp","-tcpAllowOthers","-tcpDaemon","-trace"}).start();
-        } catch (SQLException ex) {
-            logger.error(ex.getMessage());
-        }
-        logger.info("DB for white pages started! ");
-
-        logger.info( "----------------------------------------------------------------------------------------------" );
-        logger.info( "PRE-Setup Complete \n\n\n\n\n" );
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-                
-        logger.info("Stopping DB ...");
-        try {
-            Server.shutdownTcpServer( server.getURL(), "", false, false );
-        } catch (SQLException e) {
-            e.printStackTrace();
-            fail ( e.getMessage() );
-        }
-        logger.info("DB Stopped!");
-        
-        logger.info( "----------------------------------------------------------------------------------------------" );
-        logger.info( "\n\n\n\n\n Context TORN DOWN" );
     }
 
     @Before
@@ -87,6 +33,22 @@ public class SpringAgentTest {
     @After
     public void tearDown() {
     }
+    
+    @Test
+    public void testGlobalsSetup(){
+        ApplicationContext context = new ClassPathXmlApplicationContext( "applicationContextOneNodeGlobals.xml" );
+
+        DroolsAgent agent = (DroolsAgent) context.getBean( "agent" );
+        
+        Object mainGlobal = agent.getMind().getGlobal("globalString");
+        
+        Assert.assertEquals("GlObAl StRiNg", mainGlobal);
+        
+        Object session1Global = agent.getInnerSession("session47").getGlobal("session1GlobalString");
+        Assert.assertEquals("TeSt StRiNg", session1Global);
+        
+        agent.dispose();
+    }
 
     @Test
     public void helloAgentSmithOneNode() {
@@ -95,7 +57,7 @@ public class SpringAgentTest {
 
     @Test
     public void helloAgentSmithManyNodes() {
-        spawnAgentSmithAndLayHimToRest( "applicationContextGrid.xml" );
+        spawnAgentSmithAndLayHimToRest( "applicationContext.xml" );
     }
 
 
@@ -104,13 +66,13 @@ public class SpringAgentTest {
     public void helloAgentSmithManyNodesRespawn() {
 
         System.out.println( "Create agent" );
-        spawnAgentSmithAndLayHimToRest( "applicationContextGrid.xml" );
+        spawnAgentSmithAndLayHimToRest( "applicationContext.xml" );
 
         System.out.println( "Recreate agent in same context" );
-        spawnAgentSmithAndLayHimToRest( "applicationContextGrid.xml" );
+        spawnAgentSmithAndLayHimToRest( "applicationContext.xml" );
 
         System.out.println( "Recreate same agent for the third time" );
-        spawnAgentSmithAndLayHimToRest( "applicationContextGrid.xml" );
+        spawnAgentSmithAndLayHimToRest( "applicationContext.xml" );
 
     }
 
@@ -120,7 +82,7 @@ public class SpringAgentTest {
         DroolsAgent a1;
         DroolsAgent a2;
 
-        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        context = new ClassPathXmlApplicationContext( "applicationContext.xml" );
         a1 = (DroolsAgent) context.getBean( "agent" );
         a1.dispose();
 
@@ -137,7 +99,7 @@ public class SpringAgentTest {
         DroolsAgent a1;
         DroolsAgent a2;
 
-        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        context = new ClassPathXmlApplicationContext( "applicationContext.xml" );
         a1 = (DroolsAgent) context.getBean( "agent" );
 
         context = new ClassPathXmlApplicationContext( "applicationContextOneNode.xml" );
@@ -155,7 +117,7 @@ public class SpringAgentTest {
         DroolsAgent a1;
         DroolsAgent a2;
 
-        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        context = new ClassPathXmlApplicationContext( "applicationContext.xml" );
         a1 = (DroolsAgent) context.getBean( "agent" );
 
         context = new ClassPathXmlApplicationContext( "applicationContextOneNode.xml" );
@@ -163,7 +125,7 @@ public class SpringAgentTest {
 
         a1.dispose();
 
-        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        context = new ClassPathXmlApplicationContext( "applicationContext.xml" );
         a1 = (DroolsAgent) context.getBean( "agent" );
 
         a1.dispose();
@@ -172,7 +134,7 @@ public class SpringAgentTest {
         context = new ClassPathXmlApplicationContext( "applicationContextOneNode.xml" );
         a2 = (DroolsAgent) context.getBean( "agent" );
 
-        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        context = new ClassPathXmlApplicationContext( "applicationContext.xml" );
         a1 = (DroolsAgent) context.getBean( "agent" );
 
         a2.dispose();
@@ -188,7 +150,7 @@ public class SpringAgentTest {
         DroolsAgent a1;
         DroolsAgent a2;
 
-        context = new ClassPathXmlApplicationContext( "applicationContextGrid.xml" );
+        context = new ClassPathXmlApplicationContext( "applicationContext.xml" );
         a1 = (DroolsAgent) context.getBean( "agent" );
 
         context = new ClassPathXmlApplicationContext( "applicationContextSharing.xml" );
@@ -220,6 +182,7 @@ public class SpringAgentTest {
         agent.dispose();
 
         logger.info( "**********************************************************************************************\n\n\n\n\n\n\n\n\n" );
+        
     }
     
     
@@ -232,7 +195,6 @@ public class SpringAgentTest {
                 Thread.sleep( sleep );
                 counter++;
             } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         } while ( agent.peekAgentAnswers( id ).size() < expectedSize && counter < maxIters );
     }

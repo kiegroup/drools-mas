@@ -21,10 +21,10 @@
   <parent>
     <artifactId>drools-mas</artifactId>
     <groupId>org.drools.mas</groupId>
-    <version>1.0.Final</version>
+    <version>1.0-SG</version>
   </parent>
   <artifactId>drools-mas-agent-jar-archetype</artifactId>
-  <version>1.0.Final</version>
+  <version>1.0-SG</version>
   <name>Drools :: MAS Archetype (Jar)</name>
   <url>http://maven.apache.org</url>
   <properties>

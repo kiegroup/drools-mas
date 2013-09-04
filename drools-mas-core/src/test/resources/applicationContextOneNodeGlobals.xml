@@ -8,7 +8,18 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         <constructor-arg value="session47"/>
         <constructor-arg value="sub1.xml"/>
         <constructor-arg value="local"/>
+        <constructor-arg>
+            <map>
+                <entry key="session1GlobalString">
+                    <ref local="stringBean1"/>
+                </entry>
+            </map>
+        </constructor-arg>
     </bean>  
+    
+    <bean id="stringBean1" class="java.lang.String">
+            <constructor-arg value="TeSt StRiNg"/>
+    </bean>
     
     <bean id="agent0-session2" class="org.drools.mas.core.DroolsAgentConfiguration$SubSessionDescriptor">
         <constructor-arg value="session83"/>
@@ -22,6 +33,11 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         <property name="changeset" value="mainTestAgent_changeset.xml" />
         <property name="responseInformer" value="org.drools.mas.mock.MockResponseInformer"/>
         <property name="mindNodeLocation" value="local"/>
+        <property name="globals">
+            <map>
+                <entry key="globalString" value="GlObAl StRiNg"/>
+            </map>
+        </property>
         <property name="subSessions">
             <list>
                 <ref local="agent0-session1"/>
