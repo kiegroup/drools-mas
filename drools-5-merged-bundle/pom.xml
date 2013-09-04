@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.drools.mas</groupId>
     <artifactId>drools-mas</artifactId>
-    <version>1.0-SG</version>
+    <version>1.0.Final</version>
   </parent>
   <artifactId>drools-5-merged-bundle</artifactId>
   <packaging>bundle</packaging>

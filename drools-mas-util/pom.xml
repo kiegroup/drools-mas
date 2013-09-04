@@ -21,7 +21,7 @@
   <parent>
     <artifactId>drools-mas</artifactId>
     <groupId>org.drools.mas</groupId>
-    <version>1.0-SG</version>
+    <version>1.0.Final</version>
   </parent>
 
   <artifactId>drools-mas-util</artifactId>

@@ -19,7 +19,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.drools.mas.impl</groupId>
   <artifactId>drools-mas-jar-custom-rename</artifactId>
-  <version>1.0-SG</version>
+  <version>1.0.Final</version>
   <packaging>war</packaging>
 
   <name>Drools MAS :: JAR (Custom Rename) Agent</name>
