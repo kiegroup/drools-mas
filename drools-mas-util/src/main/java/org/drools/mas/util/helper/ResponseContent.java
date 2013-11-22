@@ -32,6 +32,13 @@ public class ResponseContent implements Serializable{
         try {
             if ( logger.isDebugEnabled() ) {
                 logger.debug( "(" + Thread.currentThread().getId() + ")"+Thread.currentThread().getName() + "Content helper is now active" );
+                logger.debug("Invocation StackTrace:");
+                StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+                for (int i = 0; i < stackTrace.length; i++) {
+                    StackTraceElement stackTraceElement = stackTrace[i];
+                    logger.debug(stackTraceElement.toString());
+                }
+                logger.debug("\n");
             }
             Map results = null;
             if ( ret != null ) {

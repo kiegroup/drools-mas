@@ -62,7 +62,6 @@ when
 then
     LoggerHelper.debug(" ### INTERNAL: INVOKE - EXECUTING msg commands for "+ $msgId + " in " + $sessionId);
     if (LoggerHelper.isDebugEnabled()) {
-        LoggerHelper.debug(" ### INTERNAL: INVOKE - EXECUTING msg commands for "+ $msgId + " in " + $sessionId);
         LoggerHelper.debug(" ### INTERNAL: \t commands " + $cmd);
     }
     
