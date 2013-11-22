@@ -10,9 +10,6 @@
  <logger name="org.drools.mas">
         <level value="DEBUG"/>
     </logger>
-    <logger name="org.drools.grid">
-        <level value="DEBUG"/>
-    </logger>
     <root> 
         <priority value ="INFO" /> 
         <appender-ref ref="console" /> 
