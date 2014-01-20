@@ -434,7 +434,9 @@ public class DialogueHelper {
                         Logger.getLogger(DialogueHelper.class.getName()).log(Level.WARNING, "Thread could not be put to sleep", ex);
                     }
                     List<ACLMessage> incomingAnswers = asyncDroolsAgentService.getResponses(id);
-                    answers.addAll( incomingAnswers );
+                    if (incomingAnswers != null){
+                        answers.addAll( incomingAnswers );
+                    }
                     
                     Logger.getLogger(DialogueHelper.class.getName()).log(Level.INFO, "Answers for {0}: {1} (waitTime= {2}, timeout= {3}, # responsed expected= {4})",new Object[]{ id, answers.size(), waitTime, timeout, expectedMessagesNumber});
                     waitTime *= 2;
