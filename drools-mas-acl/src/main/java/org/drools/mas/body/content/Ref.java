@@ -21,16 +21,18 @@ import java.util.*;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.drools.mas.mappers.MyMapArgsEntryType;
 import org.drools.mas.mappers.MyMapReferenceEntryType;
 import sun.security.x509.RFC822Name;
 
 @XmlType(name = "Ref", namespace="http://content.body.mas.drools.org/")
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Ref extends AbstractMessageContent implements Map<String,Object> {
   
-   @XmlElement(required = true)
+   //@XmlElement(required = true)
     public List<MyMapArgsEntryType> references = new ArrayList<MyMapArgsEntryType>(); 
    
 
