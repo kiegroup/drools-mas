@@ -4,6 +4,7 @@ package org.drools.mas.helpers;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Logger;
+import javax.jws.HandlerChain;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebEndpoint;
@@ -18,6 +19,7 @@ import javax.xml.ws.WebServiceFeature;
  * 
  */
 @WebServiceClient(name = "AsyncAgentService", targetNamespace = "http://mas.drools.org/")
+@HandlerChain(file="handler-chain.xml")
 public class AsyncAgentService
     extends Service
 {
