@@ -30,6 +30,7 @@ import javax.xml.bind.annotation.XmlType;
 public enum Encodings {
 
     XML("text/xml"),
+    XML_BASE64("text/plain"),
     JSON("application/json"),
     GSON("application/json"),
     BYTE("application/octet-stream"),
