@@ -60,34 +60,33 @@ when
     $cmd : MessageCommands( $msgId, $batch ; )
     SessionLocator(sessionId == $sessionId)
 then
-    LoggerHelper.debug(" ### INTERNAL: INVOKE - EXECUTING msg commands for "+ $msgId + " in " + $sessionId);
+    LoggerHelper.debug(" ### INTERNAL: ["+$msgId+"] INVOKE - EXECUTING msg commands for "+ $msgId + " in " + $sessionId);
     if (LoggerHelper.isDebugEnabled()) {
-        LoggerHelper.debug(" ### INTERNAL: \t commands " + $cmd);
+        LoggerHelper.debug(" ### INTERNAL: \t["+$msgId+"] commands " + $cmd);
     }
     
     retract( $cmd );
 
     StatefulKnowledgeSession kSession = SessionHelper.getInstance().getSession($sessionId);
     if ( LoggerHelper.isDebugEnabled() ) {
-            LoggerHelper.debug( " ### INTERNAL RULES: Trying to execute in = " + kSession );
+            LoggerHelper.debug( " ### INTERNAL RULES: ["+$msgId+"] Trying to execute in = " + kSession + " -  batch: " + $batch );
         }
     Object retVal = null;
-    LoggerHelper.debug( " ### INTERNAL RULES: Trying to execute in = " + kSession + " -  batch: " + $batch );
     try {
         org.drools.runtime.impl.ExecutionResultImpl result = (org.drools.runtime.impl.ExecutionResultImpl) kSession.execute( $batch );
         if ( LoggerHelper.isDebugEnabled() ) {
-            LoggerHelper.debug( " ### INTERNAL RULES: Executing Synchronous Batch, waiting for results ... " );
+            LoggerHelper.debug( " ### INTERNAL RULES: ["+$msgId+"] Executing Synchronous Batch, waiting for results ... " );
         }
         retVal = result.getValue( "$out_" + $msgId );
         if ( LoggerHelper.isDebugEnabled() ) {
-            LoggerHelper.debug( " ### INTERNAL RULES: Remote Execution return = " + retVal );
+            LoggerHelper.debug( " ### INTERNAL RULES: ["+$msgId+"] Remote Execution return = " + retVal );
         }
         ResponseContent response = new ResponseContent( $sessionId, $msgId, retVal );
         insert( response );
     } catch ( Exception e ) {
         e.printStackTrace();
         if ( LoggerHelper.isDebugEnabled() ) {
-            LoggerHelper.debug(" ### INTERNAL RULES: Remote Execution fails = " + e.getMessage() );
+            LoggerHelper.debug(" ### INTERNAL RULES: ["+$msgId+"] Remote Execution fails = " + e.getMessage() );
         }
         insert( new PerformativeFail( $msgId, e.getMessage() ) );
     }
@@ -224,9 +223,9 @@ when
     SessionLocator(sessionId == $sessionId)
 then
     if (LoggerHelper.isTraceEnabled()) {
-        LoggerHelper.trace(" ### INTERNAL: GENERATING COMMANDS FOR QUERYREF " + $msgId);
+        LoggerHelper.trace(" ### INTERNAL: ["+$msgId+"] GENERATING COMMANDS FOR QUERYREF. Name= '" + $query.getQueryName()+"', Args= '"+$query.getArgs()+"', outputId= '$out_"+$msgId+"'");
     }
-    List list = new ArrayList(2);
+    List list = new ArrayList(1);
     list.add(new QueryCommand( "$out_"+$msgId, $query.getQueryName(), $query.getArgs().toArray() ));        
     BatchExecutionCommand batch = CommandFactory.newBatchExecution(list);
     insert( new MessageCommands( $msgId, batch ) );
@@ -242,9 +241,10 @@ when
     $cont : ResponseContent( $sessionId: sessionId, messageId == $msgId, $data : data != null )
 then
     if ( LoggerHelper.isDebugEnabled() ) {
-        LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $msgId);
-        LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $sessionId);
-        LoggerHelper.debug(" ### INTERNAL: FIXING RESULTS FOR QUERYREF " + $data);
+        LoggerHelper.debug(" ### INTERNAL: ["+$msgId+"] FIXING RESULTS FOR QUERYREF " + $msgId);
+        LoggerHelper.debug(" ### INTERNAL: ["+$msgId+"] FIXING RESULTS FOR QUERYREF " + $sessionId);
+        LoggerHelper.debug(" ### INTERNAL: ["+$msgId+"] FIXING RESULTS FOR QUERYREF " + $data);
+        LoggerHelper.debug(" ### INTERNAL: ["+$msgId+"] FIXING RESULTS FOR QUERYREF. Setting data as " + MessageContentHelper.getQueryReferences( $query, (QueryResults) $data ));
     }
 
     modify ( $cont ) {

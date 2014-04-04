@@ -421,11 +421,12 @@ public class DialogueHelper {
                 //could be the case that the client is not waiting for any answer.
                 //In this case there's no need to invoke the agent to get any response.
                 if (expectedMessagesNumber == 0){
+                    Logger.getLogger(DialogueHelper.class.getName()).log(Level.INFO, "We are not expecting any answer for '{}'. Returning.", id);
                     return new ArrayList<ACLMessage>();
                 }
                 
                 List<ACLMessage> answers = new ArrayList<ACLMessage>();
-                long waitTime = minimumWaitTime;
+                long waitTime = minimumWaitTime <= 0 ? 1 : minimumWaitTime;
                 do {
                     try {
                         Logger.getLogger(DialogueHelper.class.getName()).log(Level.INFO, "Answer for {0} is not ready, wait... ", id);
