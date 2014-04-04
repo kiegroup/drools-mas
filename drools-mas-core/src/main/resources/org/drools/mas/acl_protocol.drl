@@ -47,7 +47,7 @@ when
                        performative == Act.INFORM || performative == Act.CONFIRM || performative == Act.DISCONFIRM )
 then
     if (LoggerHelper.isTraceEnabled()) {
-        LoggerHelper.trace(" ### PROTOCOL RULE: RECEIVED ONE-WAY MESSAGE " + $msg);
+        LoggerHelper.trace(" ### PROTOCOL RULE: ["+$msgId+"] RECEIVED ONE-WAY MESSAGE " + $msg);
     }
 
 end
@@ -59,7 +59,7 @@ when
     $cont : ResponseContent( messageId == $msgId )
 then
     if (LoggerHelper.isTraceEnabled()) {
-        LoggerHelper.trace(" ### PROTOCOL RULE: INFORM PROCESSING COMPLETE, CLEANUP");
+        LoggerHelper.trace(" ### PROTOCOL RULE: ["+$msgId+"] INFORM PROCESSING COMPLETE, CLEANUP");
     }
     retract( $msg );
     retract( $cont );
@@ -87,7 +87,7 @@ then
    Action action = MessageContentFactory.newActionContent(((QueryRef)$content).getQuery().getQueryName(),null);
    ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithAgreeMessage($msg, $agentId, action, new Rule());
    if (LoggerHelper.isTraceEnabled()) { 
-        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+        LoggerHelper.trace(" ### PROTOCOL RULES: ["+$msgId+"] " + $conf.getAgentId() + " >>>> " + ans);
    }
    //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
     insert(new MessageAnswer($msg.getId(), ans));
@@ -162,7 +162,7 @@ when
 then
     ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithInformRefMessage($msg, $agentId, (Ref) $data);
     if (LoggerHelper.isTraceEnabled()) { 
-        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+        LoggerHelper.trace(" ### PROTOCOL RULES: ["+$msgId+"]" + $conf.getAgentId() + " >>>> " + ans);
     }
     //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
     insert(new MessageAnswer($msg.getId(), ans));
@@ -192,7 +192,7 @@ then
                                                            action,
                                                            "Query Error - TODO improve diagnostics");
     if (LoggerHelper.isTraceEnabled()) { 
-        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+        LoggerHelper.trace(" ### PROTOCOL RULES: ["+$msgId+"]" + $conf.getAgentId() + " >>>> " + ans);
     }
     //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
     insert(new MessageAnswer($msg.getId(), ans));

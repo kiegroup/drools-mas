@@ -20,15 +20,17 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.drools.mas.Act;
 import org.drools.mas.Encodings;
 import org.drools.mas.body.content.Ref;
+import org.drools.mas.body.content.adapter.RefAdapter;
 
 @XmlType(name = "InformRef", namespace = "http://acts.body.mas.drools.org/")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class InformRef extends AbstractMessageBody {
 
-    
+    @XmlJavaTypeAdapter(RefAdapter.class)
     @XmlElement(required = true)
     private Ref references;
     

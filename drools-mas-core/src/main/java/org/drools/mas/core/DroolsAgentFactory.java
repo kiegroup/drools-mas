@@ -31,15 +31,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Factory class. Creates Drools Agents out of a configuration object defining
- * how many Knowledge Sessions, deployed on grid, will be available to a new
+ * how many Knowledge Sessions, will be available to a new
  * agent itself. The sessions are built using the resources specified in the
  * configuration file
  *
  *
- * TODO at the moment, a single default grid node is created locally. TODO the
- * topology is static, i.e. one master session with unidrectional links to
- * "slave" sessions --> full GRID capabilities are being used to manage sessions
- * dynamically
  */
 public class DroolsAgentFactory {
 

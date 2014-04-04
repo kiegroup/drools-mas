@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
+import org.apache.commons.codec.binary.Base64;
 import org.drools.mas.Act;
 import org.drools.mas.Encodings;
 import org.drools.mas.body.acts.*;
@@ -371,6 +372,9 @@ public class MessageContentEncoder {
                 return bodyString;
             case GSON:
                 return getGsonConverter().toJson(obj);
+            case XML_BASE64:
+                String xml = getXmlConverter().toXML(obj);
+                return Base64.encodeBase64String(xml.getBytes());
             case XML:
                 return getXmlConverter().toXML(obj);
             default:
@@ -412,6 +416,9 @@ public class MessageContentEncoder {
             case JSON:
 
                 return getJsonConverter().fromXML(encodedContent);
+            case XML_BASE64:
+                String decodeBase64 = new String(Base64.decodeBase64(encodedContent));
+                return getXmlConverter().fromXML(decodeBase64);
             case XML:
             default:
                 return getXmlConverter().fromXML(encodedContent);

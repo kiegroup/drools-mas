@@ -83,9 +83,13 @@ public class DroolsAgent {
             if ( logger.isTraceEnabled() ) {
                 logger.trace( " +++ Message Inside Tell -> " + msg );
             }
-            MessageContentEncoder.decodeBody( msg.getBody(), msg.getEncoding() );
-            this.mind.insert( msg );
-            this.mind.fireAllRules();
+            //having this section un-synchronized generated deadlocks under
+            //concurrent executions.
+            synchronized(this){
+                MessageContentEncoder.decodeBody( msg.getBody(), msg.getEncoding() );
+                this.mind.insert( msg );
+                this.mind.fireAllRules();
+            }
         } catch ( Exception e ) {
             // Should not happen, but in case...
             logger.error( " FATAL -> Agent " + getAgentId() + " can not survive ", e );

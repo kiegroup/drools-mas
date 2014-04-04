@@ -421,6 +421,7 @@ public class DialogueHelper {
                 //could be the case that the client is not waiting for any answer.
                 //In this case there's no need to invoke the agent to get any response.
                 if (expectedMessagesNumber == 0){
+                    Logger.getLogger(DialogueHelper.class.getName()).log(Level.INFO, "We are not expecting any answer for '{}'. Returning.", id);
                     return new ArrayList<ACLMessage>();
                 }
                 
@@ -435,7 +436,9 @@ public class DialogueHelper {
                         Logger.getLogger(DialogueHelper.class.getName()).log(Level.WARNING, "Thread could not be put to sleep", ex);
                     }
                     List<ACLMessage> incomingAnswers = asyncDroolsAgentService.getResponses(id);
-                    answers.addAll( incomingAnswers );
+                    if (incomingAnswers != null){
+                        answers.addAll( incomingAnswers );
+                    }
                     
                     Logger.getLogger(DialogueHelper.class.getName()).log(Level.INFO, "Answers for {0}: {1} (waitTime= {2}, timeout= {3}, # responsed expected= {4})",new Object[]{ id, answers.size(), waitTime, timeout, expectedMessagesNumber});
                     waitTime *= 2;
