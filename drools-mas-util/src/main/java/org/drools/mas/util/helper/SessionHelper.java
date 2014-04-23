@@ -11,7 +11,8 @@ import org.drools.agent.KnowledgeAgent;
 import org.drools.runtime.StatefulKnowledgeSession;
 
 /**
- *
+ * Helper class that keeps a mapping between sessionId -> Session and
+ * sessionId -> KAgent.
  * @author Salaboy und Esteban 
  */
 public class SessionHelper{

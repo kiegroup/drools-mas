@@ -55,7 +55,7 @@ import org.xml.sax.SAXException;
 
 public class SessionManager extends SessionTemplateManager {
 
-    private StatefulKnowledgeSession kSession;
+    private String sessionId;
     private static final String DEFAULT_CHANGESET = "org/drools/mas/acl_subsession_def_changeset.xml";
     private static Logger logger = LoggerFactory.getLogger(SessionManager.class);
 
@@ -107,15 +107,16 @@ public class SessionManager extends SessionTemplateManager {
         conf.setProperty(ClockTypeOption.PROPERTY_NAME, ClockType.REALTIME_CLOCK.toExternalForm());
         Environment env = new EnvironmentImpl();
         env.set("sessionId", id);
-
-        this.kSession = kbase.newStatefulKnowledgeSession(conf, env);
+        this.sessionId = id;
+        
+        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession(conf, env);
         
         KnowledgeAgent kagent = createKnowledgeAgent(id, kbase);
 
         if (logger.isInfoEnabled()) {
             logger.info(" ### SessionManager : Registering session " + id );
         }
-        SessionHelper.getInstance().registerSession(id, kSession, kagent);
+        SessionHelper.getInstance().registerSession(id, ksession, kagent);
 
     }
 
@@ -220,7 +221,7 @@ public class SessionManager extends SessionTemplateManager {
     }
 
     public StatefulKnowledgeSession getStatefulKnowledgeSession() {
-        return kSession;
+        return SessionHelper.getInstance().getSession(this.sessionId);
     }
 
     public static void addResource(String sessionId, ResourceDescriptor rd) {
