@@ -4,7 +4,7 @@
 
   <groupId>org.drools.mas.examples</groupId>
   <artifactId>emergency-agent-model</artifactId>
-  <version>1.0-SG</version>
+  <version>2.0-SG</version>
   <packaging>jar</packaging>
 
   <name>Drools MAS :: Emergency Agent Model</name>

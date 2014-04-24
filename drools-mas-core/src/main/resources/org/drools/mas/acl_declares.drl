@@ -29,7 +29,7 @@ import org.drools.base.*;
 import org.drools.mas.body.acts.*;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.AgentID;
-import org.drools.mas.util.helper.ResponseContent;
+import org.drools.mas.core.helpers.*;
 
 
 // messages are declared events to handle timestamping

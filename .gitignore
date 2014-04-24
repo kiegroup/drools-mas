@@ -50,3 +50,4 @@ catalog.xml
 /drools-mas-generic-client/target/
 /drools-mas-agent-web-archetype copy/target/
 /drools-mas-agent-jar-archetype/target/
+/drools-mas-persistence/target/

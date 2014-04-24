@@ -28,6 +28,7 @@ import org.drools.runtime.rule.Variable;
 import org.drools.command.BatchExecutionCommand;
 import org.drools.command.runtime.BatchExecutionCommandImpl;
 import org.drools.mas.util.helper.*;
+import org.drools.mas.core.helpers.*;
 
 
 declare MathResponse
@@ -149,38 +150,6 @@ rule "Action_Request : randomSum - Result DEBUG"
        
        System.out.println(" ###&*&*&*&*&*& SESSION 2: values = a1: "+$a1 + "- a2: "+$a2 + "- a3: "+$a3); 
 end
-
-
-/*rule "Action_Request : randomSum - Result "
-    when
-        $s: SessionLocator($nodeId: nodeId, $sessionId: sessionId, mind == true)
-        $a : Action( actionName == "randomSum", $msgId: msgId,
-                 $a1:= argValues[0], $k1:= argNames[0], 
-                $a2:= argValues[1], $k2:= argNames[1], 
-                $a3:= argValues[2], $k3:= argNames[2] 
-             )
-        randomSum(  $a1,  $a2, $a3 ;  )
-        
-    then
-       retract($a);
-       Map result  = new HashMap();
-       result.put($k1, $a1); 
-       result.put($k2, $a2); 
-       result.put($k3, $a3); 
-       System.out.println(" ### SESSION 2: RESPONSE MAP = "+result);
-       ResponseContent response = new ResponseContent($nodeId, $sessionId, $msgId, result);
-       StatefulKnowledgeSession kSession = SessionHelper.getInstance().getSession($sessionId);
-        LoggerHelper.error("SESSION 2:  "+response);
-        java.util.List list = new ArrayList(2);
-        list.add(CommandFactory.newInsert(response));
-        list.add(CommandFactory.newFireAllRules());
-        BatchExecutionCommandImpl batch = new BatchExecutionCommandImpl(list);
-        kSession.execute(batch);
-        
-end*/
-
-
-
 
 rule "Log"
 when

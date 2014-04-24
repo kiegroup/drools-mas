@@ -25,7 +25,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 
 import org.drools.mas.ACLMessage;
 import org.drools.mas.AgentID;
-import org.drools.mas.util.helper.SessionHelper;
+import org.drools.mas.core.helpers.SessionHelper;
 import org.drools.runtime.rule.QueryResults;
 import org.drools.runtime.rule.QueryResultsRow;
 import org.drools.runtime.rule.Variable;

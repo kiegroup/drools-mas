@@ -32,6 +32,8 @@ import org.drools.mas.util.helper.SessionLocator;
 import org.drools.mas.util.ResourceDescriptorImpl;
 import org.drools.mas.util.ResourceDescriptor;
 
+import org.drools.mas.core.helpers.*;
+
 import java.net.URL;
 import org.drools.builder.ResourceType;
 
@@ -56,7 +58,7 @@ then
     rd.setResourceURL($url);
     rd.setType($type);
 
-    SessionManager.addResource($sessionId, rd );
+    SessionHelper.getInstance().getSessionManager($sessionId).addResource(rd);
     
     retract($rar);
 end

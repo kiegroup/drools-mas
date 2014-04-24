@@ -28,6 +28,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 import java.util.Map;
 import org.drools.mas.util.LoggerHelper;
 import org.drools.mas.core.DroolsAgentConfiguration;
+import org.drools.mas.core.SessionManagerFactory;
 import org.drools.mas.util.helper.SessionLocator;
 import org.drools.mas.util.helper.NodeLocator;
 import org.drools.mas.util.helper.NoHandlerFault;
@@ -97,7 +98,7 @@ then
     }
     
     StatefulKnowledgeSession kSession =
-        SessionManager.create( sid,
+        SessionManagerFactory.create( sid,
                                $conf,
                                new DroolsAgentConfiguration.SubSessionDescriptor( sid,
                                                                                   null, // use default changeset

@@ -23,17 +23,26 @@ import java.util.Map;
 
 public class DroolsAgentConfiguration implements Serializable {
 
+    /**
+     * Given that different configurations could require specific SessionManager
+     * implementations that could not be present in compilation time, we need to
+     * specify the name of the concrete class we want to use in runtime.
+     * Ideally, the relationship between DroolsAgentConfiguration and concrete
+     * SessionManager implementations is always 1->1 or N->1.
+     */
+    private static String SESSION_MANAGER_CLASS_NAME = "org.drools.mas.core.inmemory.InMemorySessionManager";
+
     private String agentId;
     private String changeset;
     private String responseInformer;
     private List<SubSessionDescriptor> subSessions = new ArrayList<SubSessionDescriptor>();
     private List<String> subNodes = new ArrayList<String>();
-    
+
     private String springContextFilePath;
-    private String defaultSubsessionChangeSet;
+    private String defaultSubsessionChangeSet = "org/drools/mas/acl_subsession_def_changeset.xml";
     private String mindNodeLocation;
-    
-    private Map<String,Object> globals = new HashMap<String, Object>();
+
+    private Map<String, Object> globals = new HashMap<String, Object>();
 
     public DroolsAgentConfiguration() {
     }
@@ -104,12 +113,12 @@ public class DroolsAgentConfiguration implements Serializable {
         return subNodes;
     }
 
-    public void setSubNodes( List<String> subNodes ) {
+    public void setSubNodes(List<String> subNodes) {
         this.subNodes = subNodes;
     }
 
-    public void addSubNode( String node ) {
-        this.subNodes.add( node );
+    public void addSubNode(String node) {
+        this.subNodes.add(node);
     }
 
     public Map<String, Object> getGlobals() {
@@ -120,24 +129,28 @@ public class DroolsAgentConfiguration implements Serializable {
         this.globals.putAll(globals);
     }
 
+    public String getSessionManagerClassName() {
+        return SESSION_MANAGER_CLASS_NAME;
+    }
+
     public static class SubSessionDescriptor implements Serializable {
 
         private String sessionId;
         private String changeset;
         private String nodeId;
-        private Map<String,Object> globals = new HashMap<String, Object>();
+        private Map<String, Object> globals = new HashMap<String, Object>();
 
         public SubSessionDescriptor(String sessionId, String changeset, String nodeId) {
             this.sessionId = sessionId;
             this.changeset = changeset;
             this.nodeId = nodeId;
         }
-        
+
         public SubSessionDescriptor(String sessionId, String changeset, String nodeId, Map globals) {
             this.sessionId = sessionId;
             this.changeset = changeset;
             this.nodeId = nodeId;
-            
+
             this.globals.putAll(globals);
         }
 
@@ -167,6 +180,10 @@ public class DroolsAgentConfiguration implements Serializable {
 
         public Map<String, Object> getGlobals() {
             return globals;
+        }
+
+        public String getSessionManagerClassName() {
+            return SESSION_MANAGER_CLASS_NAME;
         }
 
         @Override
@@ -205,12 +222,12 @@ public class DroolsAgentConfiguration implements Serializable {
         public String toString() {
             return "SubSessionDescriptor{" + "sessionId=" + sessionId + ", changeset=" + changeset + ", nodeId=" + nodeId + '}';
         }
-        
+
     }
 
     @Override
     public String toString() {
         return "DroolsAgentConfiguration{" + "agentId=" + agentId + ", changeset=" + changeset + ", responseInformer=" + responseInformer + ", subSessions=" + subSessions + ", springContextFilePath=" + springContextFilePath + ", defaultSubsessionChangeSet=" + defaultSubsessionChangeSet + ", mindNodeLocation=" + mindNodeLocation + '}';
     }
-    
+
 }

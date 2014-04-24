@@ -24,7 +24,7 @@ import java.util.Map;
 import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.management.DroolsManagementAgent;
 import org.drools.mas.AgentID;
-import org.drools.mas.util.helper.SessionHelper;
+import org.drools.mas.core.helpers.SessionHelper;
 import org.drools.mas.util.helper.SessionLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class DroolsAgentFactory {
             }
 
 
-            SessionManager manager = SessionManager.create(config, null);
+            SessionManager manager = SessionManagerFactory.create(config, null);
             if (manager == null) {
                 logger.error("SOMETHING BAD HAPPENED WHILE TRYING TO CREATE AN AGENT, could not create sessionManager");
                 SessionHelper.getInstance().dispose();
@@ -95,7 +95,7 @@ public class DroolsAgentFactory {
                 if (logger.isDebugEnabled()) {
                     logger.debug("  ### Creating Agent Sub-Session: " + descr.getSessionId() + "- CS: " + descr.getChangeset() );
                 }
-                SessionManager sm = SessionManager.create(config, descr);
+                SessionManager sm = SessionManagerFactory.create(config, descr);
                 StatefulKnowledgeSession mindSet = sm.getStatefulKnowledgeSession();
 
 

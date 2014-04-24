@@ -13,6 +13,7 @@ import java.util.Date;
 import org.drools.mas.util.MessageContentEncoder;
 import org.drools.mas.action.helpers.*;
 import org.drools.mas.util.helper.*;
+import org.drools.mas.core.helpers.*;
 import org.drools.mas.examples.emergency.*;
 
 

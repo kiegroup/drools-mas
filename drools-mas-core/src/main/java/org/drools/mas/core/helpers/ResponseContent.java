@@ -1,4 +1,4 @@
-package org.drools.mas.util.helper;
+package org.drools.mas.core.helpers;
 
 import org.drools.command.CommandFactory;
 import org.drools.mas.Encodings;
@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.drools.command.runtime.BatchExecutionCommandImpl;
+import org.drools.mas.util.helper.Fault;
 
 public class ResponseContent implements Serializable{
 

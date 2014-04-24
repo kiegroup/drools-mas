@@ -22,7 +22,6 @@
 
 package org.drools.mas;
 import org.drools.mas.ACLMessage;
-import org.drools.mas.util.helper.ResponseContent;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.command.CommandFactory;
 import org.drools.command.BatchExecutionCommand;
@@ -44,7 +43,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.mas.util.helper.SessionLocator;
 import org.drools.command.*;
 
-import org.drools.mas.util.helper.SessionHelper;
+import org.drools.mas.core.helpers.*;
 
 //rule "Response content inserted"
 //    when
@@ -67,7 +66,9 @@ then
     
     retract( $cmd );
 
-    StatefulKnowledgeSession kSession = SessionHelper.getInstance().getSession($sessionId);
+    SessionManager sessionManager = SessionHelper.getInstance().getSessionManager($sessionId);
+
+    StatefulKnowledgeSession kSession = sessionManager.getStatefulKnowledgeSession();
     if ( LoggerHelper.isDebugEnabled() ) {
             LoggerHelper.debug( " ### INTERNAL RULES: ["+$msgId+"] Trying to execute in = " + kSession + " -  batch: " + $batch );
         }
@@ -89,6 +90,8 @@ then
             LoggerHelper.debug(" ### INTERNAL RULES: ["+$msgId+"] Remote Execution fails = " + e.getMessage() );
         }
         insert( new PerformativeFail( $msgId, e.getMessage() ) );
+    } finally{
+        sessionManager.disposeSession();
     }
 
     
@@ -111,10 +114,14 @@ then
     }
     retract( $cmd );
     
-   
-    StatefulKnowledgeSession kSession = SessionHelper.getInstance().getSession($sessionId);
-    kSession.execute( $act );
-    kSession.execute( CommandFactory.newFireAllRules() );
+    SessionManager sessionManager = SessionHelper.getInstance().getSessionManager($sessionId);
+    StatefulKnowledgeSession kSession = sessionManager.getStatefulKnowledgeSession();
+    try{
+        kSession.execute( $act );
+        kSession.execute( CommandFactory.newFireAllRules() );
+    } finally {
+        sessionManager.disposeSession();
+    }
 end
 
 
