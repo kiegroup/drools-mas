@@ -39,7 +39,7 @@ public abstract class AbstractSessionManager extends SessionTemplateManager impl
     public AbstractSessionManager() {
     }
     
-    public void init(String id, KnowledgeBase kbase){
+    public void init(String id, KnowledgeBase kbase, DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor subDescr){
         this.sessionId = id;
     }
 

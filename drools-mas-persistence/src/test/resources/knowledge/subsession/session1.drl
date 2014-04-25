@@ -1,0 +1,71 @@
+/*
+ * Copyright 2011 JBoss Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.drools.test;
+
+
+import org.drools.mas.body.content.Action;
+import org.drools.mas.mappers.MyMapArgsEntryType;
+import org.drools.mas.util.LoggerHelper;
+import org.drools.mas.util.helper.SessionLocator;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import org.drools.runtime.rule.Variable;
+import org.drools.command.BatchExecutionCommand;
+import org.drools.command.runtime.BatchExecutionCommandImpl;
+import org.drools.mas.util.helper.*;
+import org.drools.mas.core.helpers.*;
+
+import java.net.URL;
+import org.drools.builder.ResourceType;
+import org.drools.mas.util.helper.*;
+import org.drools.mas.core.helpers.*;
+
+import org.drools.mas.persistence.tests.model.MathResponse;
+
+
+query getMathResponses(String messageId, MathResponse result)
+    result:=MathResponse(msgId == messageId)
+end
+
+rule "Action_Request : add"
+when
+    $a : Action( actionName == "add",
+                 $msgId: msgId,
+                 keySet contains "x", $x : this["x"],  
+                 keySet contains "y", $y : this["y"]  )
+
+then
+    Double x = (Double) $x;
+    Double y = (Double) $y;
+    Double z = x + y;
+    insert( new MathResponse($msgId, x, y, z ) );
+end
+
+rule "Action_Request : add - Result "
+    when
+        $s : SessionLocator($nodeId: nodeId, $sessionId: sessionId, mind == true)
+        $a : Action( actionName == "add", $msgId: msgId)
+        $r : MathResponse(msgId == $msgId)
+        
+    then
+       retract($a);
+       ResponseContent.deliverResponse( $sessionId, $msgId, $r, null );
+end
+
+
+

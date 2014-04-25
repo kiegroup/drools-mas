@@ -30,7 +30,7 @@ public class DroolsAgentConfiguration implements Serializable {
      * Ideally, the relationship between DroolsAgentConfiguration and concrete
      * SessionManager implementations is always 1->1 or N->1.
      */
-    private static String SESSION_MANAGER_CLASS_NAME = "org.drools.mas.core.inmemory.InMemorySessionManager";
+    private static final String SESSION_MANAGER_CLASS_NAME = "org.drools.mas.core.inmemory.InMemorySessionManager";
 
     private String agentId;
     private String changeset;

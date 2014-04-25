@@ -1,0 +1,55 @@
+
+/*
+    Domain-Specific, concrete routing rules.
+    Can exploit JsonPath / XPath queries on a message's
+    encoded form for type-unsafe checks, in addition to
+    standard pattern matching on a message content
+    represented in object form
+
+*/
+
+
+package org.drools.mas;
+
+import org.drools.mas.Destination;
+import org.drools.mas.SessionMapping;
+import org.drools.mas.ACLMessage;
+import org.drools.mas.util.ACLMessageFactory;
+import org.drools.mas.body.acts.Inform;
+import org.drools.mas.body.content.*;
+import org.drools.mas.util.InspectMessageHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+// ACL message factory, to generate responses
+global ACLMessageFactory aclFactory;
+global Logger logger;
+
+
+/**
+Configures the session's logger global.
+**/
+rule "Logger Configuration"
+salience 1000
+when
+then
+    Logger sessionLogger = LoggerFactory.getLogger("main-session");
+    drools.getWorkingMemory().setGlobal("logger",sessionLogger);
+end
+
+rule "Mapping"
+when
+then
+    //All the messages from sender 'me' go to 'subsession1'
+    insert( new SessionMapping("me","subsession1") );
+end
+
+
+rule "Route Message"
+when
+    $msg : ACLMessage( $msgId : id, $b : body, $sender: sender.name )
+    ?mapSession( $sender , $sessionId ; )
+then
+    System.out.println("Routing message '"+$msg+"' to session '"+$sessionId+"'");
+    insert( new Destination($msgId, $sessionId) );
+end

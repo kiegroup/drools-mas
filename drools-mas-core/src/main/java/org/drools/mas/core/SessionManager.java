@@ -23,7 +23,7 @@ import org.drools.mas.util.ResourceDescriptor;
 
 public interface SessionManager{
     
-    public void init(String id, KnowledgeBase kbase);
+    public void init(String id, KnowledgeBase kbase, DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor subDescr);
 
     public StatefulKnowledgeSession getStatefulKnowledgeSession();
     

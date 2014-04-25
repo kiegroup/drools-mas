@@ -23,7 +23,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.conf.ClockTypeOption;
 import org.drools.*;
 import org.drools.mas.core.AbstractSessionManager;
-import org.drools.mas.core.helpers.SessionHelper;
+import org.drools.mas.core.DroolsAgentConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +43,8 @@ public class InMemorySessionManager extends AbstractSessionManager {
     }
     
     @Override
-    public void init(String id, KnowledgeBase kbase){
-        super.init(id, kbase);
+    public void init(String id, KnowledgeBase kbase, DroolsAgentConfiguration agentConf, DroolsAgentConfiguration.SubSessionDescriptor subDescr){
+        super.init(id, kbase, agentConf, subDescr);
         
         if (logger.isInfoEnabled()) {
             logger.info(" ### InMemorySessionManager : CREATING session " + id + " using " + kbase);

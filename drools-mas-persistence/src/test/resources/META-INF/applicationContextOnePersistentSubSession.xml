@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+
+    <!-- Persistence Configuration -->
+    
+    <bean class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean" id="masEntityManagerFactory">
+        <property name="persistenceUnitName" value="drools-mas-persistence-pu"/>
+        <!--<property name="dataSource" ref="masRuntimeDataSource"/>-->
+    </bean>
+    
+    <bean class="org.springframework.orm.jpa.JpaTransactionManager" id="masTransactionManager">
+        <property name="entityManagerFactory" ref="masEntityManagerFactory"/>
+    </bean>
+    
+    <!-- Agents configuration -->
+    
+    <bean id="subsession1" class="org.drools.mas.persistence.PersistentSubSessionDescriptor">
+        <constructor-arg value="subsession1"/>
+        <constructor-arg value="changeset1.xml"/>
+        <constructor-arg value="testNode"/>
+        <property name="entityManagerFactory" ref="masEntityManagerFactory"/>
+        <property name="transactionManager" ref="masTransactionManager"/>
+    </bean>
+   
+    <bean id="agent-configuration" class="org.drools.mas.core.DroolsAgentConfiguration">
+        <property name="agentId" value="agent"/>
+        <property name="changeset" value="mind_changeset.xml" />
+        <property name="mindNodeLocation" value="testNode"/>
+        <property name="subSessions">
+            <list>
+                <ref local="subsession1"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="agent-factory" class="org.drools.mas.core.DroolsAgentFactory" factory-method="getInstance"/>
+  
+    <bean id="agent" class="org.drools.mas.core.DroolsAgent" factory-bean="agent-factory" factory-method="spawn">
+        <constructor-arg ref="agent-configuration"/>
+    </bean>
+
+
+</beans>

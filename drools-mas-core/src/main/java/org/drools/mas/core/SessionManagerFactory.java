@@ -72,7 +72,7 @@ public class SessionManagerFactory {
             
             SessionManager sessionManager = (SessionManager) Class.forName(sessionManagerClassName).newInstance();
             
-            sessionManager.init(id, buildKnowledgeBase(cs));
+            sessionManager.init(id, buildKnowledgeBase(cs), conf, subDescr);
             
             SessionHelper.getInstance().registerSessionManager(id, sessionManager);
             
