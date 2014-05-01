@@ -16,7 +16,7 @@ import org.drools.mas.body.acts.Inform;
 import org.drools.mas.body.acts.InformRef;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.body.content.Query;
-import org.drools.mas.core.DroolsAgent;
+import org.drools.mas.persistence.tests.model.ContainerBean;
 import org.drools.mas.persistence.tests.model.MathResponse;
 import org.drools.mas.util.ACLMessageFactory;
 import org.drools.mas.util.MessageContentEncoder;
@@ -25,8 +25,6 @@ import org.drools.mas.util.MessageContentHelper;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,32 +36,33 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * Combination of 2 tests to prove that persistent sub-sessions survive after
  * the agent is disposed. 
  * The first test generates an object of type MathResponse in the sub-session.
- * Second test then queries this object. The original msgId is kept in
- * {@link #lastMessageId}.
+ * Second test then queries this object. The original msgId is kept in a 
+ * helper spring bean of type {@link ContainerBean}.
  * 
  * @author esteban
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath*:META-INF/applicationContextOnePersistentSubSession.xml"})
-public class MultipleInstancePersistentSubSessionTest {
+public class MultipleInstancePersistentSubSessionTest extends BaseTest {
     
     private Double x = 32.0;
     private Double y = 5.0;
     
-    private static String lastMessageId;
-    
     @Autowired
-    private DroolsAgent agent;
-    
-    @Before
-    public void doBeforeTest(){
-        Assert.assertNotNull("Agent was not correctly injected. Check for errors message in the logs.", agent);
-    }
+    protected ContainerBean containerBean;
     
     /**
-     * 
+     * The trick here is that this particular test method doesn't use @DirtiesContext.
+     * This will allow the second test method to run with the same dataSource
+     * (keeping all the information previously created by this method).
+     * In applicationContextOnePersistentSubSession.xml, the scope of the
+     * Agent is 'prototype'. This ensures that 2 different agent instances
+     * are used for the 2 methods. 
+     * This must be like this because we are sharing the same context between 
+     * the 2 methods (to reuse the data in the database and in conainerBean) but 
+     * we want to use different agent instances (to prove the point that 
+     * persistent sessions survive after the agent is disposed).
      */
-    @DirtiesContext
     @Test
     public void testMultipleInstancePersistentSubSessionPart1(){
         
@@ -84,7 +83,8 @@ public class MultipleInstancePersistentSubSessionTest {
 
         List<ACLMessage> ans = agent.extractAgentAnswers( req.getId() );
 
-        MultipleInstancePersistentSubSessionTest.lastMessageId = req.getId();
+        containerBean.putData("lastMessageId", req.getId());
+        System.out.println("Setting lastMessageId to "+req.getId());
         
         assertNotNull(ans);
         assertEquals(2, ans.size());
@@ -103,6 +103,8 @@ public class MultipleInstancePersistentSubSessionTest {
         Assert.assertEquals(y, response.getY(), 0.0001);
         Assert.assertEquals(x+y, response.getZ(), 0.0001);
         
+        agent.dispose();
+        
     }
     
     
@@ -113,11 +115,14 @@ public class MultipleInstancePersistentSubSessionTest {
     @Test
     public void testMultipleInstancePersistentSubSessionPart2(){
         
-        Assert.assertNotNull("MultipleInstancePersistentSubSessionTest.lastMessageId is null. Are you sure you ran the previous test?", MultipleInstancePersistentSubSessionTest.lastMessageId);
+        String lastMessageId = (String) containerBean.getData("lastMessageId");
+        System.out.println("lastMessageId from previous test is "+lastMessageId);
+        
+        Assert.assertNotNull("'lastMessageId' in containerBean is null. Are you sure you ran the previous test?", lastMessageId);
         
         ACLMessageFactory factory = new ACLMessageFactory(Encodings.XML);
         
-        Query query = MessageContentFactory.newQueryContent("getMathResponses", MultipleInstancePersistentSubSessionTest.lastMessageId, MessageContentHelper.variable("$result"));
+        Query query = MessageContentFactory.newQueryContent("getMathResponses", lastMessageId, MessageContentHelper.variable("$result"));
         ACLMessage req = factory.newQueryRefMessage("me", "you", query);
 
         agent.tell( req );
@@ -143,21 +148,8 @@ public class MultipleInstancePersistentSubSessionTest {
         Assert.assertEquals(y, response.getY(), 0.0001);
         Assert.assertEquals(x+y, response.getZ(), 0.0001);
         
+        agent.dispose();
+        
     }
     
-    private void waitForAnswers( String id, int expectedSize, long sleep, int maxIters ) {
-        int counter = 0;
-        do {
-            System.out.println( "Answer for " + id + " is not ready, wait... " );
-            try {
-                Thread.sleep( sleep );
-                counter++;
-            } catch (InterruptedException e) {
-            }
-        } while ( agent.peekAgentAnswers( id ).size() < expectedSize && counter < maxIters );
-        if ( counter == maxIters ) {
-            fail( "Timeout waiting for an answer to msg " + id );
-        }
-
-    }
 }

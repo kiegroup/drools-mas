@@ -13,24 +13,16 @@ import org.drools.mas.ACLMessage;
 import org.drools.mas.Act;
 import org.drools.mas.Encodings;
 import org.drools.mas.body.acts.Inform;
-import org.drools.mas.body.acts.InformRef;
 import org.drools.mas.body.content.Action;
-import org.drools.mas.body.content.Ref;
-import org.drools.mas.core.DroolsAgent;
-import org.drools.mas.mock.MockFact;
 import org.drools.mas.persistence.tests.model.MathResponse;
 import org.drools.mas.util.ACLMessageFactory;
 import org.drools.mas.util.MessageContentEncoder;
 import org.drools.mas.util.MessageContentFactory;
-import org.drools.runtime.rule.Variable;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -41,15 +33,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath*:META-INF/applicationContextOnePersistentSubSession.xml"})
-public class SimplePersistentSubSessionTest {
-    
-    @Autowired
-    private DroolsAgent agent;
-    
-    @Before
-    public void doBeforeTest(){
-        Assert.assertNotNull("Agent was not correctly injected. Check for errors message in the logs.", agent);
-    }
+public class SimplePersistentSubSessionTest extends BaseTest {
     
     /**
      * Nothing persistence-specific here. Just checking that a persistent session
@@ -94,7 +78,7 @@ public class SimplePersistentSubSessionTest {
         Assert.assertEquals(y, response.getY(), 0.0001);
         Assert.assertEquals(x+y, response.getZ(), 0.0001);
         
-        
+        agent.dispose();
     }
     
     /**
@@ -172,21 +156,8 @@ public class SimplePersistentSubSessionTest {
         Assert.assertEquals(y, response.getY(), 0.0001);
         Assert.assertEquals(x+y, response.getZ(), 0.0001);
         
+        agent.dispose();
+        
     }
     
-    private void waitForAnswers( String id, int expectedSize, long sleep, int maxIters ) {
-        int counter = 0;
-        do {
-            System.out.println( "Answer for " + id + " is not ready, wait... " );
-            try {
-                Thread.sleep( sleep );
-                counter++;
-            } catch (InterruptedException e) {
-            }
-        } while ( agent.peekAgentAnswers( id ).size() < expectedSize && counter < maxIters );
-        if ( counter == maxIters ) {
-            fail( "Timeout waiting for an answer to msg " + id );
-        }
-
-    }
 }

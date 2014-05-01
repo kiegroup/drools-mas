@@ -2,15 +2,21 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+       http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.1.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
+    
+    <import resource="classpath*:META-INF/dbContext.xml"/>
+    
     <!-- Persistence Configuration -->
     
     <bean class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean" id="masEntityManagerFactory">
         <property name="persistenceUnitName" value="drools-mas-persistence-pu"/>
-        <!--<property name="dataSource" ref="masRuntimeDataSource"/>-->
+        <property name="dataSource" ref="dataSource"/>
     </bean>
     
     <bean class="org.springframework.orm.jpa.JpaTransactionManager" id="masTransactionManager">
@@ -40,9 +46,15 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
     <bean id="agent-factory" class="org.drools.mas.core.DroolsAgentFactory" factory-method="getInstance"/>
   
-    <bean id="agent" class="org.drools.mas.core.DroolsAgent" factory-bean="agent-factory" factory-method="spawn">
+    <!-- Agent scope here is 'prototype'. This is only for test purposes. You
+    should typically want this bean to be 'singleton'. See MultipleInstancePersistentSubSessionTest.java
+    for more information -->
+    <bean id="agent" class="org.drools.mas.core.DroolsAgent" factory-bean="agent-factory" factory-method="spawn" scope="prototype">
         <constructor-arg ref="agent-configuration"/>
     </bean>
 
+
+    <!-- helpers beans -->
+    <bean id="containerBean" class="org.drools.mas.persistence.tests.model.ContainerBean"/>
 
 </beans>

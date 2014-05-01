@@ -102,10 +102,14 @@ public class PersistentSessionManager extends AbstractSessionManager {
 
     @Override
     public synchronized void disposeSession() {
-        this.ksession.dispose();
-        this.ksession = null;
-        this.kagent.dispose();
-        this.kagent = null;
+        if (this.ksession != null){
+            this.ksession.dispose();
+            this.ksession = null;
+        }
+        if (this.kagent != null){
+            this.kagent.dispose();
+            this.kagent = null;
+        }
     }
 
     @Override
@@ -138,6 +142,11 @@ public class PersistentSessionManager extends AbstractSessionManager {
         Integer sessionDatabaseId = this.getSessionDatabaseId();
 
         if (sessionDatabaseId == null) {
+            
+            if (logger.isInfoEnabled()) {
+                logger.info(" ### PersistentSessionManager : Creating NEW PERSISTENT session " + this.getSessionId());
+            }
+            
             //this is a new session.
             StatefulKnowledgeSession newStatefulKnowledgeSession = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, conf, env);
 
@@ -160,6 +169,11 @@ public class PersistentSessionManager extends AbstractSessionManager {
             
             return newStatefulKnowledgeSession;
         } else {
+            
+            if (logger.isInfoEnabled()) {
+                logger.info(" ### PersistentSessionManager : Loading PERSISTENT session with id '" + this.getSessionId()+"' from DB.");
+            }
+            
             //restore the session from the database.
             return JPAKnowledgeService.loadStatefulKnowledgeSession(sessionDatabaseId, kbase, conf, env);
         }

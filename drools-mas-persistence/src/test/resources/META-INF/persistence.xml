@@ -3,15 +3,15 @@
     <persistence-unit name="drools-mas-persistence-pu" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
         <class>org.drools.persistence.info.SessionInfo</class>
+        <class>org.drools.mas.persistence.entity.SessionIdsMapping</class>
         <properties>
-            <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/drools-mas-db?zeroDateTimeBehavior=convertToNull"/>
+            <!--property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/drools-mas-db?zeroDateTimeBehavior=convertToNull"/>
             <property name="hibernate.connection.username" value="root"/>
             <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
             <property name="hibernate.connection.password" value="root"/>
             <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
-            <!--<property name="hibernate.hbm2ddl.auto" value="create-drop"/>-->
-            <property name="hibernate.hbm2ddl.auto" value="update"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5Dialect"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5Dialect"/-->
+            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
         </properties>
     </persistence-unit>
 </persistence>

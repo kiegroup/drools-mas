@@ -53,7 +53,7 @@ public class ResponseContent implements Serializable{
                     results.put( "?return", ret );
                 }
                 if ( logger.isDebugEnabled() ) {
-                    logger.debug("(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper would like to return" + results.get("?return"));
+                    logger.debug("(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper would like to return '" + results.get("?return")+"'");
                 }
             }
 
