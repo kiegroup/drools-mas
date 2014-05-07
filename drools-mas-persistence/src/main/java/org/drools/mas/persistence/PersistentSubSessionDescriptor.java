@@ -61,7 +61,7 @@ public class PersistentSubSessionDescriptor extends DroolsAgentConfiguration.Sub
         return transactionManager;
     }
 
-    public void setTransactionManager(Object transactionManager) throws Exception {
+    public void setTransactionManager(Object transactionManager) {
         this.transactionManager = transactionManager;
     }
 
@@ -73,6 +73,15 @@ public class PersistentSubSessionDescriptor extends DroolsAgentConfiguration.Sub
     @Override
     public String toString() {
         return "SubSessionDescriptor{" + "sessionId=" + getSessionId() + ", changeset=" + getChangeset() + ", nodeId=" + getNodeId() + '}';
+    }
+    
+    @Override
+    public PersistentSubSessionDescriptor makeClone(){
+        PersistentSubSessionDescriptor d = new PersistentSubSessionDescriptor(this.getSessionId(), this.getChangeset(), this.getNodeId(), this.getGlobals());
+        d.setEntityManagerFactory(entityManagerFactory);
+        d.setTransactionManager(transactionManager);
+        
+        return d;
     }
 
 }

@@ -32,11 +32,22 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
         <property name="entityManagerFactory" ref="masEntityManagerFactory"/>
         <property name="transactionManager" ref="masTransactionManager"/>
     </bean>
+    
+    <bean id="subsession1-in-memory" class="org.drools.mas.core.DroolsAgentConfiguration$SubSessionDescriptor">
+        <constructor-arg value="subsession1-in-memory"/>
+        <constructor-arg value="changeset1.xml"/>
+        <constructor-arg value="testNode"/>
+    </bean>
    
     <bean id="agent-configuration" class="org.drools.mas.core.DroolsAgentConfiguration">
         <property name="agentId" value="mind"/>
         <property name="changeset" value="mind_changeset.xml" />
         <property name="mindNodeLocation" value="testNode"/>
+        <!-- 
+            Any dynamicaly generated sub-session will be based in this
+            descriptor.
+        -->
+        <property name="defaultSubsessionDescriptor" ref="subsession1"/>
         <property name="subSessions">
             <list>
                 <ref local="subsession1"/>

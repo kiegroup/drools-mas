@@ -36,9 +36,24 @@ public class DroolsAgentConfiguration implements Serializable {
     private String changeset;
     private String responseInformer;
     private List<SubSessionDescriptor> subSessions = new ArrayList<SubSessionDescriptor>();
+    
+    /**
+     * Sub-session descriptor used to generate dynamic sub-sessions on demand.
+     * The sessionId and nodeId of this object are going to be overwritten
+     * when the session needs to be created.
+     * By default, the value of this property is a {@link SubSessionDescriptor}
+     * with no specific (null) change-set.
+     */
+    private SubSessionDescriptor defaultSubsessionDescriptor = new SubSessionDescriptor(null, null, null);
+    
     private List<String> subNodes = new ArrayList<String>();
 
     private String springContextFilePath;
+    
+    /**
+     * If a sub-session descriptor doesn't specify any change-set, then
+     * use this change-set as default.
+     */
     private String defaultSubsessionChangeSet = "org/drools/mas/acl_subsession_def_changeset.xml";
     private String mindNodeLocation;
 
@@ -91,6 +106,14 @@ public class DroolsAgentConfiguration implements Serializable {
 
     public void addSubSession(SubSessionDescriptor sub) {
         this.subSessions.add(sub);
+    }
+
+    public SubSessionDescriptor getDefaultSubsessionDescriptor() {
+        return defaultSubsessionDescriptor;
+    }
+
+    public void setDefaultSubsessionDescriptor(SubSessionDescriptor defaultSubsessionDescriptor) {
+        this.defaultSubsessionDescriptor = defaultSubsessionDescriptor;
     }
 
     public String getDefaultSubsessionChangeSet() {
@@ -184,6 +207,10 @@ public class DroolsAgentConfiguration implements Serializable {
 
         public String getSessionManagerClassName() {
             return SESSION_MANAGER_CLASS_NAME;
+        }
+        
+        public SubSessionDescriptor makeClone(){
+            return new SubSessionDescriptor(this.getSessionId(), this.getChangeset(), this.getNodeId(), this.getGlobals());
         }
 
         @Override

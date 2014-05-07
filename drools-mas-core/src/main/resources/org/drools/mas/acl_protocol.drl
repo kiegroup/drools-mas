@@ -402,7 +402,7 @@ rule "Not Understood II - because of NoHandlerFault"
                                             ((Request) $body).getAction(),
                                             $faultString  );
     if ( LoggerHelper.isDebugEnabled() ) {
-        LoggerHelper.debug( " ### PROTOCOL RULES: NOT UNDERSTOOD II - NoHandlerFault" + $conf.getAgentId() + " >>>> " + ans );
+        LoggerHelper.debug( " ### PROTOCOL RULES: NOT UNDERSTOOD II - NoHandlerFault for agent '" + $conf.getAgentId() + "' >>>> " + ans );
     }
     insert( new MessageAnswer( $msg.getId(), ans ) );
     retract( $msg );

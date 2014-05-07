@@ -54,7 +54,10 @@ then
     LoggerHelper.debug(" ### Agent CBR: Resolved routing destination for message " + $mid + " to session " + $target );
 end
 
-
+/**
+Is this rule being used? Nobody is never inserting a MappingLookup.
+CBR rules usually insert Destination directly.
+**/
 rule "Resolve Mapping"
 when
     $ml : MappingLookup( $mid, $key; )
@@ -92,21 +95,34 @@ then
     String sid = $key;
     String targetLocation = $target; // $conf.getMindNodeLocation(); //apply load balancing policy here
 
-    insert( new SessionMapping( $key, sid ) );
-    if( LoggerHelper.isDebugEnabled() ){
-        LoggerHelper.debug("  !#!@#!@#!@#!@#### Generating Session: " + sid + " with CS conf: "+ $conf.getDefaultSubsessionChangeSet() );
+    /**
+    * Get the deault sub-session descriptor, clone it and override its sessionId
+    * and nodeId properties.
+    **/
+    DroolsAgentConfiguration.SubSessionDescriptor dsd = $conf.getDefaultSubsessionDescriptor();
+    if (dsd == null){
+        if( LoggerHelper.isErrorEnabled() ){
+            LoggerHelper.error("  #### Generating Session: DroolsAgentConfiguration (" + $conf + ") doesn't specify any default sub-session descriptor to use!");
+        }
+        throw new IllegalStateException("Unable to dynamically create a sub-session: DroolsAgentConfiguration (" + $conf + ") doesn't specify any default sub-session descriptor to use!");
     }
-    
+    dsd = dsd.makeClone();
+    dsd.setSessionId(sid);
+    dsd.setNodeId(targetLocation);
+    if( LoggerHelper.isDebugEnabled() ){
+        LoggerHelper.debug("  !#!@#!@#!@#!@#### Generating Session: '" + sid + "' with conf: "+ dsd );
+    }
+
     StatefulKnowledgeSession kSession =
         SessionManagerFactory.create( sid,
                                $conf,
-                               new DroolsAgentConfiguration.SubSessionDescriptor( sid,
-                                                                                  null, // use default changeset
-                                                                                  targetLocation )
-                               ).getStatefulKnowledgeSession();
+                               dsd ).getStatefulKnowledgeSession();
     kSession.insert( new SessionLocator( targetLocation, sid , false, true) );
     kSession.insert( $sessionLocator );
     kSession.fireAllRules();
+
+    SessionMapping sm = new SessionMapping( $key, sid ) ;
+    insert( sm );
 
     insert( new SessionLocator( targetLocation, sid , false, true) );
 end

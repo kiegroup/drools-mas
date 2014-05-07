@@ -35,6 +35,9 @@ when
 then
     Logger sessionLogger = LoggerFactory.getLogger("main-session");
     drools.getWorkingMemory().setGlobal("logger",sessionLogger);
+
+    //((org.drools.impl.StatefulKnowledgeSessionImpl)kcontext.getKnowledgeRuntime()).addEventListener(new org.drools.event.rule.DebugWorkingMemoryEventListener(System.out));
+    //((org.drools.impl.StatefulKnowledgeSessionImpl)kcontext.getKnowledgeRuntime()).addEventListener(new org.drools.event.rule.DebugAgendaEventListener(System.out));
 end
 
 rule "Mapping"
@@ -53,3 +56,41 @@ then
     System.out.println("Routing message '"+$msg+"' to session '"+$sessionId+"'");
     insert( new Destination($msgId, $sessionId) );
 end
+
+/*
+rule "Route Message"
+when
+    SessionMapping( $key, $sessionId;)
+    $msg : ACLMessage( $msgId : id, $b : body, sender.name == $key)
+then
+    System.out.println("Routing message '"+$msg+"' to session '"+$sessionId+"'");
+    insert( new Destination($msgId, $sessionId) );
+end
+*/
+
+/*
+rule "Route Message - LOG I"
+salience 100
+when
+    $msg : ACLMessage( $msgId : id, $b : body, $sender: sender.name )
+then
+    LoggerHelper.debug(" ### Route Message - LOG I: ACLMessage found for id '"+$msgId+"' and sender '"+$sender+"'" );
+end
+
+rule "Route Message - LOG II"
+salience 100
+when
+    SessionMapping( $key, $sid; )
+then
+    LoggerHelper.debug(" ### Route Message - LOG II: SessionMapping found for key '"+$key+"' and sid '"+$sid+"'" );
+end
+
+rule "Route Message - LOG III"
+salience 100
+when
+    SessionMapping( $key: key, $sessionId: sessionId )
+    $msg : ACLMessage( $msgId : id, $b : body, sender.name == $key)
+then
+    LoggerHelper.debug(" ### Route Message - LOG III: SessionMapping and ACLMessage found for key '"+$key+"' and sid '"+$sessionId+"'" );
+end
+*/
