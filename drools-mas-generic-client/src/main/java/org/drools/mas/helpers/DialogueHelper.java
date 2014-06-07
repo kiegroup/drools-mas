@@ -421,7 +421,7 @@ public class DialogueHelper {
                 //could be the case that the client is not waiting for any answer.
                 //In this case there's no need to invoke the agent to get any response.
                 if (expectedMessagesNumber == 0){
-                    Logger.getLogger(DialogueHelper.class.getName()).log(Level.INFO, "We are not expecting any answer for '{}'. Returning.", id);
+                    Logger.getLogger(DialogueHelper.class.getName()).log(Level.INFO, "We are not expecting any answer for '{0}'. Returning.", id);
                     return new ArrayList<ACLMessage>();
                 }
                 
