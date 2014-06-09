@@ -17,6 +17,7 @@ package org.drools.mas.core;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,10 +31,11 @@ public class DroolsAgentConfiguration implements Serializable {
      * Ideally, the relationship between DroolsAgentConfiguration and concrete
      * SessionManager implementations is always 1->1 or N->1.
      */
-    private static final String SESSION_MANAGER_CLASS_NAME = "org.drools.mas.core.inmemory.InMemorySessionManager";
+    private static final String SESSION_MANAGER_CLASS_NAME = InMemorySessionManager.class.getName();
 
     private String agentId;
-    private String changeset;
+    private String kieBaseId;
+    private String defaultKieBaseId = "absent_mind";
     private String responseInformer;
     private List<SubSessionDescriptor> subSessions = new ArrayList<SubSessionDescriptor>();
     
@@ -44,7 +46,7 @@ public class DroolsAgentConfiguration implements Serializable {
      * By default, the value of this property is a {@link SubSessionDescriptor}
      * with no specific (null) change-set.
      */
-    private SubSessionDescriptor defaultSubsessionDescriptor = new SubSessionDescriptor(null, null, null);
+    private SubSessionDescriptor defaultSubsessionDescriptor = new SubSessionDescriptor(null, null);
     
     private List<String> subNodes = new ArrayList<String>();
 
@@ -54,8 +56,7 @@ public class DroolsAgentConfiguration implements Serializable {
      * If a sub-session descriptor doesn't specify any change-set, then
      * use this change-set as default.
      */
-    private String defaultSubsessionChangeSet = "org/drools/mas/acl_subsession_def_changeset.xml";
-    private String mindNodeLocation;
+    private String defaultSubsessionKieBaseId = "simple_mind";
 
     private Map<String, Object> globals = new HashMap<String, Object>();
 
@@ -78,12 +79,20 @@ public class DroolsAgentConfiguration implements Serializable {
         this.agentId = agentId;
     }
 
-    public String getChangeset() {
-        return changeset;
+    public String getKieBaseId() {
+        return kieBaseId;
     }
 
-    public void setChangeset(String changeset) {
-        this.changeset = changeset;
+    public void setKieBaseId( String kieBaseId ) {
+        this.kieBaseId = kieBaseId;
+    }
+
+    public String getDefaultKieBaseId() {
+        return defaultKieBaseId;
+    }
+
+    public void setDefaultKieBaseId( String defaultKieBaseId ) {
+        this.defaultKieBaseId = defaultKieBaseId;
     }
 
     public String getResponseInformer() {
@@ -116,20 +125,12 @@ public class DroolsAgentConfiguration implements Serializable {
         this.defaultSubsessionDescriptor = defaultSubsessionDescriptor;
     }
 
-    public String getDefaultSubsessionChangeSet() {
-        return defaultSubsessionChangeSet;
+    public String getDefaultSubsessionKieBaseId() {
+        return defaultSubsessionKieBaseId;
     }
 
-    public void setDefaultSubsessionChangeSet(String defaultSubsessionChangeSet) {
-        this.defaultSubsessionChangeSet = defaultSubsessionChangeSet;
-    }
-
-    public String getMindNodeLocation() {
-        return mindNodeLocation;
-    }
-
-    public void setMindNodeLocation(String mindNodeLocation) {
-        this.mindNodeLocation = mindNodeLocation;
+    public void setDefaultSubsessionKieBaseId( String defaultSubsessionKieBaseId ) {
+        this.defaultSubsessionKieBaseId = defaultSubsessionKieBaseId;
     }
 
     public List<String> getSubNodes() {
@@ -159,22 +160,23 @@ public class DroolsAgentConfiguration implements Serializable {
     public static class SubSessionDescriptor implements Serializable {
 
         private String sessionId;
-        private String changeset;
-        private String nodeId;
+        private String kieBaseId;
+        private boolean mutable = true;
         private Map<String, Object> globals = new HashMap<String, Object>();
 
-        public SubSessionDescriptor(String sessionId, String changeset, String nodeId) {
-            this.sessionId = sessionId;
-            this.changeset = changeset;
-            this.nodeId = nodeId;
+        public SubSessionDescriptor( String sessionId, String kieBaseId ) {
+            this( sessionId, kieBaseId, Collections.emptyMap(), true );
         }
 
-        public SubSessionDescriptor(String sessionId, String changeset, String nodeId, Map globals) {
-            this.sessionId = sessionId;
-            this.changeset = changeset;
-            this.nodeId = nodeId;
+        public SubSessionDescriptor( String sessionId, String kieBaseId, Map globals ) {
+            this( sessionId, kieBaseId, globals, true );
+        }
 
-            this.globals.putAll(globals);
+        public SubSessionDescriptor( String sessionId, String kieBaseId, Map globals, boolean mutable ) {
+            this.sessionId = sessionId;
+            this.kieBaseId = kieBaseId;
+            this.globals.putAll( globals );
+            this.mutable = mutable;
         }
 
         public String getSessionId() {
@@ -185,20 +187,12 @@ public class DroolsAgentConfiguration implements Serializable {
             this.sessionId = sessionId;
         }
 
-        public String getChangeset() {
-            return changeset;
+        public String getKieBaseId() {
+            return kieBaseId;
         }
 
-        public void setChangeset(String changeset) {
-            this.changeset = changeset;
-        }
-
-        public String getNodeId() {
-            return nodeId;
-        }
-
-        public void setNodeId(String nodeId) {
-            this.nodeId = nodeId;
+        public void setKieBaseId( String kieBaseId ) {
+            this.kieBaseId = kieBaseId;
         }
 
         public Map<String, Object> getGlobals() {
@@ -208,9 +202,17 @@ public class DroolsAgentConfiguration implements Serializable {
         public String getSessionManagerClassName() {
             return SESSION_MANAGER_CLASS_NAME;
         }
-        
+
+        public boolean isMutable() {
+            return mutable;
+        }
+
+        public void setMutable( boolean mutable ) {
+            this.mutable = mutable;
+        }
+
         public SubSessionDescriptor makeClone(){
-            return new SubSessionDescriptor(this.getSessionId(), this.getChangeset(), this.getNodeId(), this.getGlobals());
+            return new SubSessionDescriptor(this.getSessionId(), this.getKieBaseId(), this.getGlobals(), this.mutable );
         }
 
         @Override
@@ -224,10 +226,7 @@ public class DroolsAgentConfiguration implements Serializable {
 
             SubSessionDescriptor that = (SubSessionDescriptor) o;
 
-            if (changeset != null ? !changeset.equals(that.changeset) : that.changeset != null) {
-                return false;
-            }
-            if (nodeId != null ? !nodeId.equals(that.nodeId) : that.nodeId != null) {
+            if ( kieBaseId != null ? !kieBaseId.equals(that.kieBaseId ) : that.kieBaseId != null) {
                 return false;
             }
             if (sessionId != null ? !sessionId.equals(that.sessionId) : that.sessionId != null) {
@@ -240,21 +239,20 @@ public class DroolsAgentConfiguration implements Serializable {
         @Override
         public int hashCode() {
             int result = sessionId != null ? sessionId.hashCode() : 0;
-            result = 31 * result + (changeset != null ? changeset.hashCode() : 0);
-            result = 31 * result + (nodeId != null ? nodeId.hashCode() : 0);
+            result = 31 * result + ( kieBaseId != null ? kieBaseId.hashCode() : 0);
             return result;
         }
 
         @Override
         public String toString() {
-            return "SubSessionDescriptor{" + "sessionId=" + sessionId + ", changeset=" + changeset + ", nodeId=" + nodeId + '}';
+            return "SubSessionDescriptor{" + "sessionId=" + sessionId + ", kieBaseId=" + kieBaseId + '}';
         }
 
     }
 
     @Override
     public String toString() {
-        return "DroolsAgentConfiguration{" + "agentId=" + agentId + ", changeset=" + changeset + ", responseInformer=" + responseInformer + ", subSessions=" + subSessions + ", springContextFilePath=" + springContextFilePath + ", defaultSubsessionChangeSet=" + defaultSubsessionChangeSet + ", mindNodeLocation=" + mindNodeLocation + '}';
+        return "DroolsAgentConfiguration{" + "agentId=" + agentId + ", kieBaseId=" + kieBaseId + ", responseInformer=" + responseInformer + ", subSessions=" + subSessions + ", springContextFilePath=" + springContextFilePath + ", defaultSubsessionKieBaseId=" + defaultSubsessionKieBaseId + '}';
     }
 
 }

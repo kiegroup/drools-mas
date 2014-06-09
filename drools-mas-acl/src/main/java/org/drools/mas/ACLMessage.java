@@ -49,15 +49,18 @@ import org.drools.mas.mappers.MyMapReferenceEntryType;
                     Ref.class, InformRef.class, Request.class, RequestWhen.class, Ref.class,
                     Encodings.class, 
                     MyMapReferenceEntryType.class, MyMapArgsEntryType.class})
-public class ACLMessage implements Serializable {
+public class ACLMessage implements Serializable, Comparable<ACLMessage> {
 
     public static final String DEFAULT_ACL_MESSAGE_TYPE = "DEFAULT_ACL_MESSAGE_TYPE";
     public static final String DROOLS_DRL = "DROOLS_DRL";
     public static final String KMR2 = "KMR2";
 
 
-
+    @XmlAttribute
+    private long count;
+    @XmlAttribute
     private String id;
+    @XmlAttribute
     private String version;
 
     private String messageType = DEFAULT_ACL_MESSAGE_TYPE;
@@ -148,6 +151,14 @@ public class ACLMessage implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public long getCount() {
+        return count;
+    }
+
+    public void setCount( long count ) {
+        this.count = count;
     }
 
     public String getVersion() {
@@ -272,5 +283,13 @@ public class ACLMessage implements Serializable {
 
     public void setBody(AbstractMessageBody body) {
         this.body =  body;
+    }
+
+    @Override
+    public int compareTo( ACLMessage o ) {
+        if ( this.count == o.count ) {
+            return 0;
+        }
+        return this.count - o.count > 0 ? 1 : -1;
     }
 }

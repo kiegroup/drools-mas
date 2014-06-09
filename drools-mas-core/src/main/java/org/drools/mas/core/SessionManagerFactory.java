@@ -1,29 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.drools.mas.core;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import org.drools.ChangeSet;
-import org.drools.KnowledgeBase;
-import org.drools.KnowledgeBaseConfiguration;
-import org.drools.KnowledgeBaseFactory;
-import org.drools.builder.KnowledgeBuilder;
-import org.drools.builder.KnowledgeBuilderError;
-import org.drools.builder.KnowledgeBuilderErrors;
-import org.drools.builder.KnowledgeBuilderFactory;
-import org.drools.conf.AssertBehaviorOption;
-import org.drools.conf.EventProcessingOption;
-import org.drools.io.Resource;
-import org.drools.io.internal.InternalResource;
 import org.drools.mas.core.helpers.SessionHelper;
-import org.drools.xml.ChangeSetSemanticModule;
-import org.drools.xml.SemanticModules;
-import org.drools.xml.XmlChangeSetReader;
+import org.kie.api.KieBase;
+import org.kie.api.KieServices;
+import org.kie.api.builder.KieBuilder;
+import org.kie.api.builder.KieFileSystem;
+import org.kie.api.builder.Message;
+import org.kie.api.runtime.KieContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -34,94 +18,98 @@ import org.xml.sax.SAXException;
  */
 public class SessionManagerFactory {
 
-    private static final Logger logger = LoggerFactory.getLogger(SessionManagerFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger( SessionManagerFactory.class );
+    private static KieContainer cpathKieContainer;
 
-    public static SessionManager create(DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor subDescr) {
-        return create(null, conf, subDescr);
+    static {
+        cpathKieContainer = KieServices.Factory.get().getKieClasspathContainer();
+        if ( cpathKieContainer.verify().hasMessages( Message.Level.ERROR ) ) {
+            System.out.println( cpathKieContainer.verify().getMessages().toString() );
+            System.exit( -1 );
+        }
     }
 
-    public static SessionManager create(String sessionId, DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor subDescr) {
-        String id;
-        String changeset;
-        String sessionManagerClassName;
-
-        if (subDescr == null) {
-            id = conf.getAgentId();
-            changeset = conf.getChangeset();
-            sessionManagerClassName = conf.getSessionManagerClassName();
+    public static SessionManager create( DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor subDescr ) {
+        if ( subDescr == null ) {
+            return create( null, conf );
         } else {
-            id = subDescr.getSessionId();
-            changeset = subDescr.getChangeset();
-            sessionManagerClassName = subDescr.getSessionManagerClassName();
+            return create( null, conf, subDescr );
         }
+    }
+
+
+
+    // create mind
+    public static SessionManager create( String sessionId,
+                                         DroolsAgentConfiguration conf ) {
+
+        String id = conf.getAgentId();
+        String kieBaseId = conf.getKieBaseId();
+        if ( kieBaseId == null ) {
+            kieBaseId = conf.getDefaultKieBaseId();
+        }
+        String sessionManagerClassName = conf.getSessionManagerClassName();
+
+        if (sessionId != null) {
+            id = sessionId;
+        }
+        return createSessionManager( id, kieBaseId, sessionManagerClassName, conf, null );
+    }
+
+    // create subs
+    public static SessionManager create( String sessionId,
+                                         DroolsAgentConfiguration conf,
+                                         DroolsAgentConfiguration.SubSessionDescriptor subDescr ) {
+        String id = subDescr.getSessionId();
+        String kieBaseId = subDescr.getKieBaseId();
+        if ( kieBaseId == null ) {
+            kieBaseId = conf.getDefaultSubsessionKieBaseId();
+        }
+        String sessionManagerClassName = subDescr.getSessionManagerClassName();
+
         if (sessionId != null) {
             id = sessionId;
         }
 
+        return createSessionManager( id, kieBaseId, sessionManagerClassName, conf, subDescr );
+    }
+
+    public static SessionManager createSessionManager( String id,
+                                                       String kBaseId,
+                                                       String sessionManagerClassName,
+                                                       DroolsAgentConfiguration conf,
+                                                       DroolsAgentConfiguration.SubSessionDescriptor subDescr ) {
+        return createSessionManager( id, cpathKieContainer, null, null, kBaseId, sessionManagerClassName, conf, subDescr );
+    }
+
+    public static SessionManager createSessionManager( String id,
+                                                       KieContainer container,
+                                                       KieFileSystem kfs,
+                                                       KieBuilder builder,
+                                                       String kBaseId,
+                                                       String sessionManagerClassName,
+                                                       DroolsAgentConfiguration conf,
+                                                       DroolsAgentConfiguration.SubSessionDescriptor subDescr ) {
         try {
-
-            String cs = changeset != null ? changeset : conf.getDefaultSubsessionChangeSet();
-
-            if (cs == null) {
-                throw new IllegalArgumentException("No change-set specified for session '" + id + "'");
-            }
-            
             if (sessionManagerClassName == null){
                 throw new IllegalArgumentException("No SessionManager concrete implementation class specified for session '" + id + "'");
             }
-            
-            SessionManager sessionManager = (SessionManager) Class.forName(sessionManagerClassName).newInstance();
-            
-            sessionManager.init(id, buildKnowledgeBase(cs), conf, subDescr);
-            
-            SessionHelper.getInstance().registerSessionManager(id, sessionManager);
-            
+
+            SessionManager sessionManager = (SessionManager) Class.forName( sessionManagerClassName ).newInstance();
+
+            boolean isMind = ( subDescr == null );
+            sessionManager.init( id, kBaseId, container, kfs, builder, container.getKieBase( kBaseId ), conf, subDescr, isMind );
+
+            SessionHelper.getInstance().registerSessionManager( id, sessionManager );
+
             return sessionManager;
 
-        } catch (Exception ise) {
+        } catch ( Exception ise ) {
             logger.error(" FATAL : Could not create a Knowledge Base ");
             ise.printStackTrace();
         }
         return null;
     }
 
-    private static KnowledgeBase buildKnowledgeBase(String changeset) throws IOException, SAXException, IllegalStateException {
-        if (logger.isDebugEnabled()) {
-            logger.debug(" ### SessionManagerFactory : CREATING kbase with CS: " + changeset);
-        }
 
-        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-
-        SemanticModules semanticModules = new SemanticModules();
-        semanticModules.addSemanticModule(new ChangeSetSemanticModule());
-        XmlChangeSetReader reader = new XmlChangeSetReader(semanticModules);
-
-        //InputStream inputStream = new ClassPathResource(changeset, SessionManager.class).getInputStream();
-        reader.setClassLoader(AbstractSessionManager.class.getClassLoader(),
-                null);
-        ChangeSet cs = reader.read(AbstractSessionManager.class.getClassLoader().getResourceAsStream(changeset));
-        Collection<Resource> resourcesAdded = cs.getResourcesAdded();
-        for (Resource res : resourcesAdded) {
-
-            kbuilder.add(res, ((InternalResource) res).getResourceType());
-
-            KnowledgeBuilderErrors errors = kbuilder.getErrors();
-            if (errors != null && errors.size() > 0) {
-                for (KnowledgeBuilderError error : errors) {
-                    logger.error("### SessionManagerFactory: Error: " + error);
-                    logger.error("### >>> " + res + " @ " + Arrays.toString(error.getLines()));
-                }
-                throw new IllegalStateException(" ### SessionManagerFactory: There were errors during the knowledge compilation ^^^^ !");
-            }
-        }
-
-        KnowledgeBaseConfiguration rbconf = KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
-        rbconf.setOption(EventProcessingOption.STREAM);
-        rbconf.setOption(AssertBehaviorOption.EQUALITY);
-        KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase(rbconf);
-
-        kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
-
-        return kbase;
-    }
 }

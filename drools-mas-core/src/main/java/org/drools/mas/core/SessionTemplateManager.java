@@ -16,7 +16,7 @@
 
 package org.drools.mas.core;
 
-import org.drools.io.ResourceFactory;
+import org.kie.api.KieServices;
 import org.mvel2.templates.*;
 
 import java.io.IOException;
@@ -62,7 +62,7 @@ public class SessionTemplateManager {
         for (String ntempl : getNamedTemplates()) {
             try {
                 String path = getTemplatePath()+ntempl;
-                InputStream stream = ResourceFactory.newClassPathResource(path, this.getClass()).getInputStream();
+                InputStream stream = KieServices.Factory.get().getResources().newClassPathResource( path, this.getClass() ).getInputStream();
 
                 registry.addNamedTemplate( path.substring(path.lastIndexOf('/') + 1),
                         TemplateCompiler.compileTemplate(stream));

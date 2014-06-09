@@ -1,0 +1,74 @@
+package org.drools.mas.common.mutable;
+
+import org.drools.mas.core.SessionManager;
+import org.drools.mas.body.content.ActionHolder;
+import org.drools.mas.body.content.Action;
+import org.drools.mas.util.LoggerHelper;
+import org.drools.mas.core.ResourceActions;
+
+import org.drools.mas.util.helper.SessionLocator;
+import org.drools.mas.util.helper.ResourceToken;
+
+import org.drools.mas.core.helpers.*;
+
+import java.net.URL;
+import org.kie.api.io.Resource;
+import org.kie.api.io.ResourceType
+import org.drools.mas.util.helper.Fault
+import org.drools.mas.util.helper.ExecutionFault;
+
+
+
+query add_resource( Resource $res, ResourceToken $return  )
+    $return := ResourceToken( $res.sourcePath ;)
+end
+
+
+rule "Action_Request : Add resource"
+when
+    $a : Action( actionName == ResourceActions.ADD_RESOURCE, $res : this[ ResourceActions.ARG ] )
+    $r : Resource( $path : sourcePath != null ) from $res
+    $s : SessionLocator( $sessionId: sessionId, mind == false, mutable == true )
+    not  ResourceToken( $path ; )
+then
+    LoggerHelper.info( "Adding resource with path " + $path + " to session " + $sessionId );
+    SessionHelper.getInstance().getSessionManager( $sessionId ).addResource( $r );
+    insert( new ResourceToken( $path ) );
+end
+
+rule "Action_Request : Add resource - Failure"
+when
+    $a : Action( $msgId : msgId, actionName == ResourceActions.ADD_RESOURCE, $res : this[ ResourceActions.ARG ] )
+    $r : Resource( $path : sourcePath != null ) from $res
+    $s : SessionLocator( $sessionId : sessionId, mind == false, mutable == false )
+    $m : SessionLocator( $mindId : sessionId, mind == true )
+    not  ResourceToken( $path ; )
+then
+    delete( $a );
+    Fault fault = new ExecutionFault( $msgId, "Unable to add a resource to session " + $sessionId + ", which is immutable" );
+    ResponseContent.deliverResponse( $mindId, $msgId, null, fault );
+end
+
+
+rule "Action_Request : Add resource - Result "
+when
+    $a : Action( $msgId : msgId, actionName == ResourceActions.ADD_RESOURCE, $res : this[ ResourceActions.ARG ] )
+    $r : Resource( $path : sourcePath != null ) from $res
+    $s : SessionLocator( $sessionId: sessionId, mind == true )
+    $t : ResourceToken( $path ; )
+then
+    LoggerHelper.info( "Added resource with path " + $path + " to session " + $sessionId );
+    delete( $a );
+    ResponseContent.deliverResponse( $sessionId, $msgId, $t, null );
+end
+
+
+rule "Enable Request When(ever)"
+when
+    $a : ActionHolder( $refId : refId, $action : action, $cond : condition, $more : continual )
+    $s : SessionLocator( $sessionId: sessionId, mind == false, mutable == true )
+then
+    LoggerHelper.info( "Received actionholder " );
+    SessionHelper.getInstance().getSessionManager( $sessionId ).addRuleByTemplate( $sessionId, "requestWhen.drlt",  $refId, $a );
+    insert( new ResourceToken( $refId ) );
+end

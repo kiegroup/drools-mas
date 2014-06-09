@@ -1,9 +1,10 @@
 package org.drools.mas.core.helpers;
 
-import org.drools.command.CommandFactory;
+import org.drools.core.command.runtime.BatchExecutionCommandImpl;
 import org.drools.mas.Encodings;
 import org.drools.mas.util.MessageContentEncoder;
-import org.drools.runtime.StatefulKnowledgeSession;
+import org.kie.api.runtime.KieSession;
+import org.kie.internal.command.CommandFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.drools.command.runtime.BatchExecutionCommandImpl;
 import org.drools.mas.util.helper.Fault;
 
 public class ResponseContent implements Serializable{
@@ -64,14 +64,14 @@ public class ResponseContent implements Serializable{
                 logger.debug( "(" + Thread.currentThread().getId() + ")" + Thread.currentThread().getName() + "Content helper fault is expected to be null " + fault );
             }
 
-            StatefulKnowledgeSession kSession = SessionHelper.getInstance().getSession(sessionId);
+            KieSession kSession = SessionHelper.getInstance().getSession(sessionId);
 
             if ( logger.isDebugEnabled() ) {
                 logger.debug( "(" + Thread.currentThread().getId() + ")"+Thread.currentThread().getName() +"Content helper ksession found!"  );
             }
 
             List list = new ArrayList(2);
-            list.add( CommandFactory.newInsert(response) );
+            list.add( CommandFactory.newInsert( response ) );
             list.add( CommandFactory.newFireAllRules() );
             BatchExecutionCommandImpl batch = new BatchExecutionCommandImpl( list );
 

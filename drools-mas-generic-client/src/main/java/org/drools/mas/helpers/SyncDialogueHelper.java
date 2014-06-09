@@ -14,7 +14,7 @@ import org.drools.mas.body.acts.InformIf;
 import org.drools.mas.util.ACLMessageFactory;
 import org.drools.mas.util.MessageContentEncoder;
 import org.drools.mas.util.MessageContentFactory;
-import org.drools.runtime.rule.Variable;
+import org.kie.api.runtime.rule.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

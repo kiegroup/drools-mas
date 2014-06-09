@@ -11,7 +11,7 @@
 /dss-agent-acl/target/
 /dss-agent-service/target/
 /dss-domain-client-example/target/
-.iml
+*.iml
 /dss-agent-custom-service/target/
 /drools-fipa-agent-archetype/target/
 /drools-fipa-agent-client-archetype/target/

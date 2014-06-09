@@ -1,18 +1,30 @@
 @declare{'requestWhenRule'}
 
-package org.drools.mas;
+package org.drools.mas.core.mutable;
 
 import org.drools.mas.body.content.ActionHolder;
 import org.drools.mas.body.content.Action;
+import org.drools.mas.core.helpers.SessionHelper;
+import org.drools.mas.util.helper.SessionLocator;
+import org.drools.mas.util.helper.ResourceToken;
 
-
-rule "Request_When_@{refId}"
+rule "Request_When_@{refId.hashCode()}"
 when
     $holder : ActionHolder( $id : refId == "@{refId}", $act : action )
     @{condition}
 then
-    @if{ ! continual } retract($holder); @end{}
-    insert($act);
+    @if{ ! continual }delete( $holder );@end{}
+    insert( $act );
+end
+
+rule "Clear Request When(ever)_@{refId.hashCode()}"
+salience -9999
+when
+    ResourceToken( $refId : id == "@{refId}" )
+    not  ActionHolder( refId == $refId )
+    $s : SessionLocator( $sessionId: sessionId, mind == false, mutable == true )
+then
+    SessionHelper.getInstance().getSessionManager( $sessionId ).removeResource( $refId );
 end
 
 

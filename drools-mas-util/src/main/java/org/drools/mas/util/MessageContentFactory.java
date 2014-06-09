@@ -30,7 +30,7 @@ import org.drools.mas.body.content.NamedVariable;
 import org.drools.mas.body.content.Query;
 import org.drools.mas.mappers.MyMapArgsEntryType;
 import org.drools.mas.mappers.MyMapReferenceEntryType;
-import org.drools.runtime.rule.Variable;
+import org.kie.api.runtime.rule.Variable;
 
 /**
  *
@@ -52,7 +52,7 @@ public class MessageContentFactory {
         if (args != null) {
             int j = 0;
             for (String key : args.keySet()) {
-                if (args.get(key) instanceof Variable) {
+                if (args.get(key) instanceof Variable ) {
                     MyMapReferenceEntryType myMapReferenceEntryType = new MyMapReferenceEntryType();
                     myMapReferenceEntryType.setKey(j);
                     myMapReferenceEntryType.setValue(key);

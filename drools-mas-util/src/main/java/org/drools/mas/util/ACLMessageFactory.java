@@ -95,21 +95,19 @@ public class ACLMessageFactory implements Serializable {
         this.setDefaultEncoding(defEncoding);
     }
 
-    public ACLMessage newMessage() {
-        return new ACLMessage( UUID.randomUUID().toString()+"-"+newId() );
-    }
-
     protected ACLMessage newMessage( String sender, String receiver ) {
 
         ACLMessage msg = new ACLMessage();
+        long count = newId();
 
         AgentID senderAgent = new AgentID();
         senderAgent.setName( sender );
         msg.setSender( senderAgent );
+        msg.setCount( count );
 
-        msg.setConversationId( senderAgent.toString() +"-"+ newConversationId());
+        msg.setConversationId( senderAgent.toString() +"-"+ newConversationId() );
         
-        msg.setId( senderAgent.toString() +"-"+ newId());
+        msg.setId( senderAgent.toString() +"-"+ count );
 
         List<AgentID> recSet = msg.getReceiver();
         AgentID receiverAgent = new AgentID();
@@ -123,7 +121,7 @@ public class ACLMessageFactory implements Serializable {
 
     protected ACLMessage createReply(ACLMessage inMsg, AgentID sender) {
 
-        ACLMessage msg = newMessage();
+        ACLMessage msg = newMessage( sender.toString(), inMsg.getSender().toString() );
         msg.setEncoding(inMsg.getEncoding());
         msg.setSender(sender);
 

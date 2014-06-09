@@ -14,10 +14,7 @@ import org.slf4j.Marker;
  */
 public class LoggerHelper{
     private static Logger logger = LoggerFactory.getLogger(LoggerHelper.class);
-    
 
-    
-    
     public static void warn(Marker marker, String string, Throwable thrwbl) {
         logger.warn(marker, string, thrwbl);
     }

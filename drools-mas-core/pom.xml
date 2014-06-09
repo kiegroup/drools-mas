@@ -18,131 +18,83 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.drools.mas</groupId>
-        <artifactId>drools-mas</artifactId>
-        <version>2.0-SG</version>
-    </parent>
-    <artifactId>drools-mas-core</artifactId>
+	<parent>
+		<groupId>org.drools.mas</groupId>
+		<artifactId>drools-mas</artifactId>
+		<version>6.2.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>drools-mas-core</artifactId>
 
-    <name>Drools :: MAS Core</name>
+	<name>Drools MAS :: Core</name>
 
+	<dependencies>
 
-    <dependencies>
+		<dependency>
+			<groupId>org.drools.mas</groupId>
+			<artifactId>drools-mas-acl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.drools.mas</groupId>
+			<artifactId>drools-mas-util</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.drools.mas</groupId>
-            <artifactId>drools-mas-acl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.drools.mas</groupId>
-            <artifactId>drools-mas-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-compiler</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.drools</groupId>
-            <artifactId>drools-compiler</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.osgi.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
 
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.0</version>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <id>manifest</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>manifest</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <manifestLocation>META-INF</manifestLocation>
-                    <instructions>
-                        <_removeheaders>Ignore-Package</_removeheaders>
-                        <Require-Bundle>org.drools.api;org.drools.core;org.drools.compiler;visibility:=reexport;bundle-version="5.6.0-SNAPSHOT"</Require-Bundle>
-                        <Import-Package>!org.drools.*, *,org.osgi.util.tracker</Import-Package>
-                        <Export-Package>org.drools.mas.core.*</Export-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
-                        <Bundle-Activator>org.drools.mas.core.Activator</Bundle-Activator>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-
-    <repositories>
-        <repository>
-            <id>JBOSS</id>
-            <name>JBoss Repository</name>
-            <url>https://repository.jboss.org/nexus/content/groups/public</url>
-        </repository>
-    </repositories>
+	<!--build>
+		<plugins>
+			<plugin>
+				<groupId>org.kie</groupId>
+				<artifactId>kie-maven-plugin</artifactId>
+				<version>${project.version}</version>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build-->
 
 </project>

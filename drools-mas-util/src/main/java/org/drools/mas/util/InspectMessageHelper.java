@@ -45,16 +45,17 @@ public class InspectMessageHelper {
     public static String inspect(ACLMessage message, String path) throws ParseException, XPathExpressionException, ParserConfigurationException, IOException, SAXException {
         AbstractMessageContent content = inspectContent(message);
       
-        if ( content.getEncodedContent() != null || !content.getEncodedContent().equals("") ) {
-            switch (message.getEncoding()) {
+        if ( content.getEncodedContent() != null && ! "".equals( content.getEncodedContent() ) ) {
+            switch ( message.getEncoding() ) {
                 case JSON:
                     Object res = JsonPath.read(content.getEncodedContent(), path);
                     return (res != null) ? res.toString() : null;
                 case XML:
                     XPath accessor = XPathFactory.newInstance().newXPath();
-                    InputStream inStream = new ByteArrayInputStream(content.getEncodedContent().getBytes());
+                    InputStream inStream = new ByteArrayInputStream( content.getEncodedContent().getBytes() );
                     Document dox = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inStream);
-                    return (String) accessor.evaluate(path, dox, XPathConstants.STRING);
+                    String val = (String) accessor.evaluate(path, dox, XPathConstants.STRING);
+                    return val;
                 default:
                     throw new ParseException("Unable to access byte-encoded message body", 0);
             }

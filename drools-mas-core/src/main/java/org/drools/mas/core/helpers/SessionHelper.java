@@ -7,9 +7,26 @@ package org.drools.mas.core.helpers;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.drools.agent.KnowledgeAgent;
+
+import org.drools.compiler.kie.builder.impl.KieContainerImpl;
+import org.drools.mas.core.DroolsAgentConfiguration;
 import org.drools.mas.core.SessionManager;
-import org.drools.runtime.StatefulKnowledgeSession;
+import org.drools.mas.core.SessionManagerFactory;
+import org.drools.mas.util.LoggerHelper;
+import org.kie.api.KieBase;
+import org.kie.api.KieServices;
+import org.kie.api.builder.KieBuilder;
+import org.kie.api.builder.KieFileSystem;
+import org.kie.api.builder.KieModule;
+import org.kie.api.builder.KieRepository;
+import org.kie.api.builder.ReleaseId;
+import org.kie.api.builder.model.KieBaseModel;
+import org.kie.api.builder.model.KieModuleModel;
+import org.kie.api.conf.DeclarativeAgendaOption;
+import org.kie.api.conf.EqualityBehaviorOption;
+import org.kie.api.conf.EventProcessingOption;
+import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,14 +37,14 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Esteban 
  */
-public class SessionHelper{
+public class SessionHelper {
     
     private static final Logger logger = LoggerFactory.getLogger(SessionHelper.class);
     private static final SessionHelper INSTANCE = new SessionHelper();
     
     private final Map<String, SessionManager> sessionManagers = new HashMap<String, SessionManager>();
     
-    private SessionHelper(){
+    private SessionHelper() {
         
     }
     
@@ -35,7 +52,7 @@ public class SessionHelper{
         return INSTANCE;
     }
 
-    public void registerSessionManager(String sessionId, SessionManager sessionManager) {
+    public void registerSessionManager( String sessionId, SessionManager sessionManager ) {
         sessionManagers.put(sessionId, sessionManager);
     }
     
@@ -52,24 +69,15 @@ public class SessionHelper{
         return sessionManagers.keySet();
     }
     
-    public StatefulKnowledgeSession getSession(String sessionId) {
+    public KieSession getSession(String sessionId) {
         SessionManager sessionManager = this.getSessionManager(sessionId);
         if (sessionManager == null){
             return null;
         }
         
-        return sessionManager.getStatefulKnowledgeSession();
+        return sessionManager.getKieSession();
     }
-    
-    public KnowledgeAgent getKnowledgeAgent(String sessionId) {
-        SessionManager sessionManager = this.getSessionManager(sessionId);
-        if (sessionManager == null){
-            return null;
-        }
-        
-        return sessionManager.getKnowledgeAgent();
-    }
-    
+
     public void dispose(){
 
         for (SessionManager sessionManager : sessionManagers.values()) {
@@ -82,6 +90,85 @@ public class SessionHelper{
         }
         
         this.sessionManagers.clear();
+    }
+
+
+
+    public static KieSession createSessionOnTheFly( String sid, DroolsAgentConfiguration conf ) {
+        /**
+         * Get the deault sub-session descriptor, clone it and override its sessionId
+         * and nodeId properties.
+         **/
+        DroolsAgentConfiguration.SubSessionDescriptor dsd = conf.getDefaultSubsessionDescriptor();
+        if ( dsd == null ){
+            if( LoggerHelper.isErrorEnabled() ){
+                LoggerHelper.error("  #### Generating Session: DroolsAgentConfiguration (" + conf + ") doesn't specify any default sub-session descriptor to use!");
+            }
+            throw new IllegalStateException("Unable to dynamically create a sub-session: DroolsAgentConfiguration (" + conf + ") doesn't specify any default sub-session descriptor to use!");
+        }
+        dsd = dsd.makeClone();
+        dsd.setSessionId( sid );
+        if( LoggerHelper.isDebugEnabled() ){
+            LoggerHelper.debug("  !#!@#!@#!@#!@#### Generating Session: '" + sid + "' with conf: "+ dsd );
+        }
+
+        String kBaseId;
+        if ( dsd.isMutable() ) {
+            String kid = dsd.getKieBaseId() != null ? dsd.getKieBaseId() : conf.getDefaultSubsessionKieBaseId();
+            return createDedicatedKieSession( sid, kid, conf, dsd );
+        } else {
+            kBaseId = dsd.getKieBaseId();
+
+            return SessionManagerFactory.createSessionManager( sid,
+                                                               kBaseId,
+                                                               conf.getSessionManagerClassName(),
+                                                               conf,
+                                                               dsd ).getKieSession();
+
+        }
+    }
+
+    private static KieSession createDedicatedKieSession( String sid, String kieBaseId, DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor dsd ) {
+        KieServices ks = KieServices.Factory.get();
+
+        KieRepository kieRepository = ks.getRepository();
+        KieModule core = kieRepository.getKieModule( ks.newReleaseId( "org.drools.mas", "drools-mas-core", "6.2.0-SNAPSHOT" ) );
+
+        KieContainer cpContainer = ks.getKieClasspathContainer();
+        KieModule base = (( KieContainerImpl) cpContainer).getKieProject().getKieModuleForKBase( kieBaseId );
+
+        String id = kieBaseId + "-" + sid;
+        ReleaseId rid = ks.newReleaseId( "org.drools.mas", id, "1.0" );
+
+        KieModuleModel model = ks.newKieModuleModel();
+            KieBaseModel kbm = model.newKieBaseModel( id );
+            kbm.addInclude( kieBaseId );
+            kbm.setEqualsBehavior( EqualityBehaviorOption.EQUALITY );
+            kbm.setDefault( false );
+            kbm.setEventProcessingMode( EventProcessingOption.STREAM );
+            kbm.setDeclarativeAgenda( DeclarativeAgendaOption.ENABLED );
+
+        KieFileSystem kfs = ks.newKieFileSystem();
+        kfs.writeKModuleXML( model.toXML() );
+        kfs.generateAndWritePomXML( rid );
+
+        KieBuilder builder = ks.newKieBuilder( kfs );
+        if ( base != null ) {
+            builder.setDependencies( core, base );
+        } else {
+            builder.setDependencies( core );
+        }
+        builder.buildAll();
+        KieContainer kieContainer = ks.newKieContainer( builder.getKieModule().getReleaseId() );
+
+        return SessionManagerFactory.createSessionManager( sid,
+                                                           kieContainer,
+                                                           kfs,
+                                                           builder,
+                                                           id,
+                                                           conf.getSessionManagerClassName(),
+                                                           conf,
+                                                           dsd ).getKieSession();
     }
 
 }

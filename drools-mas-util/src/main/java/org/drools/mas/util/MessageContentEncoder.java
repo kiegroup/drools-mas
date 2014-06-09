@@ -39,7 +39,7 @@ import org.drools.mas.body.content.Action;
 import org.drools.mas.body.content.Query;
 import org.drools.mas.body.content.Ref;
 import org.drools.mas.body.content.Rule;
-import org.drools.runtime.rule.Variable;
+import org.kie.api.runtime.rule.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -175,6 +175,22 @@ public class MessageContentEncoder {
                 ((RequestWhen) body).setCondition((Rule) decodedConditionRequestWhen);
                 ((RequestWhen) body).getCondition().setEncodedContent(oldEncodedConditionWhen);
                 ((RequestWhen) body).getCondition().setEncoded(false);
+                break;
+            case REQUEST_WHENEVER:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  DECODING REQUEST_WHEN: " + body);
+                }
+                String oldEncodedActionWhenever = ((RequestWhenever) body).getAction().getEncodedContent();
+                String oldEncodedConditionWhenever = ((RequestWhenever) body).getCondition().getEncodedContent();
+                Object decodedActionRequestWhenever = MessageContentEncoder.decode(((RequestWhenever) body).getAction().getEncodedContent(), encoding);
+                Object decodedConditionRequestWhenever = MessageContentEncoder.decode(((RequestWhenever) body).getCondition().getEncodedContent(), encoding);
+                ((RequestWhenever) body).setAction((Action) decodedActionRequestWhenever);
+                ((RequestWhenever) body).getAction().setEncodedContent(oldEncodedActionWhenever);
+                ((RequestWhenever) body).getAction().setEncoded(false);
+
+                ((RequestWhenever) body).setCondition((Rule) decodedConditionRequestWhenever);
+                ((RequestWhenever) body).getCondition().setEncodedContent(oldEncodedConditionWhenever);
+                ((RequestWhenever) body).getCondition().setEncoded(false);
                 break;
 
             case FAILURE:
@@ -324,6 +340,21 @@ public class MessageContentEncoder {
                 ((RequestWhen) body).getCondition().setEncodedContent(encodedConditionRequestWhen);
 
                 break;
+            case REQUEST_WHENEVER:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" xxx  ENCODING REQUEST_WHENEVER: " + body);
+                }
+                String encodedConditionRequestWhenever = MessageContentEncoder.encode(((RequestWhenever) body).getCondition(), encoding);
+                String encodedActionRequestWhenever = MessageContentEncoder.encode(((RequestWhenever) body).getAction(), encoding);
+                ((RequestWhenever) body).getAction().setEncoded(true);
+                ((RequestWhenever) body).getAction().setEncodedContent(encodedActionRequestWhenever);
+                ((RequestWhenever) body).getAction().setEncoding(encoding);
+                ((RequestWhenever) body).getAction().getArgs().clear();
+                ((RequestWhenever) body).getAction().getArgs().clear();
+                ((RequestWhenever) body).getCondition().setEncoded(true);
+                ((RequestWhenever) body).getCondition().setEncodedContent(encodedConditionRequestWhenever);
+
+                break;
             case FAILURE:
                 if (logger.isTraceEnabled()) {
                     logger.trace(" xxx  ENCODING FAILURE: " + body);
@@ -367,8 +398,6 @@ public class MessageContentEncoder {
                 }
             case JSON:
                 String bodyString = getJsonConverter().toXML(obj);
-                //TODO : Check - bug in XStream ?? Class name has one \" too much
-                bodyString = bodyString.replaceAll("\"\"", "\"");
                 return bodyString;
             case GSON:
                 return getGsonConverter().toJson(obj);
@@ -384,7 +413,7 @@ public class MessageContentEncoder {
 
     private static XStream getJsonConverter() {
         if (jsonConverter == null) {
-                jsonConverter = new XStream(new JettisonMappedXmlDriver());
+                jsonConverter = new XStream( new JettisonMappedXmlDriver() );
         }
         return jsonConverter;
     }
@@ -414,8 +443,9 @@ public class MessageContentEncoder {
                     return null;
                 }
             case JSON:
-
-                return getJsonConverter().fromXML(encodedContent);
+                return getJsonConverter().fromXML( encodedContent );
+            case GSON:
+                return getGsonConverter().fromJson( encodedContent, null );
             case XML_BASE64:
                 String decodeBase64 = new String(Base64.decodeBase64(encodedContent));
                 return getXmlConverter().fromXML(decodeBase64);

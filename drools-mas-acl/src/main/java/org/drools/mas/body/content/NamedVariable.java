@@ -16,11 +16,9 @@
 
 package org.drools.mas.body.content;
 
-
-import org.drools.runtime.rule.Variable;
+import org.kie.api.runtime.rule.Variable;
 
 public class NamedVariable {
-
 
     private String ref;
     private Variable variable;

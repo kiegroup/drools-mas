@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+  
+    <bean id="agent2-session1" class="org.drools.mas.core.DroolsAgentConfiguration$SubSessionDescriptor">
+        <constructor-arg value="session2"/>
+        <constructor-arg value="agent0-kbase1"/>
+    </bean>
+
+    <bean id="agent2-configuration" class="org.drools.mas.core.DroolsAgentConfiguration">
+        <property name="agentId" value="Agent 2"/>
+        <property name="kieBaseId" value="mainTestAgent_changeset.xml" />
+        <property name="responseInformer" value="mock.MockResponseInformer"/>
+        <property name="subSessions">
+            <list>
+                <ref local="agent2-session1"/>
+            </list>
+        </property>
+    </bean>
+  
+    <bean id="agent-factory" class="org.drools.mas.core.DroolsAgentFactory" factory-method="getInstance"/>
+  
+    <bean id="agent" class="org.drools.mas.core.DroolsAgent" factory-bean="agent-factory" factory-method="spawn" destroy-method="dispose">
+        <constructor-arg ref="agent2-configuration"/>
+    </bean>
+
+</beans>

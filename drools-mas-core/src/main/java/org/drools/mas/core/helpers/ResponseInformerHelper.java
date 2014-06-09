@@ -4,7 +4,6 @@
  */
 package org.drools.mas.core.helpers;
 
-import java.util.logging.Level;
 import org.drools.mas.ACLMessage;
 import org.drools.mas.core.DroolsAgentResponseInformer;
 import org.slf4j.Logger;
@@ -40,7 +39,7 @@ public class ResponseInformerHelper {
         } catch (InstantiationException ex) {
             logger.error("Instantation Exception (" + implementation + ") " + ex);
         } catch (IllegalAccessException ex) {
-            logger.error("Illegar Access Exception (" + implementation + ") " + ex);
+            logger.error("Illegal Access Exception (" + implementation + ") " + ex);
         }
         return responseInformer;
     }

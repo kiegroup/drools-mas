@@ -15,113 +15,112 @@
  */
 package org.drools.mas.core;
 
-import org.drools.agent.KnowledgeAgent;
-import org.drools.agent.KnowledgeAgentConfiguration;
-import org.drools.agent.KnowledgeAgentFactory;
-import org.drools.agent.conf.NewInstanceOption;
-import org.drools.agent.conf.UseKnowledgeBaseClassloaderOption;
-import org.drools.builder.ResourceType;
-import org.drools.io.Resource;
-import org.drools.io.impl.ByteArrayResource;
-import org.drools.*;
-import java.io.IOException;
-import org.drools.io.impl.UrlResource;
-import org.drools.io.internal.InternalResource;
-import org.drools.mas.util.ResourceDescriptor;
+import org.drools.compiler.kie.builder.impl.KieBuilderImpl;
+import org.drools.core.io.impl.ByteArrayResource;
+import org.kie.api.KieBase;
+import org.kie.api.builder.KieBuilder;
+import org.kie.api.builder.KieFileSystem;
+import org.kie.api.builder.Results;
+import org.kie.api.io.Resource;
+import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.KieSession;
+import org.kie.internal.builder.IncrementalResults;
+import org.kie.internal.builder.InternalKieBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractSessionManager extends SessionTemplateManager implements SessionManager {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractSessionManager.class);
-    private String sessionId;
+
+    protected String sessionId;
+    protected KieSession ksession;
+    protected KieFileSystem kfs;
+    protected KieBuilder builder;
+    protected KieContainer container;
+
 
     public AbstractSessionManager() {
-    }
-    
-    public void init(String id, KnowledgeBase kbase, DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor subDescr){
-        this.sessionId = id;
+
     }
 
-    protected KnowledgeAgent createKnowledgeAgent(String id, KnowledgeBase kbase) {
-        KnowledgeAgentConfiguration kaConfig = KnowledgeAgentFactory.newKnowledgeAgentConfiguration();
-        kaConfig.setProperty(NewInstanceOption.PROPERTY_NAME, "false");
-        kaConfig.setProperty(UseKnowledgeBaseClassloaderOption.PROPERTY_NAME, "true");
-        KnowledgeAgent kagent = KnowledgeAgentFactory.newKnowledgeAgent(id, kbase, kaConfig);
-        SystemEventListener systemEventListener = new SystemEventListener() {
-            public void info(String string) {
-                System.out.println("INFO: " + string);
-            }
+    public abstract void init( String sessionId,
+                               String kBaseId,
+                               KieContainer kieContainer,
+                               KieFileSystem kfs,
+                               KieBuilder builder,
+                               KieBase kbase,
+                               DroolsAgentConfiguration conf,
+                               DroolsAgentConfiguration.SubSessionDescriptor subDescr,
+                               boolean isMind );
 
-            public void info(String string, Object o) {
-                System.out.println("INFO: " + string + ", " + o);
-            }
+    @Override
+    public void addResource( Resource res ) {
+        addResource( res.getSourcePath(), res );
+    }
 
-            public void warning(String string) {
-                System.out.println("WARN: " + string);
-            }
-
-            public void warning(String string, Object o) {
-                System.out.println("WARN: " + string + ", " + o);
-            }
-
-            public void exception(String string, Throwable thrwbl) {
-                System.out.println("EXCEPTION: " + string + ", " + thrwbl);
-            }
-
-            public void exception(Throwable thrwbl) {
-                System.out.println("EXCEPTION: " + thrwbl);
-            }
-
-            public void debug(String string) {
-                System.out.println("DEBUG: " + string);
-            }
-
-            public void debug(String string, Object o) {
-                System.out.println("DEBUG: " + string + ", " + o);
-            }
-        };
-
-        kagent.setSystemEventListener(systemEventListener);
-        
-        return kagent;
+    public void removeResource( String resourceId ) {
+        System.out.println( "TODO remove" );
     }
 
     @Override
-    public void addResource(ResourceDescriptor rd) {
-
-        UrlResource res = new UrlResource(rd.getResourceURL());
-        res.setResourceType(rd.getType());
-        addResource(rd.getId(), res);
-
-    }
-
-    @Override
-    public void addResource(String resourceId, Resource res) {
-        try {
-            if (logger.isDebugEnabled()) {
-                logger.debug(" ### AbstractSessionManager: Add Resource ->  sessionId: " + this.getSessionId() + " - id: " + resourceId + " - res: " + ((InternalResource) res).getURL().toString() + " -  type: " + ((InternalResource) res).getResourceType().getName());
-            }
-            String changeSetString = "<change-set xmlns='http://drools.org/drools-5.0/change-set'>"
-                    + "<add>"
-                    + "<resource type=\"" + ((InternalResource) res).getResourceType().getName() + "\" source=\"" + ((InternalResource) res).getURL().toString() + "\" />"
-                    + "</add>"
-                    + "</change-set>"
-                    + "";
-
-            Resource changeSetRes = new ByteArrayResource(changeSetString.getBytes());
-            ((InternalResource) changeSetRes).setResourceType(ResourceType.CHANGE_SET);
-            //resources.put(id, res);
-
-            KnowledgeAgent kAgent = this.getKnowledgeAgent();
-            kAgent.applyChangeSet(changeSetRes);
-        } catch (IOException ex) {
-            logger.error(" ### AbstractSessionManager: " + ex);
+    public void addResource( String resourceId, Resource res ) {
+        if (logger.isDebugEnabled()) {
+            logger.debug( " ### AbstractSessionManager: Add Resource ->  sessionId: " +
+                          this.getSessionId() + " - id: " + resourceId + " - res: " +
+                          res + " -  type: " +
+                          res.getResourceType().getName() );
         }
+
+        if ( builder != null ) {
+            InternalKieBuilder ikb = (InternalKieBuilder) builder;
+            kfs.write( res );
+            IncrementalResults results = ikb.incrementalBuild();
+            if ( ! results.getAddedMessages().isEmpty() ) {
+                throw new IllegalStateException( results.getAddedMessages().toString() );
+            }
+            if ( ! results.getRemovedMessages().isEmpty() ) {
+                throw new IllegalStateException( results.getRemovedMessages().toString() );
+            }
+
+            container.updateToVersion( builder.getKieModule().getReleaseId() );
+        } else {
+            throw new UnsupportedOperationException( "Unable to modify session without a builder " );
+        }
+
     }
 
     @Override
     public String getSessionId(){
         return this.sessionId;
     }
+
+
+    public KieSession getKieSession() {
+        return this.ksession;
+    }
+
+    public void finalDispose() {
+        this.ksession.dispose();
+    }
+
+    public void addRuleByTemplate( String sessionId, String templateName, String id, Object context ) {
+        String drl = applyTemplate( templateName, context, null );
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(" ### Session Manager: Adding rule \n" + drl);
+        }
+
+        ByteArrayResource res = new ByteArrayResource( drl.getBytes() );
+        res.setResourceType( ResourceType.DRL );
+        res.setSourcePath( id + ".drl" );
+        addResource( id, res );
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(" ### Session Manager: RULE ADDED ____________ \n");
+        }
+    }
+
+
 }

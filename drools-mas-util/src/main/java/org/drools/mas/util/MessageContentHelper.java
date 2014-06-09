@@ -26,16 +26,16 @@ import java.util.List;
 import java.util.Map;
 
 
+import org.drools.core.QueryResultsImpl;
+import org.drools.core.rule.Declaration;
 import org.drools.mas.body.content.Action;
 import org.drools.mas.body.content.NamedVariable;
 import org.drools.mas.body.content.Query;
 import org.drools.mas.body.content.Ref;
 import org.drools.mas.mappers.MyMapArgsEntryType;
 import org.drools.mas.mappers.MyMapReferenceEntryType;
-import org.drools.rule.Declaration;
-import org.drools.runtime.rule.impl.NativeQueryResults;
-import org.drools.runtime.rule.QueryResults;
-import org.drools.runtime.rule.Variable;
+import org.kie.api.runtime.rule.QueryResults;
+import org.kie.api.runtime.rule.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,30 +62,25 @@ public class MessageContentHelper {
             return null;
         }
         Map<String, Object> map = new HashMap<String, Object>();
-        org.drools.QueryResults inner;
         List<MyMapReferenceEntryType> pointers = action.getReferences();
-        if (results instanceof NativeQueryResults) {
-            inner = ((NativeQueryResults) results).getResults();
-            Declaration[] params = inner.getParameters();
-            for (MyMapReferenceEntryType entry : pointers) {
-                Declaration dec = params[ entry.getKey()];
+        QueryResultsImpl inner = ( QueryResultsImpl ) results;
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug(" $$$ Params [" + entry.getKey() + "] = " + params[ entry.getKey()]);
-                    logger.debug(" $$$ inner.get(0).get( " + dec.getIdentifier() + ") = " + inner.get(0).get(dec.getIdentifier()));
-                    logger.debug(" $$$ entry.getValue() " + entry.getValue());
-                }
+        Declaration[] params = inner.getParameters();
+        for (MyMapReferenceEntryType entry : pointers) {
+            Declaration dec = params[ entry.getKey()];
 
-                map.put(entry.getValue(), inner.get(0).get(dec.getIdentifier()));
-
-
+            if (logger.isDebugEnabled()) {
+                logger.debug(" $$$ Params [" + entry.getKey() + "] = " + params[ entry.getKey()]);
+                logger.debug(" $$$ inner.get(0).get( " + dec.getIdentifier() + ") = " + inner.get(0).get(dec.getIdentifier()));
+                logger.debug(" $$$ entry.getValue() " + entry.getValue());
             }
+
+            map.put(entry.getValue(), inner.get(0).get(dec.getIdentifier()));
         }
 
         Ref ref = new Ref();
         ref.setReferences(MapArgsAdapterHelper.marshal(map));
         return ref;
-
     }
 
     public static NamedVariable variable(String ref) {
@@ -97,16 +92,13 @@ public class MessageContentHelper {
             return null;
         }
         Map<String, Object> map = new HashMap<String, Object>();
-        org.drools.QueryResults inner;
-        
-        if (results instanceof NativeQueryResults) {
-            inner = ((NativeQueryResults) results).getResults();
-            Declaration[] params = inner.getParameters();
+        QueryResultsImpl inner = ( QueryResultsImpl ) results;
 
-            for (MyMapReferenceEntryType entry : query.getReferences()) {
-                Declaration dec = params[ entry.getKey()];
-                map.put(entry.getValue(), inner.get(0).get(dec.getIdentifier()));
-            }
+        Declaration[] params = inner.getParameters();
+
+        for (MyMapReferenceEntryType entry : query.getReferences()) {
+            Declaration dec = params[ entry.getKey()];
+            map.put( entry.getValue(), inner.get(0).get(dec.getIdentifier()) );
         }
 
         Ref ref = new Ref();
@@ -123,7 +115,7 @@ public class MessageContentHelper {
         Iterator<MyMapArgsEntryType> iterator = action.getArgs().iterator();
         while(iterator.hasNext()){
             MyMapArgsEntryType entry = iterator.next();
-            if(entry.getValue() instanceof Variable){
+            if(entry.getValue() instanceof Variable ){
                  map.put(entry.getKey(), results.get(entry.getKey()));   
             }
         }

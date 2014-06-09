@@ -1,0 +1,45 @@
+/*
+ * Copyright 2011 JBoss Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+  Content Based routing general rules
+  When a message arrives, CBR rules determine its destination (the session(s) where it needs to be processed),
+  while processing rules determine the commands to be executed to deliver the contents to that session.
+  When the two steps have been completed, the commands are delivered.
+*/
+
+package org.drools.mas.common;
+
+query queryIf( Object $o )
+    $queryIf : Object( this == $o )
+end
+
+/*
+//TODO: Test this rule!
+rule "Add Resource"
+when
+    $res: Resource( $url: URL, $type: type )
+    SessionLocator( $sessionId : sessionId, mind == false )
+then
+    LoggerHelper.error("Loading resource '" + $res +"' in session '"+$sessionId);
+
+    SessionHelper.getInstance().getSessionManager( $sessionId ).addResource( $res );
+    
+    retract( $rar );
+end
+*/
+
+

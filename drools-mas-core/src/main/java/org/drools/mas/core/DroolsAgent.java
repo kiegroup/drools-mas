@@ -15,20 +15,22 @@
  */
 package org.drools.mas.core;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.drools.impl.StatefulKnowledgeSessionImpl;
-import org.drools.management.DroolsManagementAgent;
+
+import org.drools.core.common.InternalWorkingMemory;
+import org.drools.core.management.DroolsManagementAgent;
 import org.drools.mas.util.MessageContentEncoder;
-import org.drools.runtime.StatefulKnowledgeSession;
 
 import org.drools.mas.ACLMessage;
 import org.drools.mas.AgentID;
 import org.drools.mas.core.helpers.SessionHelper;
-import org.drools.runtime.rule.QueryResults;
-import org.drools.runtime.rule.QueryResultsRow;
-import org.drools.runtime.rule.Variable;
+import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.rule.QueryResults;
+import org.kie.api.runtime.rule.QueryResultsRow;
+import org.kie.api.runtime.rule.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +52,7 @@ public class DroolsAgent {
      * Main Agent Knowledge Session Message management (interpretation, routing)
      * and response management will take place in this session
      */
-    private StatefulKnowledgeSession mind;
+    private KieSession mind;
     /**
      * Response channel class
      */
@@ -66,7 +68,7 @@ public class DroolsAgent {
      * @param id
      * @param session
      */
-    public DroolsAgent(AgentID id, StatefulKnowledgeSession session) {
+    public DroolsAgent(AgentID id, KieSession session) {
         this.agentId = id;
         this.mind = session;
         
@@ -104,7 +106,7 @@ public class DroolsAgent {
      */
     public void dispose() {
         DroolsManagementAgent kmanagement = DroolsManagementAgent.getInstance();
-        kmanagement.unregisterKnowledgeSession( ( (StatefulKnowledgeSessionImpl ) mind).getInternalWorkingMemory() );
+        kmanagement.unregisterKnowledgeSession( ( (InternalWorkingMemory) mind) );
 
         if ( logger.isInfoEnabled() ) {
             logger.info( " >>> Disposing Agent " + agentId.getName() );
@@ -116,7 +118,7 @@ public class DroolsAgent {
 
 
 
-    public StatefulKnowledgeSession getInnerSession(String sessionId) {
+    public KieSession getInnerSession(String sessionId) {
         if (logger.isDebugEnabled()) {
             logger.debug("Looking for the inner session: " + sessionId);
         }
@@ -132,7 +134,7 @@ public class DroolsAgent {
         return agentId;
     }
 
-    public StatefulKnowledgeSession getMind() {
+    public KieSession getMind() {
         return mind;
     }
 
@@ -152,17 +154,17 @@ public class DroolsAgent {
 
             List holders = (List) row.get( "$refList" );
             for ( Object holder : holders ) {
-                mind.retract( mind.getFactHandle( holder ) );
+                mind.delete( mind.getFactHandle( holder ) );
             }
 
-            List<ACLMessage> answers = (List<ACLMessage>) row.get( "$list" );
+            List<ACLMessage> answers = new ArrayList( (List<ACLMessage>) row.get( "$list" ) );
+            Collections.sort( answers );
             return ( answers );
         } else {
             return Collections.emptyList();
         }
 
     }
-
 
     public List<ACLMessage> peekAgentAnswers( String msgId ) {
 

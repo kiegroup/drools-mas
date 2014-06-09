@@ -20,7 +20,6 @@
  */
 package org.drools.mas.core;
 
-import java.util.List;
 import org.drools.mas.ACLMessage;
 
 /**

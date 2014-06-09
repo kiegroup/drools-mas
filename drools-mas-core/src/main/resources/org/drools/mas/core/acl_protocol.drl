@@ -1,0 +1,507 @@
+/*
+ * Copyright 2011 JBoss Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+    Protocol Management rules
+    Uses expectations to verify that the sequences of messages exchanged during a conversation
+    between two agents are conformant to the ACL standards
+*/
+
+package org.drools.mas.core;
+
+import org.drools.mas.ACLMessage;
+import org.drools.mas.util.ACLMessageFactory;
+import org.drools.mas.util.MessageContentFactory;
+import org.drools.mas.AgentID;
+import org.drools.mas.body.content.*;
+import org.drools.mas.body.acts.*;
+import org.drools.mas.core.DroolsAgentResponseInformer;
+import org.drools.mas.Act;
+import org.drools.mas.util.LoggerHelper;
+import org.drools.mas.core.helpers.ResponseInformerHelper;
+import org.drools.mas.core.DroolsAgentConfiguration;
+import org.drools.mas.util.helper.*;
+
+
+rule "Inform"
+when
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
+                       $msgId : id,
+                       $convoId : conversationId,
+                       $inReplyTo : inReplyTo,
+                       $sender : sender,
+                       $receiver : receiver,
+                       $content : body,
+                       performative == Act.INFORM || performative == Act.CONFIRM || performative == Act.DISCONFIRM )
+then
+    if (LoggerHelper.isTraceEnabled()) {
+        LoggerHelper.trace(" ### PROTOCOL RULE: ["+$msgId+"] RECEIVED ONE-WAY MESSAGE " + $msg);
+    }
+
+end
+
+rule "Inform_Resp"
+salience -100
+when
+    $msg : ACLMessage( $msgId : id, performative == Act.INFORM || == Act.CONFIRM )
+    $cont : ResponseContent( messageId == $msgId )
+then
+    if (LoggerHelper.isTraceEnabled()) {
+        LoggerHelper.trace(" ### PROTOCOL RULE: ["+$msgId+"] INFORM PROCESSING COMPLETE, CLEANUP");
+    }
+    retract( $msg );
+    retract( $cont );
+end
+
+
+
+
+rule "Query_Ref_Agree"
+salience 100
+when
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
+                       $msgId : id,
+                       $convoId : conversationId,
+                       $inReplyTo : inReplyTo,
+                       $sender : sender,
+                       $receiver : receiver,
+                       $content : body,
+                       performative == Act.QUERY_REF)
+    exists Destination( messageId == $msgId )
+    $conf: DroolsAgentConfiguration()
+    $agentId: AgentID()
+then
+   Action action = MessageContentFactory.newActionContent( ((QueryRef)$content).getQuery().getQueryName(), null );
+   ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithAgreeMessage( $msg, $agentId, action, new Rule() );
+   if (LoggerHelper.isDebugEnabled()) {
+        LoggerHelper.debug(" ### PROTOCOL RULES: AGREE to QREF ["+$msgId+"] " + $conf.getAgentId() + " >>>> " + ans);
+   }
+   //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
+    insert( new MessageAnswer( $msg.getId(), ans ) );
+end
+
+/*
+rule "Query_Ref_Agree"
+salience 100
+when
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
+                       $msgId : id,
+                       $convoId : conversationId,
+                       $inReplyTo : inReplyTo,
+                       $sender : sender,
+                       $receiver : receiver,
+                       $content : body,
+                       performative == Act.QUERY_IF)
+    $conf: DroolsAgentConfiguration()
+    $agentId: AgentID()
+then
+   //TODO: $content is a QueryIf and not a Query. The following line will fail
+   Action action = MessageContentFactory.newActionContent(((Query)$content).getQueryName(),null);
+   ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithAgreeMessage($msg, $agentId, action, new Rule());
+   if (LoggerHelper.isTraceEnabled()) { 
+        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+   }
+   //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
+    insert(new MessageAnswer($msg.getId(), ans));
+end
+*/
+
+rule "Query_If_Resp"
+when
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
+                       $msgId : id,
+                       $convoId : conversationId,
+                       $inReplyTo : inReplyTo,
+                       $sender : sender,
+                       $receiver : receiver,
+                       $content : body,
+                       performative == Act.QUERY_IF )
+    $resp : ResponseContent( messageId == $msgId, $data : data != null)
+    $conf: DroolsAgentConfiguration()
+    $agentId: AgentID()
+then
+    //@TODO: This should be an Inform not an InformIf
+    ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithInformIfMessage($msg, $agentId, $data);
+    if (LoggerHelper.isTraceEnabled()) { 
+        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+    }
+    //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
+    insert(new MessageAnswer($msg.getId(), ans));
+
+    retract($resp);
+    retract($msg);
+end
+
+
+rule "Query_Ref_Resp"
+when
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
+                       $msgId : id,
+                       $convoId : conversationId,
+                       $inReplyTo : inReplyTo,
+                       $sender : sender,
+                       $receiver : receiver,
+                       $content : body,
+                       performative == Act.QUERY_REF )
+    $resp : ResponseContent( messageId == $msgId, $data : data != null)
+    $conf: DroolsAgentConfiguration()
+    $agentId: AgentID()
+then
+    ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithInformRefMessage($msg, $agentId, (Ref) $data);
+    if (LoggerHelper.isDebugEnabled()) {
+        LoggerHelper.debug(" ### PROTOCOL RULES: QUERY INF_REF ["+$msgId+"]" + $conf.getAgentId() + " >>>> " + ans);
+    }
+    //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
+    insert(new MessageAnswer($msg.getId(), ans));
+    retract($resp);
+    retract($msg);
+end
+
+
+rule "Query_Ref_Fail"
+salience -100
+when
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
+                       $msgId : id,
+                       $convoId : conversationId,
+                       $inReplyTo : inReplyTo,
+                       $sender : sender,
+                       $receiver : receiver,
+                       $content : body,
+                       performative == Act.QUERY_REF )
+    $conf: DroolsAgentConfiguration()
+    $agentId: AgentID()
+    $resp : PerformativeFail( messageId == $msgId )
+then
+    Action action = MessageContentFactory.newActionContent(((QueryRef)$content).getQuery().getQueryName(),null);
+    ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithFailureMessage($msg, $agentId,
+                                                           action,
+                                                           "Query Error - TODO improve diagnostics");
+    if (LoggerHelper.isTraceEnabled()) { 
+        LoggerHelper.trace(" ### PROTOCOL RULES: ["+$msgId+"]" + $conf.getAgentId() + " >>>> " + ans);
+    }
+    //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
+    insert(new MessageAnswer($msg.getId(), ans));
+    retract($msg);
+    retract($resp);
+end
+
+rule "Query_If_Fail"
+when
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
+                       $msgId : id,
+                       $convoId : conversationId,
+                       $inReplyTo : inReplyTo,
+                       $sender : sender,
+                       $receiver : receiver,
+                       $content : body,
+                       performative == Act.QUERY_IF)
+    $resp : ResponseContent( messageId == $msgId, $data : data == null)
+    $conf: DroolsAgentConfiguration()
+    $agentId: AgentID()
+then
+    Action action = MessageContentFactory.newActionContent(((QueryIf)$content).getProposition().toString(),null);
+    ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithFailureMessage($msg, $agentId,
+                                                          action,
+                                                           "Query Error - TODO improve diagnostics");
+    if (LoggerHelper.isTraceEnabled()) { 
+        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+    }
+    //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
+    insert(new MessageAnswer($msg.getId(), ans));
+    retract($msg);
+    retract($resp);
+end
+
+
+
+
+
+
+rule "Request_Agree"
+salience 100
+when
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
+                       $msgId : id,
+                       $convoId : conversationId,
+                       $inReplyTo : inReplyTo,
+                       $sender : sender,
+                       $receiver : receiver,
+                       $content : body,
+                       performative == Act.REQUEST )
+    exists Destination( messageId == $msgId )
+    $conf: DroolsAgentConfiguration()
+    $agentId: AgentID()
+then
+   Action action = MessageContentFactory.newActionContent(((Request) $content).getAction());
+   ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithAgreeMessage($msg, $agentId, action, new Rule());
+   if (LoggerHelper.isTraceEnabled()) { 
+        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+   }
+   //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
+   insert( new MessageAnswer( $msg.getId(), ans ) );
+end
+
+rule "Request_When_Agree"
+salience 100
+when
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
+                       $msgId : id,
+                       $convoId : conversationId,
+                       $inReplyTo : inReplyTo,
+                       $sender : sender,
+                       $receiver : receiver,
+                       $content : body,
+                       performative == Act.REQUEST_WHEN )
+    exists Destination( messageId == $msgId )
+    $conf: DroolsAgentConfiguration()
+    $agentId: AgentID()
+then
+   Action action = MessageContentFactory.newActionContent( ( (RequestWhen) $content).getAction() );
+   ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithAgreeMessage( $msg, $agentId, action, new Rule() );
+   if ( LoggerHelper.isTraceEnabled() ) {
+        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+   }
+   //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
+   insert( new MessageAnswer( $msg.getId(), ans ) );
+end
+
+rule "Request_Whenever_Agree"
+salience 100
+when
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
+                       $msgId : id,
+                       $convoId : conversationId,
+                       $inReplyTo : inReplyTo,
+                       $sender : sender,
+                       $receiver : receiver,
+                       $content : body,
+                       performative == Act.REQUEST_WHENEVER )
+    exists Destination( messageId == $msgId )
+    $conf: DroolsAgentConfiguration()
+    $agentId: AgentID()
+then
+   Action action = MessageContentFactory.newActionContent( ( (RequestWhenever) $content).getAction() );
+   ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithAgreeMessage( $msg, $agentId, action, new Rule() );
+   if ( LoggerHelper.isTraceEnabled() ) {
+        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+   }
+   //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
+   insert( new MessageAnswer( $msg.getId(), ans ) );
+end
+
+
+
+
+
+rule "Request_Success_simpleReturn"
+dialect "mvel"
+salience -100
+when
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
+                       $msgId : id,
+                       $convoId : conversationId,
+                       $inReplyTo : inReplyTo,
+                       $sender : sender,
+                       $receiver : receiver,
+                       $content : body,
+                       $perf : performative == Act.REQUEST || == Act.REQUEST_WHEN || == Act.REQUEST_WHENEVER )
+    $resp : ResponseContent( messageId == $msgId, $data : data != null )
+                $ref: Ref( size == 1 && keySet contains "?return" ) from $data
+            // Action.RETURN
+    $conf: DroolsAgentConfiguration()
+    $agentId: AgentID()
+then
+    ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithInformMessage($msg, $agentId, ((Ref)$data).get("?return"));
+    if (LoggerHelper.isDebugEnabled()) {
+        LoggerHelper.debug(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+    }
+    //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
+    insert( new MessageAnswer( $msg.getId(), ans ) );
+    if ( $perf != Act.REQUEST_WHENEVER ) {
+        retract( $msg );
+    }
+    retract( $resp );
+end
+
+rule "Request_Success_complexReturn"
+dialect "mvel"
+salience -100
+when
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
+                       $msgId : id,
+                       $convoId : conversationId,
+                       $inReplyTo : inReplyTo,
+                       $sender : sender,
+                       $receiver : receiver,
+                       $content : body,
+                       performative == Act.REQUEST )
+    $resp : ResponseContent( messageId == $msgId, $data : data != null )
+                $ref: Ref( size != 1 || keySet not contains "?return" ) from $data
+            // Action.RETURN
+    $conf: DroolsAgentConfiguration()
+    $agentId: AgentID()
+then
+
+   ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithInformRefMessage($msg, $agentId, (Ref) $data);
+   if (LoggerHelper.isTraceEnabled()) { 
+        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+   }
+   //ResponseInformerHelper.informResponse($conf.getResponseInformer(),$msg,ans);
+   insert(new MessageAnswer($msg.getId(), ans));
+   retract($msg);
+   retract($resp);
+end
+
+
+
+
+
+
+
+//rule "Not Understood I"
+//salience -1000
+//when
+//    $msg : ACLMessage( performative == Act.REQUEST || == Act.REQUEST_WHEN || == Act.REQUEST_WHENEVER,
+//                       $msgId : id, $sender : sender, $body : body )                       
+//    not    ResponseContent( messageId == $msgId )
+//    $conf: DroolsAgentConfiguration()
+//    
+//then
+//    ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithNotUnderstoodMessage( $msg,
+//                                            $sender,
+//                                            ((Request) $body).getAction(),
+//                                            "Routing error : No dedicated session"  );
+//    if (LoggerHelper.isTraceEnabled()) { 
+//        LoggerHelper.trace(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+//    }
+//    insert(new MessageAnswer($msg.getId(), ans));
+//    retract( $msg );
+//end
+
+rule "Not Understood I - because of internal ExecutionFault"
+    salience -1200
+    when
+        $msg : ACLMessage( performative == Act.REQUEST || == Act.REQUEST_WHEN || == Act.REQUEST_WHENEVER,
+                       $msgId : id, $sender : sender, $body : body )  
+        ResponseContent( messageId == $msgId, $fault: fault )
+        ExecutionFault( $faultString: faultString ) from $fault
+        not    PerformativeFail( $msgId ; )
+        $conf: DroolsAgentConfiguration()
+    then
+        ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithNotUnderstoodMessage( $msg,
+                                            $sender,
+                                            ((Request) $body).getAction(),
+                                            $faultString  );
+    if ( LoggerHelper.isDebugEnabled() ) {
+        LoggerHelper.debug( " ### PROTOCOL RULES: NOT UNDERSTOOD I - Internal Fault" + $conf.getAgentId() + " >>>> " + ans );
+    }
+    insert( new MessageAnswer( $msg.getId(), ans ) );
+    retract( $msg );
+end
+
+rule "Not Understood II - because of NoHandlerFault"
+    salience -1200
+    when
+        $msg : ACLMessage( performative == Act.REQUEST || == Act.REQUEST_WHEN || == Act.REQUEST_WHENEVER,
+                       $msgId : id, $sender : sender, $body : body, $act : body.action )
+        ResponseContent( messageId == $msgId, $fault: fault )
+        NoHandlerFault( $faultString: faultString ) from $fault
+        not    PerformativeFail( $msgId ; )
+        $conf: DroolsAgentConfiguration()
+    then
+        ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithNotUnderstoodMessage( $msg,
+                                            $sender,
+                                            (Action) $act,
+                                            $faultString  );
+    if ( LoggerHelper.isDebugEnabled() ) {
+        LoggerHelper.debug( " ### PROTOCOL RULES: NOT UNDERSTOOD II - NoHandlerFault for agent '" + $conf.getAgentId() + "' >>>> " + ans );
+    }
+    insert( new MessageAnswer( $msg.getId(), ans ) );
+    retract( $msg );
+end
+
+rule "Not Understood III"
+salience -1200
+when
+    $msg : ACLMessage( performative == Act.QUERY_IF || == Act.QUERY_REF,
+                       $msgId : id, $sender : sender, $body : body )
+    not    ResponseContent( messageId == $msgId )
+    not    PerformativeFail( $msgId ; )
+    $conf: DroolsAgentConfiguration()
+then
+    ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithNotUnderstoodMessage( $msg,
+                                            $sender,
+                                            null,
+                                            "Routing error : No dedicated session" );
+    if ( LoggerHelper.isDebugEnabled() ) {
+        LoggerHelper.debug( " ### PROTOCOL RULES: NOT UNDERSTOOD III (NO DEDICATED SESSION) " + $conf.getAgentId() + " >>>> " + ans );
+    }
+
+    insert( new MessageAnswer( $msg.getId(), ans ) );
+    retract( $msg );
+end
+
+
+rule "Request Failure"
+salience -1000
+when
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
+                       $msgId : id,
+                       $convoId : conversationId,
+                       $inReplyTo : inReplyTo,
+                       $sender : sender,
+                       $receiver : receiver,
+                       $content : body,
+                       performative == Act.REQUEST )
+    $resp : ResponseContent( messageId == $msgId )
+    $fail : PerformativeFail( messageId == $msgId, $cause : cause )
+    $conf: DroolsAgentConfiguration()
+then
+   ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithFailureMessage( $msg, $sender, ((Request) $content).getAction(), $cause );
+   if (LoggerHelper.isDebugEnabled()) {
+        LoggerHelper.debug(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+   }
+   insert(new MessageAnswer($msg.getId(), ans)); 
+   retract($msg);
+   retract($resp);
+   retract($fail);
+end
+
+rule "Internal Request Failure"
+salience -1000
+when
+    $msg : ACLMessage( messageType == ACLMessage.DEFAULT_ACL_MESSAGE_TYPE,
+                       $msgId : id,
+                       $convoId : conversationId,
+                       $inReplyTo : inReplyTo,
+                       $sender : sender,
+                       $receiver : receiver,
+                       $content : body,
+                       performative == Act.REQUEST )
+    not     ResponseContent( messageId == $msgId )
+    $fail : PerformativeFail( messageId == $msgId, $cause : cause )
+    $conf : DroolsAgentConfiguration()
+then
+   ACLMessage ans = ACLMessageFactory.getInstance().newReplyWithFailureMessage( $msg, $sender, ((Request) $content).getAction(), $cause );
+   if (LoggerHelper.isDebugEnabled()) {
+        LoggerHelper.debug(" ### PROTOCOL RULES: " + $conf.getAgentId() + " >>>> " + ans);
+   }
+   insert(new MessageAnswer($msg.getId(), ans));
+   retract($msg);
+   retract($fail);
+end
+

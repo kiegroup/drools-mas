@@ -26,7 +26,7 @@ import org.drools.mas.body.content.Query;
 import org.drools.mas.util.ACLMessageFactory;
 import org.drools.mas.util.MessageContentEncoder;
 import org.drools.mas.util.MessageContentFactory;
-import org.drools.runtime.rule.Variable;
+import org.kie.api.runtime.rule.Variable;
 
 public class DialogueHelper {
 

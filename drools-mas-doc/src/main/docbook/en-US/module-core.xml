@@ -123,7 +123,7 @@
 
     &lt;bean id="agent1-configuration" class="org.drools.mas.core.DroolsAgentConfiguration"&gt;
         &lt;property name="agentId" value="Agent 1"/&gt;
-        &lt;property name="changeset" value="mainTestAgent_changeset.xml" /&gt;
+        &lt;property name="kieBaseId" value="mainTestAgent_changeset.xml" /&gt;
         &lt;property name="responseInformer" value="org.drools.mas.mock.MockResponseInformer"/&gt;
         &lt;!-- by default the mindNodeLocation is local --&gt; 
         &lt;property name="mindNodeLocation" value="local"/&gt;
@@ -147,16 +147,16 @@
         <para>
             The class DroolsAgentConfiguration is in charge of gathering all the parameters required to build up an agent. Using this
             configuration the DroolsAgentFactory will be in charge of building up the agent instance according the provided configuration.
-            In this example we define an agent called "Agent 1" which will use the "mainTestAgent_changeset.xml" changeset to define the mind session.
+            In this example we define an agent called "Agent 1" which will use the "mainTestAgent_changeset.xml" kieBaseId to define the mind session.
             The mind session will be in charge of coordinating two sub session in this example: session1 and session2 that are defined using the class
-            called DroolsAgentConfiguration$SubSessionDescriptor. Each of these sub sessions needs to specify the sub session name, the sub session changeset
+            called DroolsAgentConfiguration$SubSessionDescriptor. Each of these sub sessions needs to specify the sub session name, the sub session kieBaseId
             and the node where the session will run. For this example the all the sessions that will be created by the Drools Agent Factory will be running
             in the same JVM if the local node is local. The DroolsAgentFactory will use the Grid Services to locate where the "local" node is and it will interact
             with it transparently. 
         </para>
         <para>
-            The mind agent changeset will usually contain the custom content based routing rules for this specific sessions. In this example the 
-            "mainTestAgent_changeset.xml" changeset looks like:
+            The mind agent kieBaseId will usually contain the custom content based routing rules for this specific sessions. In this example the
+            "mainTestAgent_changeset.xml" kieBaseId looks like:
         </para>
         <programlisting language="xml">
             &lt;change-set xmlns='http://drools.org/drools-5.0/change-set'&gt;
@@ -169,7 +169,7 @@
 &lt;/change-set&gt;
         </programlisting>  
         <para>
-            Notice that the changeset include the Core Changeset -> "org/drools/mas/acl_changeset.xml" and the test_cbr.drl rules to 
+            Notice that the kieBaseId include the Core Changeset -> "org/drools/mas/acl_changeset.xml" and the test_cbr.drl rules to
             decide how to route each message that arrives to the agent. The rules defined inside the test_cbr.drl file looks like:
             
         </para>

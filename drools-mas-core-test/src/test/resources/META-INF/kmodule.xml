@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kmodule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://jboss.org/kie/6.0.0/kmodule">
+
+	<kbase name="mainTestAgent"
+	       packages="org.drools.mas.test"
+	       includes="absent_mind"
+	       equalsBehavior="equality"
+	       eventProcessingMode="stream">
+		<ksession name="agent-mind" clockType="realtime" type="stateful" beliefSystem="simple" default="true" />
+	</kbase>
+
+	<kbase name="agent0-kbase1"
+	       packages="org.drools.mas.test.test1"
+	       includes="simple_mind"
+	       equalsBehavior="equality"
+	       eventProcessingMode="stream">
+		<ksession name="session1" clockType="realtime" type="stateful" beliefSystem="simple" />
+	</kbase>
+
+	<kbase name="agent0-kbase2"
+	       packages="org.drools.mas.test.test2"
+	       includes="simple_mind"
+	       equalsBehavior="equality"
+	       eventProcessingMode="stream">
+		<ksession name="session2" clockType="realtime" type="stateful" beliefSystem="simple" />
+	</kbase>
+
+	<kbase name="failureKBase"
+	       packages="failure.main"
+	       includes="absent_mind"
+	       equalsBehavior="equality"
+	       eventProcessingMode="stream">
+		<ksession name="fail-mind" clockType="realtime" type="stateful" beliefSystem="simple" />
+	</kbase>
+
+	<kbase name="failureSub"
+	       packages="failure.sub"
+	       includes="simple_mind"
+	       equalsBehavior="equality"
+	       eventProcessingMode="stream">
+		<ksession name="fail-sub" clockType="realtime" type="stateful" beliefSystem="simple" />
+	</kbase>
+
+
+</kmodule>

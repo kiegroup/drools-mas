@@ -1,0 +1,163 @@
+/*
+ * Copyright 2011 JBoss Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.drools.mas.test.test2;
+
+import mock.MockFact;
+import org.drools.mas.body.content.Action;
+import org.drools.mas.mappers.MyMapArgsEntryType;
+import org.drools.mas.util.LoggerHelper;
+import org.drools.mas.util.helper.SessionLocator;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import org.drools.mas.util.helper.*;
+import org.drools.mas.core.helpers.*;
+
+
+declare MathResponse
+    x : Double
+    y : Double
+    z : Double
+end
+
+declare LocalTrigger
+    x : int
+end
+
+rule "Call Interface"
+when
+    $p : MockFact( $a : age )
+then
+    double $x = Math.sqrt($a);
+    insert( new Double($x*$x) );
+end
+
+rule "Call rules"
+when
+    $p : MockFact( $a : age )
+then
+    insert( new LocalTrigger($a) );
+end
+
+
+rule "Rule Op"
+when
+    $lt : LocalTrigger( $x : x )
+then
+    retract($lt);
+    insert( new Integer($x*$x) );
+end
+
+query squareRoot( Double $x, Double $return  )
+    MathResponse( $x, $return ;)
+end
+
+rule "Action_Request : squareRoot"
+when
+    
+    $a : Action( actionName == "squareRoot",
+                 keySet contains "x", $x : this["x"] >= 0 )
+then
+    System.out.println( " SESSION 2: EXAMPLE RULES (session 2): Executing square root" );
+    LoggerHelper.info( "EXAMPLE RULES (session 2): Executing square root" );
+    insert( new MathResponse( (Double) $x, Math.sqrt( (Double) $x ), 0.0 ) );
+end
+
+
+
+rule "Action_Request : squareRoot - Result "
+    when
+        $s : SessionLocator( $sessionId: sessionId, mind == true )
+        $a : Action( actionName == "squareRoot", $msgId: msgId,
+                 $a1:= argValues[0], $k1:= argNames[0]    )
+        squareRoot(  $a1,  $return ;  )
+        
+    then
+       retract($a);
+       ResponseContent.deliverResponse( $sessionId, $msgId, $return, null );
+end
+
+rule "Action_Request : no logic to deal with this kind request"
+    salience -1000
+when
+    $s : SessionLocator( $sessionId: sessionId, mind == true )
+    $a : Action( $msgId: msgId, $actName : actionName )
+then
+    retract( $a );
+    Fault fault = new NoHandlerFault( $msgId, "No known way to process a request " + $actName );
+    ResponseContent.deliverResponse( $sessionId, $msgId, null, fault );
+end
+
+
+rule "Action_Request : squareRoot_error"
+when
+    $s : SessionLocator( $sessionId: sessionId, mind == true )
+    $a : Action( actionName == "squareRoot", $msgId: msgId ,
+                 keySet contains "x", $x : this["x"] < 0 )
+then
+    retract( $a );
+    Fault fault = new ExecutionFault( $msgId,"can't extract the square root of " + $x );
+    ResponseContent.deliverResponse( $sessionId, $msgId, null, fault );
+end
+
+
+
+query randomSum( Double $x, Double $return, Double $z  )
+    MathResponse( $x, $return, $z; )
+end
+
+
+rule "Action_Request : randomSum"
+when
+    $a : Action( actionName == "randomSum",
+                 keySet contains "x", $x : this["x"]  )
+
+then
+    Double x = (Double) $x;
+    Double z = Math.random();
+    LoggerHelper.info("EXAMPLE RULES (session 2): ACTING II " + x + "   " +z + "  ");
+    insert( new MathResponse(x, x+z, z ) );
+end
+
+rule "Action_Request : randomSum - Result DEBUG"
+    salience -1
+    when
+        $s: SessionLocator( $sessionId: sessionId, mind == true )
+        $a : Action( actionName == "randomSum", $msgId: msgId,
+                 $a1:= argValues[0], $k1:= argNames[0], 
+                $a2:= argValues[1], $k2:= argNames[1], 
+                $a3:= argValues[2], $k3:= argNames[2] 
+             )
+            randomSum(  $a1,  $aa2, $aa3 ;  )
+    then
+       
+       System.out.println(" ###&*&*&*&*&*& SESSION 2: values = a1: "+$a1 + "- a2: "+$a2 + "- a3: "+$a3); 
+end
+
+rule "Log"
+when
+    $o : Object()
+then
+    LoggerHelper.error(" >>> SESSION #2 >>> " + $o);
+end
+
+rule "Clean Strings"
+when
+    $s : String()
+then
+    delete( $s );
+end

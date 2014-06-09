@@ -1,0 +1,84 @@
+/*
+ * Copyright 2011 JBoss Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+    Common declarations for Drools Agents
+*/
+
+package org.drools.mas.core;
+
+import org.drools.mas.ACLMessage;
+import org.kie.api.command.Command;
+import org.kie.api.command.BatchExecutionCommand;
+import java.util.Map;
+
+
+// messages are declared events to handle timestamping
+declare ACLMessage
+    @typesafe( false )
+    @role(event)
+end
+
+
+// reference between a message and the commands to process that message content in a remote session
+declare MessageCommands
+    msgId       : String
+    sessionId   : String
+    cmd         : Command
+end
+
+declare OneShotMessageCommand
+    msgId : String
+    payload : Command
+end
+
+// custom mapping between sessions and domain-specific identifiers (e.g. patient id)
+declare SessionMapping
+    key : String
+    sessionId : String
+end
+
+declare MappingLookup
+    msgId : String
+    key   : String
+end
+
+// association between a message and the session where its contents are to be processed
+declare Destination
+    messageId : String
+    sessionId : String
+end
+
+declare ResponseContent
+    @typesafe(false) 
+end
+
+declare PerformativeFail
+    messageId : String
+    cause     : String
+end
+
+declare MessageAnswer
+    @role(event)
+    messageId : String
+    answer: ACLMessage
+end
+
+query getAnswers( String $msgId, java.util.List $ansList, java.util.List $refList )
+    accumulate( $holder : MessageAnswer( messageId == $msgId, $ans: answer ),
+                          $list    : collectList( $ans ),
+                          $refList : collectList( $holder ) )
+end

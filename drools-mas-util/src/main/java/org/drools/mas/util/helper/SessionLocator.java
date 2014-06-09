@@ -4,7 +4,7 @@
  */
 package org.drools.mas.util.helper;
 
-import org.drools.definition.type.Position;
+import org.kie.api.definition.type.Position;
 
 import java.io.Serializable;
 
@@ -15,35 +15,27 @@ import java.io.Serializable;
 public class SessionLocator implements Serializable {
 
     @Position(0)
-    private String nodeId;
-
-    @Position(1)
     private String sessionId;
-    @Position(2)
+    @Position(1)
     private boolean mind = true;
-    @Position(3)
+    @Position(2)
     private boolean child = false;
+    @Position(3)
+    private boolean mutable = false;
 
-    public SessionLocator(String nodeId, String sessionId) {
-        this.nodeId = nodeId;
+    public SessionLocator( String sessionId ) {
         this.sessionId = sessionId;
     }
 
-    public SessionLocator(String nodeId, String sessionId, boolean mind, boolean child) {
-        this.nodeId = nodeId;
+    public SessionLocator( String sessionId, boolean mind, boolean child ) {
+        this( sessionId, mind, child, false );
+    }
+
+    public SessionLocator( String sessionId, boolean mind, boolean child, boolean mutable ) {
         this.sessionId = sessionId;
         this.mind = mind;
         this.child = child;
-    }
-    
-    
-
-    public String getNodeId() {
-        return nodeId;
-    }
-
-    public void setNodeId(String key) {
-        this.nodeId = key;
+        this.mutable = mutable;
     }
 
     public String getSessionId() {
@@ -69,8 +61,14 @@ public class SessionLocator implements Serializable {
     public void setMind(boolean mind) {
         this.mind = mind;
     }
-    
-    
+
+    public boolean isMutable() {
+        return mutable;
+    }
+
+    public void setMutable( boolean mutable ) {
+        this.mutable = mutable;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -81,9 +79,6 @@ public class SessionLocator implements Serializable {
             return false;
         }
         final SessionLocator other = (SessionLocator) obj;
-        if ((this.nodeId == null) ? (other.nodeId != null) : !this.nodeId.equals(other.nodeId)) {
-            return false;
-        }
         if ((this.sessionId == null) ? (other.sessionId != null) : !this.sessionId.equals(other.sessionId)) {
             return false;
         }
@@ -93,14 +88,13 @@ public class SessionLocator implements Serializable {
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 59 * hash + (this.nodeId != null ? this.nodeId.hashCode() : 0);
         hash = 59 * hash + (this.sessionId != null ? this.sessionId.hashCode() : 0);
         return hash;
     }
 
     @Override
     public String toString() {
-        return "SessionLocator{" + "nodeId=" + nodeId + ", sessionId=" + sessionId + ", mind=" + mind + ", child=" + child + '}';
+        return "SessionLocator{" + ", sessionId=" + sessionId + ", mind=" + mind + ", child=" + child + '}';
     }
 
     

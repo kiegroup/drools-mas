@@ -15,31 +15,38 @@
  */
 package org.drools.mas.core;
 
-import org.drools.io.Resource;
-import org.drools.runtime.StatefulKnowledgeSession;
-import org.drools.*;
-import org.drools.agent.KnowledgeAgent;
-import org.drools.mas.util.ResourceDescriptor;
+import org.drools.mas.core.DroolsAgentConfiguration;
+import org.kie.api.KieBase;
+import org.kie.api.builder.KieBuilder;
+import org.kie.api.builder.KieFileSystem;
+import org.kie.api.io.Resource;
+import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.KieSession;
 
 public interface SessionManager{
     
-    public void init(String id, KnowledgeBase kbase, DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor subDescr);
+    public void init( String sessionId,
+                      String kbaseId,
+                      KieContainer kieContainer,
+                      KieFileSystem kfs,
+                      KieBuilder builder,
+                      KieBase kbase,
+                      DroolsAgentConfiguration conf,
+                      DroolsAgentConfiguration.SubSessionDescriptor subDescr,
+                      boolean isMind );
 
-    public StatefulKnowledgeSession getStatefulKnowledgeSession();
-    
-    public KnowledgeAgent getKnowledgeAgent();
+    public KieSession getKieSession();
 
-    public void addResource(ResourceDescriptor rd);
+    public void addResource( Resource rd );
 
-    public void addResource(String resourceId, Resource res);
+    public void addResource( String resourceId, Resource res );
+
+    public void addRuleByTemplate( String sessionId, String templateName, String id, Object context );
+
+    public void removeResource( String resourceId );
 
     public String getSessionId();
-    
-    /**
-     * Gives the chance to dispose a session after a command was executed.
-     */
-    public void disposeSession();
-    
+
     /**
      * Dispose the session. This method is invoked when the agent is going down.
      */
