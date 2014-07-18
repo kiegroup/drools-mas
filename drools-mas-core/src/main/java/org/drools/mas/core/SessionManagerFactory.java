@@ -1,6 +1,9 @@
 package org.drools.mas.core;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.drools.mas.core.helpers.SessionHelper;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
@@ -23,10 +26,6 @@ public class SessionManagerFactory {
 
     static {
         cpathKieContainer = KieServices.Factory.get().getKieClasspathContainer();
-        if ( cpathKieContainer.verify().hasMessages( Message.Level.ERROR ) ) {
-            System.out.println( cpathKieContainer.verify().getMessages().toString() );
-            System.exit( -1 );
-        }
     }
 
     public static SessionManager create( DroolsAgentConfiguration conf, DroolsAgentConfiguration.SubSessionDescriptor subDescr ) {
@@ -42,7 +41,7 @@ public class SessionManagerFactory {
     // create mind
     public static SessionManager create( String sessionId,
                                          DroolsAgentConfiguration conf ) {
-
+        verify( conf );
         String id = conf.getAgentId();
         String kieBaseId = conf.getKieBaseId();
         if ( kieBaseId == null ) {
@@ -54,6 +53,19 @@ public class SessionManagerFactory {
             id = sessionId;
         }
         return createSessionManager( id, kieBaseId, sessionManagerClassName, conf, null );
+    }
+
+    private static void verify( DroolsAgentConfiguration conf ) {
+        List<String> kbases = new ArrayList<String>( 3 );
+        kbases.add( conf.getKieBaseId() );
+        for ( DroolsAgentConfiguration.SubSessionDescriptor sd : conf.getSubSessions() ) {
+            kbases.add( sd.getKieBaseId() );
+        }
+        if ( cpathKieContainer.verify( kbases.toArray( new String[ kbases.size() ] ) ).hasMessages( Message.Level.ERROR ) ) {
+            System.out.println( cpathKieContainer.verify().getMessages().toString() );
+            System.exit( -1 );
+        }
+
     }
 
     // create subs
